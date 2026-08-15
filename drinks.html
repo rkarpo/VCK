@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fest & Event Rechner PRO</title>
+  <hta:application 
+    id="FestRechnerApp"
+    applicationName="FestEventRechnerPRO"
+    border="thin"
+    borderStyle="normal"
+    caption="yes"
+    icon=""
+    maximizeButton="yes"
+    minimizeButton="yes"
+    showInTaskbar="yes"
+    singleInstance="yes"
+    sysMenu="yes"
+    windowState="normal"
+    scroll="yes"
+  />
+  <style id="main-style">
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-alt: #0b1120;
+      --accent: #38bdf8;
+      --accent-food: #f97316;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --warning: #fbbf24;
+      --border: #334155;
+      --cat-bg: #162032;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1.5rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 780px;
+      width: 100%;
+      background-color: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    
+    /* Top Level Module Switcher (Cocktails vs Food vs Tasks) */
+    .module-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+      background: var(--card-alt);
+      padding: 0.4rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .module-btn {
+      flex: 1;
+      min-width: 140px;
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      padding: 0.8rem;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .module-btn:hover { color: var(--text); }
+    .module-btn.active-drinks {
+      background: var(--accent);
+      color: #0f172a;
+    }
+    .module-btn.active-food {
+      background: var(--accent-food);
+      color: #ffffff;
+    }
+    .module-btn.active-tasks {
+      background: var(--warning);
+      color: #0f172a;
+    }
+
+    /* Inner Tabs System */
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--accent);
+      background: var(--card-alt);
+      border-bottom: 3px solid var(--accent);
+    }
+    .food-mode .tab-btn.active {
+      color: var(--accent-food);
+      border-bottom-color: var(--accent-food);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    h1 { margin: 0; color: var(--accent); font-size: 1.6rem; }
+    .food-mode h1 { color: var(--accent-food); }
+    
+    .status-badge {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      border: 1px solid var(--success);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn-action {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-action:hover { background: #334155; }
+    .btn-pdf { background: var(--accent); color: #0f172a; border: none; }
+    .food-mode .btn-pdf { background: var(--accent-food); color: #fff; }
+    .btn-pdf:hover { opacity: 0.9; }
+    .btn-master-pdf { background: var(--warning); color: #0f172a; border: none; font-weight: bold; }
+    .btn-master-pdf:hover { opacity: 0.9; }
+    .btn-optimize { color: var(--warning); border-color: var(--warning); background: rgba(251, 191, 36, 0.1); }
+    .btn-optimize:hover { background: var(--warning); color: #0f172a; }
+
+    .section-title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Card Styling */
+    .item-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      cursor: grab;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .item-card:active { cursor: grabbing; }
+    .item-card.dragging { opacity: 0.4; border: 2px dashed var(--accent); }
+    .drag-handle { cursor: grab; color: var(--muted); font-size: 1.2rem; margin-right: 0.5rem; user-select: none; }
+
+    .item-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; }
+    .item-title { font-weight: bold; font-size: 1.2rem; color: var(--accent); display: flex; align-items: center; flex-grow: 1; gap: 0.4rem; }
+    .food-mode .item-title { color: var(--accent-food); }
+    .item-img-preview { width: 32px; height: 32px; object-fit: cover; border-radius: 4px; }
+    .item-controls { display: flex; align-items: center; gap: 0.8rem; }
+    .item-qty-input { width: 75px; padding: 0.4rem; font-size: 1.1rem; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-weight: bold; }
+    
+    .btn-edit { background: #334155; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+    
+    .recipe-editor { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: none; }
+    .editor-top-bar { display: flex; gap: 0.5rem; margin-bottom: 0.8rem; align-items: center; flex-wrap: wrap; }
+    .ingredient-row { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; align-items: center; }
+    
+    input, select, button, textarea { padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border); background-color: var(--card-bg); color: var(--text); font-size: 0.95rem; }
+    .ing-name { flex: 2; min-width: 120px; }
+    .ing-amount { flex: 1; min-width: 60px; }
+    .ing-unit { flex: 1.2; min-width: 100px; }
+    
+    .btn-add { background: var(--accent); color: #0f172a; font-weight: bold; border: none; cursor: pointer; margin-top: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; }
+    .food-mode .btn-add { background: var(--accent-food); color: #fff; }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); cursor: pointer; padding: 0.5rem 0.7rem; }
+
+    /* Fixed Costs Section */
+    .fixed-costs-box {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .fixed-cost-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      align-items: center;
+    }
+
+    /* Shopping List Section */
+    .results { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--accent); }
+    .food-mode .results { border-top-color: var(--accent-food); }
+    .results-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+    .results h2 { margin: 0; color: var(--success); font-size: 1.4rem; }
+
+    .buyer-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+      background: var(--card-alt);
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    /* Cost Toggle */
+    .toggle-container {
+      display: flex; align-items: center; gap: 0.6rem; font-weight: 600; color: var(--warning);
+      background: rgba(251, 191, 36, 0.1); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .3s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--warning); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    .view-switcher { display: flex; gap: 0.5rem; width: 100%; margin-bottom: 1rem; }
+    .view-btn { flex: 1; padding: 0.6rem 1rem; border: 1px solid var(--border); background: var(--card-alt); color: var(--muted); border-radius: 6px; cursor: pointer; font-weight: bold; text-align: center; transition: all 0.2s; }
+    .view-btn.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+    .food-mode .view-btn.active { background: var(--accent-food); color: #fff; border-color: var(--accent-food); }
+    
+    .category-group { background: var(--cat-bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
+    .category-header {
+      background: #1e293b;
+      padding: 0.75rem 1rem;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .category-cost-badge {
+      font-size: 1rem;
+      color: var(--warning);
+      font-weight: bold;
+    }
+    .subcard-header { background: #0f172a; padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); }
+    .subcard-title { font-weight: bold; font-size: 1.1rem; color: var(--accent); display: flex; align-items: center; gap: 0.4rem; }
+    .food-mode .subcard-title { color: var(--accent-food); }
+    .subcard-cost { font-size: 0.9rem; color: var(--warning); margin-top: 0.3rem; }
+
+    .result-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px dashed var(--border); }
+    .result-item:last-child { border-bottom: none; }
+    .result-name { font-weight: 600; font-size: 1.05rem; }
+    .result-buyer-tag { font-size: 0.8rem; background: rgba(56, 189, 248, 0.15); color: var(--accent); padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; font-weight: normal; }
+    .result-comm-tag { font-size: 0.8rem; background: rgba(251, 191, 36, 0.2); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.4); padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; font-weight: normal; }
+    .result-total { font-size: 0.9rem; color: var(--muted); margin-top: 0.2rem; }
+    .result-buy { font-size: 1.05rem; font-weight: bold; color: var(--accent); text-align: right; }
+    .food-mode .result-buy { color: var(--accent-food); }
+    .result-cost { font-size: 0.95rem; color: var(--warning); margin-top: 0.2rem; text-align: right; }
+    
+    .grand-total-box { background: rgba(251, 191, 36, 0.15); border: 2px solid var(--warning); border-radius: 8px; padding: 1rem; text-align: right; margin-top: 1.5rem; }
+    .grand-total-title { color: var(--muted); font-size: 1rem; font-weight: bold; }
+    .grand-total-amount { color: var(--warning); font-size: 1.8rem; font-weight: bold; margin-top: 0.2rem; }
+    .grand-total-avg { color: var(--text); font-size: 0.95rem; margin-top: 0.4rem; font-weight: bold; }
+    .print-checkbox { display: none; }
+
+    /* Price Manager & Task Manager */
+    .price-row, .task-card { display: flex; justify-content: space-between; align-items: center; background: var(--card-alt); border: 1px solid var(--border); padding: 0.8rem; border-radius: 8px; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.6rem; }
+    .price-info { flex: 2; min-width: 150px; }
+    .price-name { font-weight: bold; font-size: 1.1rem; color: var(--accent); }
+    .food-mode .price-name { color: var(--accent-food); }
+    .price-unit { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+    .price-input-wrapper { display: flex; align-items: center; gap: 0.5rem; flex: 2; justify-content: flex-end; min-width: 280px; flex-wrap: wrap; }
+    .price-input { width: 85px; text-align: right; font-weight: bold; }
+    .buyer-input { width: 110px; font-size: 0.85rem; }
+
+    /* Export Code Tab */
+    .export-textarea { width: 100%; height: 350px; background: #0f172a; color: #38bdf8; font-family: monospace; font-size: 0.85rem; resize: vertical; margin-bottom: 1rem; }
+
+    /* PDF Print Styles (Kein ungewollter Seitenumbruch mehr) */
+    @media print {
+      @page { margin: 1.5cm; size: A4 portrait; }
+      body { background: #ffffff !important; color: #0f172a !important; padding: 0 !important; }
+      .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; background: #ffffff !important; box-shadow: none !important; }
+      .module-bar, .tab-bar, .status-badge, .header-actions, .btn-edit, .btn-add, .recipe-editor,
+      .view-switcher, .drag-handle, .btn-danger, .btn-reset, .btn-action,
+      .section-title-bar button, .item-controls label, .toggle-container, .fixed-costs-box, .buyer-filter-bar { display: none !important; }
+      #tab-pricing, #tab-selling, #tab-export { display: none !important; }
+      #tab-tasks { display: block !important; }
+      h1 { color: #0f172a !important; font-size: 1.8rem !important; border-bottom: 2px solid #0f172a; padding-bottom: 0.4rem; margin-bottom: 1rem !important; }
+      .item-card, .task-card { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; border-radius: 6px !important; padding: 0.5rem 0.8rem !important; margin-bottom: 0.4rem !important; page-break-inside: avoid; }
+      .item-title { color: #0f172a !important; font-size: 1rem !important; }
+      input.item-qty-input { border: none !important; background: transparent !important; color: #0f172a !important; font-weight: bold !important; padding: 0 !important; width: auto !important; text-align: right !important; font-size: 1rem !important; }
+      .results { border-top: 2px solid #0f172a !important; margin-top: 1.5rem !important; padding-top: 1rem !important; }
+      .results h2 { color: #0f172a !important; font-size: 1.4rem !important; margin-bottom: 0.8rem !important; }
+      .category-group { background: #ffffff !important; border: 1px solid #cbd5e1 !important; border-radius: 6px !important; margin-bottom: 0.8rem !important; page-break-inside: avoid; }
+      .category-header, .subcard-header { background: #f1f5f9 !important; color: #0f172a !important; border-bottom: 1px solid #cbd5e1 !important; font-size: 1rem !important; padding: 0.4rem 0.8rem !important; }
+      .category-cost-badge { color: #0f172a !important; font-weight: bold !important; }
+      .subcard-title, .subcard-cost { color: #0f172a !important; }
+      .result-item { padding: 0.5rem 0.8rem !important; border-bottom: 1px dashed #cbd5e1 !important; }
+      .result-name, .result-cost { color: #0f172a !important; font-weight: bold !important; }
+      .result-total { color: #64748b !important; font-size: 0.85rem !important; }
+      .result-buy { color: #0284c7 !important; font-size: 1rem !important; font-weight: bold !important; }
+      .grand-total-box { border: 2px solid #0f172a !important; background: #f8fafc !important; }
+      .print-checkbox { display: inline-block !important; width: 14px; height: 14px; border: 1.5px solid #64748b; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="app-container">
+  
+  <!-- HÖCHSTES LEVEL SWITCHER: COCKTAILS VS ESSEN VS AUFGABEN -->
+  <div class="module-bar">
+    <button class="module-btn active-drinks" id="btnModuleDrinks" onclick="switchMainModule('drinks')">🍹 Cocktails &amp; Drinks</button>
+    <button class="module-btn" id="btnModuleFood" onclick="switchMainModule('food')">🍽️ Essen &amp; Speisen</button>
+    <button class="module-btn" id="btnModuleTasks" onclick="switchMainModule('tasks')">📌 Aufgaben &amp; To-Dos</button>
+  </div>
+
+  <div class="header">
+    <div>
+      <h1 id="mainTitle">🎉 Cocktail &amp; Fest Rechner</h1>
+      <span class="status-badge" id="statusBadge" style="margin-top: 0.5rem;">
+        💾 Automatisch gespeichert
+      </span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-action btn-master-pdf" onclick="printFullEventPDF()">🌐 Event Gesamt-PDF</button>
+      <button class="btn-action btn-pdf" onclick="window.print()">📄 Modul PDF</button>
+      <button class="btn-action" onclick="resetToDefaults()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="btnTabCalc" onclick="switchMainTab('calc')">🧮 Rechner</button>
+    <button class="tab-btn" id="btnTabPrice" onclick="switchMainTab('price')">💸 Einkaufspreise</button>
+    <button class="tab-btn" id="btnTabSell" onclick="switchMainTab('sell')">📊 Verkauf &amp; Gewinn</button>
+    <button class="tab-btn" id="btnTabExport" onclick="switchMainTab('export')">💻 HTML Code</button>
+  </div>
+
+  <!-- TAB 1: RECHNER -->
+  <div id="tab-calculator" class="tab-content active">
+    <div class="section-title-bar">
+      <label id="lblRecipeList" style="color: var(--muted); font-size: 0.95rem; font-weight: 600;">Eure Rezepte:</label>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="btn-action btn-optimize" id="btnOptimize" onclick="optimizeCurrentModule()">🪄 Restmengen optimieren</button>
+        <button class="btn-action" id="btnAddItem" onclick="addNewItem()">+ Eintrag hinzufügen</button>
+      </div>
+    </div>
+    <div id="itemsList"></div>
+
+    <div class="results">
+      <div class="results-header">
+        <h2 id="shoppingListTitle">🛒 Einkaufsliste</h2>
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+          <button class="btn-action btn-master-pdf" style="padding:0.4rem 0.7rem;" onclick="printFullEventPDF()">🌐 Event Gesamt-PDF</button>
+          <button class="btn-action btn-pdf" style="padding:0.4rem 0.7rem;" onclick="printPersonalizedPDF()">📄 Modul PDF</button>
+          <div class="toggle-container">
+            <span>Kosten:</span>
+            <label class="switch">
+              <input type="checkbox" id="costToggle" onchange="calculateShoppingList()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buyer Filter Bar -->
+      <div class="buyer-filter-bar">
+        <label style="font-size:0.9rem; font-weight:bold; color:var(--text);">👤 Einkäufer / Laden Filter:</label>
+        <select id="buyerFilterSelect" onchange="onBuyerFilterChanged()" style="flex:1;">
+          <option value="ALL">Alle Einkäufer &amp; Läden anzeigen</option>
+        </select>
+      </div>
+
+      <div class="view-switcher">
+        <button class="view-btn active" id="btnViewCombined" onclick="switchView('combined')">📦 Gesamt-Einkauf</button>
+        <button class="view-btn" id="btnViewPerDrink" onclick="switchView('perDrink')">📋 Gestaffelt pro Rezept</button>
+      </div>
+      <div id="resultsList"><p style="color: var(--muted);">Lädt...</p></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: PREISE & EINKÄUFER VERWALTEN -->
+  <div id="tab-pricing" class="tab-content">
+    <h2 style="color: var(--accent);" id="lblPriceTitle">Einkaufspreise &amp; Einkäufer festlegen</h2>
+    <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+      Trage hier Supermarktpreise, <b>Einkäufer / Laden</b> ein und markiere Zutaten auf <b>Kommission</b> (Retoure ohne finanzielles Risiko bei Nicht-Verkauf)!
+    </p>
+    <div id="pricingList"></div>
+
+    <!-- FIXKOSTEN SECTION IN TAB 2 -->
+    <div class="fixed-costs-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+        <span style="font-weight:bold; font-size:1.05rem; color:var(--warning);">📌 Fixkosten (Miete, Fritteuse, Öl, Strom etc.)</span>
+        <button class="btn-action" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="addFixedCostRow()">+ Fixkosten-Posten</button>
+      </div>
+      <div id="fixedCostsList"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: VERKAUF & GEWINN (GESAMT-EVENT ÜBERSICHT) -->
+  <div id="tab-selling" class="tab-content">
+    <h2 style="color: var(--accent);" id="lblSellTitle">Verkaufspreise &amp; Event-Gewinnberechnung</h2>
+    <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+      Hier hast du die Finanzen deines gesamten Fests (Drinks + Speisen) auf einen Blick! Lege hier deine geplanten Verkaufspreise für alle Angebote fest.
+    </p>
+    <!-- Combined Event Master Summary -->
+    <div id="sellingEventMasterSummary" style="margin-bottom:1.5rem;"></div>
+    <!-- Combined Drinks & Food Sections List -->
+    <div id="sellingList"></div>
+  </div>
+
+  <!-- TAB 4: AUFGABEN & ZUSTÄNDIGKEITEN (MODUL-EBENE) -->
+  <div id="tab-tasks" class="tab-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+      <div>
+        <h2 style="color: var(--warning); margin:0;" id="taskTitleHeader">📌 Event-Aufgaben &amp; To-Dos</h2>
+        <p style="color: var(--muted); font-size: 0.95rem; margin-top:0.3rem; margin-bottom:0;">
+          Erstelle To-Dos fürs Fest, teile Helfer zu und drucke Aufgabenlisten aus.
+        </p>
+      </div>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button class="btn-action btn-pdf" onclick="printTasksPDF()">📄 Aufgaben PDF</button>
+        <button class="btn-action" style="background:var(--warning); color:#0f172a; font-weight:bold; border:none;" onclick="addTaskRow()">+ Aufgabe hinzufügen</button>
+      </div>
+    </div>
+
+    <!-- Task Filter Bar -->
+    <div class="buyer-filter-bar">
+      <label style="font-size:0.9rem; font-weight:bold; color:var(--text);">👤 Verantwortlicher Filter:</label>
+      <select id="taskFilterSelect" onchange="renderTasksScreen()" style="flex:1;">
+        <option value="ALL">Alle Aufgaben anzeigen</option>
+      </select>
+    </div>
+
+    <div id="tasksList"></div>
+  </div>
+
+  <!-- TAB 5: HTML EXPORT -->
+  <div id="tab-export" class="tab-content">
+    <h2 style="color: var(--accent);" id="lblExportTitle">Code Exportieren &amp; Speichern</h2>
+    <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 1rem;">
+      Hier ist dein komplett personalisierter HTML-Code, der <b>alle aktuellen Drinks, Speisen, Einkäufer, Fixkosten, Kommissions-Flags, Aufgaben, Einkaufs- und Verkaufspreise hart einprogrammiert hat</b>. Klicke auf Kopieren, überschreibe deine alte Datei im Texteditor und dieser Stand wird deine neue Werkseinstellung!
+    </p>
+    <button class="btn-action" style="background: var(--success); color: white; border: none; font-size: 1rem; padding: 0.6rem 1rem; margin-bottom: 1rem; width: 100%;" onclick="copyHTMLCode()">📋 HTML Code kopieren</button>
+    <textarea id="htmlOutput" class="export-textarea" readonly="" spellcheck="false"></textarea>
+  </div>
+</div>
+
+<script id="main-script">
+  const originalBodyHTML = document.getElementById('app-container').outerHTML;
+
+  const DRINKS_STORAGE_KEY     = 'fest_calc_drinks_v29';
+  const FOOD_STORAGE_KEY       = 'fest_calc_food_v29';
+  const PRICE_STORAGE_KEY      = 'fest_calc_prices_v29';
+  const SELLPRICE_STORAGE_KEY  = 'fest_calc_sellprices_v29';
+  const FIXEDCOST_STORAGE_KEY  = 'fest_calc_fixedcosts_v29';
+  const BUYER_STORAGE_KEY      = 'fest_calc_buyers_v29';
+  const COMMISSION_STORAGE_KEY = 'fest_calc_commission_v29';
+  const TASKS_STORAGE_KEY      = 'fest_calc_tasks_v29';
+  const HTA_SAVE_FILENAME      = 'fest_rechner_speicherstand.json';
+
+  let currentModule = 'drinks'; // 'drinks', 'food', oder 'tasks'
+  let activeView    = 'combined';
+  let draggedCardIndex = null;
+  const CURRENCY = '€';
+  const DEFAULT_DRINK_SELL_PRICE = 6.00;
+
+  // --- HELPER TO REMOVE DUPLICATE EMOJIS FROM NAMES ---
+  function getCleanTitle(name, image) {
+    if (!name) return "";
+    let clean = name.trim();
+    if (image) {
+      const imgTrim = image.trim();
+      if (clean.startsWith(imgTrim)) {
+        clean = clean.substring(imgTrim.length).trim();
+      }
+    }
+    return clean;
+  }
+
+  // --- HTA DIRECT FILE SYSTEM SAVE / LOAD LOGIC ---
+  function isHTAMode() {
+    return typeof ActiveXObject !== "undefined";
+  }
+
+  function saveFileHTA(filename, content) {
+    try {
+      var stream = new ActiveXObject("ADODB.Stream");
+      stream.Type = 2; // Text
+      stream.Charset = "utf-8";
+      stream.Open();
+      stream.WriteText(content);
+      
+      var fso = new ActiveXObject("Scripting.FileSystemObject");
+      var path = unescape(window.location.pathname).replace(/^\/([A-Z]:)/i, "$1");
+      var dir = fso.GetParentFolderName(path);
+      var fullPath = dir + "\\" + filename;
+      
+      stream.SaveToFile(fullPath, 2); // 2 = Overwrite
+      stream.Close();
+    } catch(e) {
+      console.error("HTA Save Error:", e);
+    }
+  }
+
+  function readFileHTA(filename) {
+    try {
+      var fso = new ActiveXObject("Scripting.FileSystemObject");
+      var path = unescape(window.location.pathname).replace(/^\/([A-Z]:)/i, "$1");
+      var dir = fso.GetParentFolderName(path);
+      var fullPath = dir + "\\" + filename;
+      
+      if (fso.FileExists(fullPath)) {
+        var stream = new ActiveXObject("ADODB.Stream");
+        stream.Type = 2; // Text
+        stream.Charset = "utf-8";
+        stream.Open();
+        stream.LoadFromFile(fullPath);
+        var text = stream.ReadText();
+        stream.Close();
+        return text;
+      }
+    } catch(e) {
+      console.error("HTA Read Error:", e);
+    }
+    return null;
+  }
+
+  function syncHTASave() {
+    if (!isHTAMode()) return;
+    try {
+      var masterData = {
+        drinks: loadSavedData('drinks'),
+        food: loadSavedData('food'),
+        prices: loadPrices(),
+        sellPrices: loadSellPrices(),
+        fixedCosts: loadFixedCosts(),
+        buyers: loadBuyers(),
+        commission: loadCommission(),
+        tasks: loadTasks()
+      };
+      saveFileHTA(HTA_SAVE_FILENAME, JSON.stringify(masterData, null, 2));
+    } catch(e) {}
+  }
+
+  function initHTAData() {
+    if (!isHTAMode()) return;
+    document.getElementById('statusBadge').innerText = "💾 HTA-Modus: Direkt auf Festplatte gespeichert";
+    var fileContent = readFileHTA(HTA_SAVE_FILENAME);
+    if (fileContent) {
+      try {
+        var data = JSON.parse(fileContent);
+        if (data.drinks) localStorage.setItem(DRINKS_STORAGE_KEY, JSON.stringify(data.drinks));
+        if (data.food) localStorage.setItem(FOOD_STORAGE_KEY, JSON.stringify(data.food));
+        if (data.prices) localStorage.setItem(PRICE_STORAGE_KEY, JSON.stringify(data.prices));
+        if (data.sellPrices) localStorage.setItem(SELLPRICE_STORAGE_KEY, JSON.stringify(data.sellPrices));
+        if (data.fixedCosts) localStorage.setItem(FIXEDCOST_STORAGE_KEY, JSON.stringify(data.fixedCosts));
+        if (data.buyers) localStorage.setItem(BUYER_STORAGE_KEY, JSON.stringify(data.buyers));
+        if (data.commission) localStorage.setItem(COMMISSION_STORAGE_KEY, JSON.stringify(data.commission));
+        if (data.tasks) localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(data.tasks));
+      } catch(e) {}
+    }
+  }
+
+  // --- DATA_DRINKS_START ---
+  const defaultDrinks = [
+    {
+        "id": "item_0",
+        "name": "Aperol Spritz",
+        "image": "🍊",
+        "glasses": 300,
+        "ingredients": [
+            { "name": "Prosecco", "amount": 9, "unit": "cl" },
+            { "name": "Aperol", "amount": 6, "unit": "cl" },
+            { "name": "Soda / Mineralwasser", "amount": 3, "unit": "cl" },
+            { "name": "Orangen", "amount": 1, "unit": "Scheibe" },
+            { "name": "Eiswürfel", "amount": 4, "unit": "Eiswürfel" }
+        ]
+    },
+    {
+        "id": "item_1",
+        "name": "Erdbeer Mojito",
+        "image": "🍓",
+        "glasses": 180,
+        "ingredients": [
+            { "name": "Havana 3 Años", "amount": 4, "unit": "cl" },
+            { "name": "Erdbeersirup", "amount": 2, "unit": "EL (cl)" },
+            { "name": "Rohrzucker", "amount": 0.5, "unit": "EL (g)" },
+            { "name": "Soda / Mineralwasser", "amount": 6, "unit": "cl" },
+            { "name": "Limetten", "amount": 3, "unit": "Stück (geachtelt)" },
+            { "name": "Minze", "amount": 0.33, "unit": "Zweige" },
+            { "name": "Crushed Ice", "amount": 150, "unit": "g" }
+        ]
+    },
+    {
+        "id": "item_2",
+        "name": "Gin & Tonic",
+        "image": "🥒",
+        "glasses": 50,
+        "ingredients": [
+            { "name": "Gin", "amount": 4, "unit": "cl" },
+            { "name": "Tonic Water", "amount": 15, "unit": "cl" },
+            { "name": "Gurken", "amount": 1, "unit": "Scheibe" },
+            { "name": "Eiswürfel", "amount": 4, "unit": "Eiswürfel" }
+        ]
+    },
+    {
+        "id": "item_3",
+        "name": "Hibiskus Gin",
+        "image": "🌺",
+        "glasses": 50,
+        "ingredients": [
+            { "name": "Gin", "amount": 4, "unit": "cl" },
+            { "name": "Hibiskussirup", "amount": 2, "unit": "EL (cl)" },
+            { "name": "Tonic Water", "amount": 15, "unit": "cl" },
+            { "name": "Gurken", "amount": 1, "unit": "Scheibe" },
+            { "name": "Eiswürfel", "amount": 4, "unit": "Eiswürfel" }
+        ]
+    }
+];
+  // --- DATA_DRINKS_END ---
+
+  // --- DATA_FOOD_START ---
+  const defaultFood = [
+    {
+        "id": "item_0",
+        "name": "Pommes Frites",
+        "image": "🍟",
+        "glasses": 200,
+        "ingredients": [
+            { "name": "Pommes (TK)", "amount": 200, "unit": "g" },
+            { "name": "Mayonnaise / Ketchup", "amount": 1, "unit": "Packung" },
+            { "name": "Pappteller", "amount": 1, "unit": "Stück" }
+        ]
+    },
+    {
+        "id": "item_1",
+        "name": "Kartoffelnester mit Quark",
+        "image": "🥔",
+        "glasses": 100,
+        "ingredients": [
+            { "name": "Kartoffeln", "amount": 200, "unit": "g" },
+            { "name": "Kräuterquark", "amount": 30, "unit": "g" },
+            { "name": "Pappteller", "amount": 1, "unit": "Stück" },
+            { "name": "Holzbesteck", "amount": 1, "unit": "Stück" }
+        ]
+    }
+];
+  // --- DATA_FOOD_END ---
+
+  // --- DATA_PRICES_START ---
+  const defaultPrices = {
+    "Havana 3 Años": 10.99,
+    "Erdbeersirup": 5.99,
+    "Rohrzucker": 3,
+    "Soda / Mineralwasser": 0.35,
+    "Limetten": 0.4,
+    "Minze": 0.2,
+    "Crushed Ice": 2.99,
+    "Prosecco": 3.99,
+    "Aperol": 8.99,
+    "Orangen": 0.2,
+    "Eiswürfel": 2.99,
+    "Gin": 10.99,
+    "Tonic Water": 2.99,
+    "Gurken": 1,
+    "Hibiskussirup": 12.99,
+    "Pommes (TK)": 2.2,
+    "Mayonnaise / Ketchup": 0.15,
+    "Pappteller": 0.08,
+    "Kartoffeln": 1.5,
+    "Kräuterquark": 1.2,
+    "Holzbesteck": 0.05
+};
+  // --- DATA_PRICES_END ---
+
+  // --- DATA_SELLPRICES_START ---
+  const defaultSellPrices = {
+    "drinks_item_0": 6,
+    "drinks_item_1": 6,
+    "drinks_item_2": 6,
+    "drinks_item_3": 6,
+    "food_item_0": 4,
+    "food_item_1": 5,
+    "item_0": 3,
+    "item_1": 3,
+    "item_2": 6,
+    "item_3": 6,
+    "pommes": 4,
+    "kartoffelnester": 5,
+    "pulledpork": 8.5
+};
+  // --- DATA_SELLPRICES_END ---
+
+  // --- DATA_FIXEDCOSTS_START ---
+  const defaultFixedCosts = {
+    "drinks": [
+        { "id": "fc_d1", "name": "Bar-Equipment & Kühlung", "amount": 30 }
+    ],
+    "food": [
+        { "id": "fc_f2", "name": "Fritteusen-Speiseöl", "amount": 25 }
+    ]
+};
+  // --- DATA_FIXEDCOSTS_END ---
+
+  // --- DATA_BUYERS_START ---
+  const defaultBuyers = {
+    "Havana 3 Años": "Marco",
+    "Erdbeersirup": "Marco",
+    "Rohrzucker": "Marco",
+    "Soda / Mineralwasser": "Marco",
+    "Limetten": "Frank",
+    "Minze": "Marco",
+    "Crushed Ice": "Frank",
+    "Prosecco": "Jochen",
+    "Aperol": "Frank",
+    "Orangen": "Frank",
+    "Eiswürfel": "Frank",
+    "Gin": "Jochen",
+    "Tonic Water": "Jochen",
+    "Gurken": "Frank",
+    "Hibiskussirup": "Marco",
+    "Pommes (TK)": "Frank",
+    "Mayonnaise / Ketchup": "Frank",
+    "Pappteller": "Eddie",
+    "Kartoffeln": "Eddie",
+    "Kräuterquark": "Frank",
+    "Holzbesteck": "Eddie"
+};
+  // --- DATA_BUYERS_END ---
+
+  // --- DATA_COMMISSION_START ---
+  const defaultCommission = {
+    "Prosecco": true,
+    "Aperol": false,
+    "Gin": true,
+    "Tonic Water": true
+};
+  // --- DATA_COMMISSION_END ---
+
+  // --- DATA_TASKS_START ---
+  const defaultTasks = [];
+  // --- DATA_TASKS_END ---
+
+  const drinkUnitOptions = ["cl", "EL (cl)", "EL (g)", "Scheibe", "Stück (geachtelt)", "Stück", "Zweige", "g", "Eiswürfel"];
+  const foodUnitOptions  = ["g", "kg", "Stück", "Scheibe", "Packung", "EL (g)", "EL (cl)", "cl", "ml", "Dose"];
+
+  // --- LOCAL STORAGE & PERSISTENCE HELPERS ---
+  function loadSavedData(module) {
+    const key = (module === 'drinks') ? DRINKS_STORAGE_KEY : FOOD_STORAGE_KEY;
+    const fallback = (module === 'drinks') ? defaultDrinks : defaultFood;
+    const saved = localStorage.getItem(key);
+    if (saved) { try { return JSON.parse(saved); } catch (e) { return fallback; } }
+    return fallback;
+  }
+  function saveDataForModule(module, data) {
+    const key = (module === 'drinks') ? DRINKS_STORAGE_KEY : FOOD_STORAGE_KEY;
+    localStorage.setItem(key, JSON.stringify(data));
+    syncHTASave();
+  }
+  function loadPrices() {
+    const saved = localStorage.getItem(PRICE_STORAGE_KEY);
+    let prices = {};
+    if (saved) { try { prices = JSON.parse(saved); } catch (e) { prices = {}; } }
+    return Object.assign({}, defaultPrices, prices);
+  }
+  function savePrices(pricesObj) {
+    localStorage.setItem(PRICE_STORAGE_KEY, JSON.stringify(pricesObj));
+    syncHTASave();
+  }
+  function loadSellPrices() {
+    const saved = localStorage.getItem(SELLPRICE_STORAGE_KEY);
+    let sellPrices = {};
+    if (saved) { try { sellPrices = JSON.parse(saved); } catch (e) { sellPrices = {}; } }
+    return Object.assign({}, defaultSellPrices, sellPrices);
+  }
+  function saveSellPrices(sellPricesObj) {
+    localStorage.setItem(SELLPRICE_STORAGE_KEY, JSON.stringify(sellPricesObj));
+    syncHTASave();
+  }
+  function loadFixedCosts() {
+    const saved = localStorage.getItem(FIXEDCOST_STORAGE_KEY);
+    let fc = {};
+    if (saved) { try { fc = JSON.parse(saved); } catch (e) { fc = defaultFixedCosts; } }
+    return Object.assign({ drinks: [], food: [] }, defaultFixedCosts, fc);
+  }
+  function saveFixedCosts(fcObj) {
+    localStorage.setItem(FIXEDCOST_STORAGE_KEY, JSON.stringify(fcObj));
+    syncHTASave();
+  }
+  function loadBuyers() {
+    const saved = localStorage.getItem(BUYER_STORAGE_KEY);
+    let buyers = {};
+    if (saved) { try { buyers = JSON.parse(saved); } catch (e) { buyers = {}; } }
+    return Object.assign({}, defaultBuyers, buyers);
+  }
+  function saveBuyers(buyersObj) {
+    localStorage.setItem(BUYER_STORAGE_KEY, JSON.stringify(buyersObj));
+    syncHTASave();
+  }
+  function loadCommission() {
+    const saved = localStorage.getItem(COMMISSION_STORAGE_KEY);
+    let comm = {};
+    if (saved) { try { comm = JSON.parse(saved); } catch (e) { comm = {}; } }
+    return Object.assign({}, defaultCommission, comm);
+  }
+  function saveCommission(commObj) {
+    localStorage.setItem(COMMISSION_STORAGE_KEY, JSON.stringify(commObj));
+    syncHTASave();
+  }
+  function loadTasks() {
+    const saved = localStorage.getItem(TASKS_STORAGE_KEY);
+    if (saved) { try { return JSON.parse(saved); } catch (e) { return defaultTasks; } }
+    return defaultTasks;
+  }
+  function saveTasks(tasksArr) {
+    localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasksArr));
+    syncHTASave();
+  }
+
+  // --- TOP-LEVEL MODULE SWITCHER (DRINKS / FOOD / TASKS) ---
+  function switchMainModule(mod) {
+    currentModule = mod;
+    const body = document.body;
+    
+    document.getElementById('btnModuleDrinks').className = 'module-btn' + (mod === 'drinks' ? ' active-drinks' : '');
+    document.getElementById('btnModuleFood').className   = 'module-btn' + (mod === 'food' ? ' active-food' : '');
+    document.getElementById('btnModuleTasks').className  = 'module-btn' + (mod === 'tasks' ? ' active-tasks' : '');
+
+    const tabBar = document.querySelector('.tab-bar');
+    const calcTab = document.getElementById('tab-calculator');
+    const priceTab = document.getElementById('tab-pricing');
+    const sellTab = document.getElementById('tab-selling');
+    const tasksTab = document.getElementById('tab-tasks');
+    const exportTab = document.getElementById('tab-export');
+
+    if (mod === 'tasks') {
+      body.classList.remove('food-mode');
+      document.getElementById('mainTitle').innerText = "📌 Event Aufgaben & To-Dos";
+      tabBar.style.display = 'none'; // Sub-Tab-Leiste ausblenden
+
+      calcTab.classList.remove('active');
+      priceTab.classList.remove('active');
+      sellTab.classList.remove('active');
+      exportTab.classList.remove('active');
+      tasksTab.classList.add('active');
+
+      renderTasksScreen();
+    } else {
+      tabBar.style.display = 'flex'; // Sub-Tab-Leiste einblenden
+      tasksTab.classList.remove('active');
+
+      if (mod === 'food') {
+        body.classList.add('food-mode');
+        document.getElementById('mainTitle').innerText = "🍽️ Fest Speisen & Food Rechner";
+        document.getElementById('lblRecipeList').innerText = "Eure Speisen-Rezepte:";
+        document.getElementById('btnAddItem').innerText = "+ Speise hinzufügen";
+      } else {
+        body.classList.remove('food-mode');
+        document.getElementById('mainTitle').innerText = "🎉 Cocktail & Fest Rechner";
+        document.getElementById('lblRecipeList').innerText = "Eure Getränke-Rezepte:";
+        document.getElementById('btnAddItem').innerText = "+ Drink hinzufügen";
+      }
+
+      renderItems();
+      updateBuyerFilterDropdown();
+      
+      const activeTabBtn = document.querySelector('.tab-btn.active');
+      const activeTabId = activeTabBtn ? activeTabBtn.id : 'btnTabCalc';
+      if (activeTabId === 'btnTabCalc') switchMainTab('calc');
+      else if (activeTabId === 'btnTabPrice') switchMainTab('price');
+      else if (activeTabId === 'btnTabSell') switchMainTab('sell');
+      else if (activeTabId === 'btnTabExport') switchMainTab('export');
+    }
+  }
+
+  // --- LOGIK & BERECHNUNGEN ---
+  function guessBottleSize(name) {
+    name = name.toLowerCase();
+    if (name.includes('prosecco') || name.includes('sekt') || name.includes('wein') || name.includes('champagner')) return 0.75;
+    if (name.includes('gin') || name.includes('rum') || name.includes('aperol') || name.includes('havana') || name.includes('sirup') || name.includes('püree') || name.includes('saft')) return 0.7;
+    return 1.0;
+  }
+
+  function getCategory(name, unit) {
+    if (unit === 'cl' || unit === 'EL (cl)') return 'bottles';
+
+    const nameLower = name.toLowerCase().trim();
+    if (currentModule === 'drinks') {
+      if (unit === 'Eiswürfel' || nameLower.includes('eis') || nameLower.includes('ice')) return 'ice';
+      if (unit === 'Scheibe' || unit === 'Stück (geachtelt)' || unit === 'Zweige' || 
+          nameLower.includes('limette') || nameLower.includes('orange') || 
+          nameLower.includes('gurke') || nameLower.includes('minz') || 
+          nameLower.includes('zitrone') || nameLower.includes('grapefruit')) return 'fruits';
+      return 'other';
+    } else {
+      if (nameLower.includes('fleisch') || nameLower.includes('wurst') || nameLower.includes('pork') || nameLower.includes('beef') || nameLower.includes('hähnchen') || nameLower.includes('bacon') || nameLower.includes('speck') || nameLower.includes('braten')) return 'meat';
+      if (nameLower.includes('brot') || nameLower.includes('brötchen') || nameLower.includes('bun') || nameLower.includes('baguette') || nameLower.includes('toast')) return 'bakery';
+      if (nameLower.includes('salat') || nameLower.includes('gurke') || nameLower.includes('tomate') || nameLower.includes('zwiebel') || nameLower.includes('gemüse') || nameLower.includes('kraut') || nameLower.includes('obst') || unit === 'Scheibe') return 'produce';
+      if (nameLower.includes('sauce') || nameLower.includes('soße') || nameLower.includes('mayo') || nameLower.includes('senf') || nameLower.includes('ketchup') || nameLower.includes('gewürz') || nameLower.includes('öl') || unit === 'EL (g)') return 'sauces';
+      return 'other';
+    }
+  }
+
+  function getCanonicalFruitKey(name, unit) {
+    if (unit === 'cl' || unit === 'EL (cl)') return null;
+    
+    const nameLower = name.toLowerCase().trim();
+    if (nameLower.includes('limette')) return 'fruit_limette';
+    if (nameLower.includes('orange')) return 'fruit_orange';
+    if (nameLower.includes('zitrone')) return 'fruit_zitrone';
+    if (nameLower.includes('gurke')) return 'fruit_gurke';
+    if (nameLower.includes('grapefruit')) return 'fruit_grapefruit';
+    if (nameLower.includes('minz') || unit === 'Zweige') return 'herb_minze';
+    return null;
+  }
+
+  function calculatePurchaseQuantity(name, unit, totalAmount) {
+    const cat = getCategory(name, unit);
+    const nameLower = name.toLowerCase();
+
+    if (cat === 'bottles') {
+      const liters = (unit === 'cl') ? totalAmount / 100 : (totalAmount * 1.5) / 100;
+      return Math.ceil(liters / guessBottleSize(name));
+    } else if (cat === 'ice') {
+      const kg = (unit === 'Eiswürfel') ? (totalAmount * 20) / 1000 : totalAmount / 1000;
+      return Math.ceil(kg); 
+    } else if (cat === 'fruits') {
+      if (nameLower.includes('minz') || unit === 'Zweige') return Math.ceil(totalAmount);
+      let divisor = 8;
+      if (nameLower.includes('gurke')) divisor = 35;
+      else if (nameLower.includes('orange') || nameLower.includes('grapefruit')) divisor = 6;
+      else if (nameLower.includes('limette') || nameLower.includes('zitrone')) divisor = (unit === 'Stück (geachtelt)') ? 8 : 5;
+      let baseCount = Math.ceil(totalAmount / divisor);
+      if (baseCount > 0) {
+        if (baseCount >= 20) return baseCount + 3;
+        if (baseCount >= 10) return baseCount + 2;
+        return baseCount + 1;
+      }
+      return 0;
+    } else {
+      if (unit === 'g' || unit === 'EL (g)') {
+        const grams = (unit === 'EL (g)') ? totalAmount * 15 : totalAmount;
+        return Math.ceil(grams / 1000); // in KG
+      }
+      return Math.ceil(totalAmount);
+    }
+  }
+
+  function getModuleFixedCostsTotal(mod = currentModule) {
+    const fc = loadFixedCosts();
+    const list = fc[mod] || [];
+    return list.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+  }
+
+  // --- STATS CALCULATOR FOR ANY MODULE ---
+  function calcModuleStats(mod) {
+    const data = loadSavedData(mod);
+    const prices = loadPrices();
+    const sellPrices = loadSellPrices();
+    const commission = loadCommission();
+    const fcSum = getModuleFixedCostsTotal(mod);
+
+    let totalCost = fcSum;
+    let riskCost = fcSum;
+    let commCost = 0;
+    let revenue = 0;
+    let totalItems = 0;
+    let missingPrices = 0;
+
+    data.forEach((item, idx) => {
+      const glasses = item.glasses;
+      const sellKey = `${mod}_${item.id || idx}`;
+      const legacyKey = item.id || `item_${idx}`;
+
+      let defaultFallback = (mod === 'drinks') ? DEFAULT_DRINK_SELL_PRICE : 0;
+      let sellPrice = sellPrices[sellKey] !== undefined ? sellPrices[sellKey] 
+                   : (sellPrices[legacyKey] !== undefined ? sellPrices[legacyKey] 
+                   : (sellPrices[item.name] !== undefined ? sellPrices[item.name] : defaultFallback));
+
+      let itemBatchCost = 0;
+      let itemRiskCost = 0;
+      let itemCommCost = 0;
+
+      if (glasses > 0) {
+        item.ingredients.forEach(ing => {
+          const amount = parseFloat(ing.amount) || 0;
+          if (ing.name && amount > 0) {
+            const totalAmount = amount * glasses;
+            const userPrice = prices[ing.name] || 0;
+            const buyQty = calculatePurchaseQuantity(ing.name, ing.unit, totalAmount);
+            const lineCost = buyQty * userPrice;
+            itemBatchCost += lineCost;
+            if (commission[ing.name]) itemCommCost += lineCost;
+            else itemRiskCost += lineCost;
+          }
+        });
+
+        if (!sellPrice || sellPrice <= 0) missingPrices++;
+      }
+
+      totalCost += itemBatchCost;
+      riskCost += itemRiskCost;
+      commCost += itemCommCost;
+      revenue += (sellPrice * glasses);
+      totalItems += glasses;
+    });
+
+    return { totalCost, riskCost, commCost, revenue, profit: revenue - totalCost, totalItems, missingPrices };
+  }
+
+  // --- MARGINAL COST OPTIMIZER ---
+  function simulateTotalCost(simData, prices) {
+    const aggregated = {};
+    simData.forEach(item => {
+      const glasses = item.glasses;
+      if (glasses > 0) {
+        item.ingredients.forEach(ing => {
+          const name = ing.name.trim();
+          const amount = parseFloat(ing.amount) || 0;
+          if (name && amount > 0) {
+            const cat = getCategory(name, ing.unit);
+            let key = `${cat}_${name.toLowerCase().trim()}`;
+            if (!aggregated[key]) aggregated[key] = { name: name, unit: ing.unit, totalAmount: 0 };
+            aggregated[key].totalAmount += (amount * glasses);
+          }
+        });
+      }
+    });
+
+    let totalCost = getModuleFixedCostsTotal(currentModule);
+    Object.values(aggregated).forEach(item => {
+      const buyQty = calculatePurchaseQuantity(item.name, item.unit, item.totalAmount);
+      totalCost += buyQty * (prices[item.name] || 0);
+    });
+    return totalCost;
+  }
+
+  function optimizeCurrentModule() {
+    saveData();
+    const data = loadSavedData(currentModule);
+    const prices = loadPrices();
+
+    let currentCost = simulateTotalCost(data, prices);
+    if (currentCost === 0) {
+        alert("💰 Bitte weise zuerst im Tab '💸 Einkaufspreise' deinen Zutaten Kosten zu!");
+        switchMainTab('price');
+        return;
+    }
+
+    let originalTotal = data.reduce((sum, d) => sum + d.glasses, 0);
+    if (originalTotal === 0) return;
+
+    let optimizedAny = false;
+    let iterations = 0;
+    const MAX_ITERATIONS = 150; 
+
+    while (iterations < MAX_ITERATIONS) {
+       let bestIndex = -1;
+       let bestScore = -999999; 
+       let bestNewCost = currentCost;
+
+       for (let i = 0; i < data.length; i++) {
+          if (data[i].glasses === 0) continue;
+
+          data[i].glasses += 1;
+          let testCost = simulateTotalCost(data, prices);
+          let marginalCost = testCost - currentCost; 
+          data[i].glasses -= 1;
+
+          if (marginalCost < 0.80) { 
+             let savings = 100 - marginalCost;
+             if (savings > bestScore) {
+                bestScore = savings;
+                bestIndex = i;
+                bestNewCost = testCost;
+             }
+          }
+       }
+
+       if (bestIndex !== -1) {
+          data[bestIndex].glasses += 1;
+          currentCost = bestNewCost;
+          optimizedAny = true;
+          iterations++;
+       } else break;
+    }
+
+    if (optimizedAny) {
+      saveDataForModule(currentModule, data);
+      document.getElementById('costToggle').checked = true;
+      renderItems();
+      alert(`🪄 Optimierung erfolgreich!\n\nEs wurden ${iterations} zusätzliche Portionen/Gläser hinzugefügt, um deine teuersten angebrochenen Zutaten optimal auszunutzen!`);
+    } else alert("Bereits optimal ausbalanciert!");
+  }
+
+  // --- HTML CODE GENERATOR ---
+  function generateHTMLCode() {
+    saveData();
+    const currentDrinks    = loadSavedData('drinks');
+    const currentFood      = loadSavedData('food');
+    const currentPrices    = loadPrices();
+    const currentSellPrices= loadSellPrices();
+    const currentFixedCosts= loadFixedCosts();
+    const currentBuyers    = loadBuyers();
+    const currentComm      = loadCommission();
+    const currentTasks     = loadTasks();
+
+    let scriptContent = document.getElementById('main-script').innerHTML;
+    
+    const drinksRegex = /\/\/ --- DATA_DRINKS_START ---[\s\S]*?\/\/ --- DATA_DRINKS_END ---/;
+    scriptContent = scriptContent.replace(drinksRegex, () => `// --- DATA_DRINKS_START ---\n  const defaultDrinks = ${JSON.stringify(currentDrinks, null, 4)};\n  // --- DATA_DRINKS_END ---`);
+
+    const foodRegex = /\/\/ --- DATA_FOOD_START ---[\s\S]*?\/\/ --- DATA_FOOD_END ---/;
+    scriptContent = scriptContent.replace(foodRegex, () => `// --- DATA_FOOD_START ---\n  const defaultFood = ${JSON.stringify(currentFood, null, 4)};\n  // --- DATA_FOOD_END ---`);
+
+    const pricesRegex = /\/\/ --- DATA_PRICES_START ---[\s\S]*?\/\/ --- DATA_PRICES_END ---/;
+    scriptContent = scriptContent.replace(pricesRegex, () => `// --- DATA_PRICES_START ---\n  const defaultPrices = ${JSON.stringify(currentPrices, null, 4)};\n  // --- DATA_PRICES_END ---`);
+
+    const sellPricesRegex = /\/\/ --- DATA_SELLPRICES_START ---[\s\S]*?\/\/ --- DATA_SELLPRICES_END ---/;
+    scriptContent = scriptContent.replace(sellPricesRegex, () => `// --- DATA_SELLPRICES_START ---\n  const defaultSellPrices = ${JSON.stringify(currentSellPrices, null, 4)};\n  // --- DATA_SELLPRICES_END ---`);
+
+    const fixedCostsRegex = /\/\/ --- DATA_FIXEDCOSTS_START ---[\s\S]*?\/\/ --- DATA_FIXEDCOSTS_END ---/;
+    scriptContent = scriptContent.replace(fixedCostsRegex, () => `// --- DATA_FIXEDCOSTS_START ---\n  const defaultFixedCosts = ${JSON.stringify(currentFixedCosts, null, 4)};\n  // --- DATA_FIXEDCOSTS_END ---`);
+
+    const buyersRegex = /\/\/ --- DATA_BUYERS_START ---[\s\S]*?\/\/ --- DATA_BUYERS_END ---/;
+    scriptContent = scriptContent.replace(buyersRegex, () => `// --- DATA_BUYERS_START ---\n  const defaultBuyers = ${JSON.stringify(currentBuyers, null, 4)};\n  // --- DATA_BUYERS_END ---`);
+
+    const commRegex = /\/\/ --- DATA_COMMISSION_START ---[\s\S]*?\/\/ --- DATA_COMMISSION_END ---/;
+    scriptContent = scriptContent.replace(commRegex, () => `// --- DATA_COMMISSION_START ---\n  const defaultCommission = ${JSON.stringify(currentComm, null, 4)};\n  // --- DATA_COMMISSION_END ---`);
+
+    const tasksRegex = /\/\/ --- DATA_TASKS_START ---[\s\S]*?\/\/ --- DATA_TASKS_END ---/;
+    scriptContent = scriptContent.replace(tasksRegex, () => `// --- DATA_TASKS_START ---\n  const defaultTasks = ${JSON.stringify(currentTasks, null, 4)};\n  // --- DATA_TASKS_END ---`);
+
+    scriptContent = scriptContent.replace(/const DRINKS_STORAGE_KEY = 'fest_calc_drinks_v(\d+)';/, (match, p1) => `const DRINKS_STORAGE_KEY = 'fest_calc_drinks_v${parseInt(p1) + 1}';`);
+    scriptContent = scriptContent.replace(/const FOOD_STORAGE_KEY   = 'fest_calc_food_v(\d+)';/, (match, p1) => `const FOOD_STORAGE_KEY   = 'fest_calc_food_v${parseInt(p1) + 1}';`);
+
+    const styleContent = document.getElementById('main-style').innerHTML;
+
+    return `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fest & Event Rechner PRO</title>
+  <hta:application 
+    id="FestRechnerApp"
+    applicationName="FestEventRechnerPRO"
+    border="thin"
+    borderStyle="normal"
+    caption="yes"
+    icon=""
+    maximizeButton="yes"
+    minimizeButton="yes"
+    showInTaskbar="yes"
+    singleInstance="yes"
+    sysMenu="yes"
+    windowState="normal"
+    scroll="yes"
+  />
+  <style id="main-style">${styleContent}<\/style>
+</head>
+<body>
+
+${originalBodyHTML}
+
+<script id="main-script">${scriptContent}<\/script>
+
+</body>
+</html>`;
+  }
+
+  function copyHTMLCode() {
+    const textarea = document.getElementById('htmlOutput');
+    textarea.select();
+    document.execCommand('copy');
+    alert("✅ HTML Code kopiert!\n\nÖffne deine Datei im Editor, füge diesen neuen Code ein und speichere. Dein Stand ist dauerhaft fest einprogrammiert!");
+  }
+
+  // --- PERSONALIZED & MASTER PDF PRINTING ---
+  function printPersonalizedPDF() {
+    const filterSelect = document.getElementById('buyerFilterSelect');
+    const selectedBuyer = filterSelect ? filterSelect.value : 'ALL';
+    const titleHeader = document.getElementById('shoppingListTitle');
+    const originalTitle = titleHeader.innerText;
+
+    if (selectedBuyer && selectedBuyer !== 'ALL') {
+      titleHeader.innerText = `🛒 Einkaufsliste für ${selectedBuyer}`;
+    } else {
+      titleHeader.innerText = "🛒 Gesamte Einkaufsliste";
+    }
+
+    window.print();
+
+    setTimeout(() => {
+      titleHeader.innerText = originalTitle;
+    }, 1000);
+  }
+
+  function printTasksPDF() {
+    const filterSelect = document.getElementById('taskFilterSelect');
+    const selectedPerson = filterSelect ? filterSelect.value : 'ALL';
+    const headerTitle = document.getElementById('taskTitleHeader');
+    const oldTitle = headerTitle.innerText;
+
+    if (selectedPerson && selectedPerson !== 'ALL') {
+      headerTitle.innerText = `📌 Aufgabenliste für ${selectedPerson}`;
+    } else {
+      headerTitle.innerText = "📌 Gesamte Event-Aufgabenliste";
+    }
+
+    window.print();
+
+    setTimeout(() => {
+      headerTitle.innerText = oldTitle;
+    }, 1000);
+  }
+
+  function printFullEventPDF() {
+    const savedModule = currentModule;
+    const resultsContainer = document.getElementById('resultsList');
+    const titleHeader = document.getElementById('shoppingListTitle');
+    const oldTitle = titleHeader.innerText;
+
+    // Build Master Print HTML
+    titleHeader.innerText = "🌐 Event Gesamt-Einkaufsliste, Finanzen & Aufgaben";
+
+    let printHTML = `<div style="margin-bottom:1.5rem;">${document.getElementById('sellingEventMasterSummary').innerHTML}</div>`;
+
+    printHTML += `<h3 style="color:#0f172a; border-bottom:2px solid #0f172a; padding-bottom:0.3rem; margin-top:1.5rem;">🍹 1. Modul: Cocktails & Drinks</h3>`;
+    currentModule = 'drinks';
+    const drinkCards = document.createElement('div');
+    renderCombinedShoppingList(document.querySelectorAll('#itemsList .item-card'), drinkCards);
+    printHTML += drinkCards.innerHTML;
+
+    printHTML += `<h3 style="color:#0f172a; border-bottom:2px solid #0f172a; padding-bottom:0.3rem; margin-top:2rem;">🍽️ 2. Modul: Essen & Speisen</h3>`;
+    currentModule = 'food';
+    const tempFoodList = document.createElement('div');
+    const foodData = loadSavedData('food');
+    foodData.forEach((item, idx) => {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.innerHTML = `<input class="item-qty-input" value="${item.glasses}"><span class="title-text">${item.name}</span><div class="ing-list-container">`;
+      let ingHtml = '';
+      item.ingredients.forEach(ing => {
+        ingHtml += `<div class="ingredient-row"><input class="ing-name" value="${ing.name}"><input class="ing-amount" value="${ing.amount}"><select class="ing-unit"><option selected>${ing.unit}</option></select></div>`;
+      });
+      card.innerHTML += ingHtml + '</div>';
+      tempFoodList.appendChild(card);
+    });
+
+    const foodCards = document.createElement('div');
+    renderCombinedShoppingList(tempFoodList.querySelectorAll('.item-card'), foodCards);
+    printHTML += foodCards.innerHTML;
+
+    // Add Tasks to Master Print (In exact Shopping List Style)
+    const tasks = loadTasks();
+    if (tasks.length > 0) {
+      printHTML += `<h3 style="color:#0f172a; border-bottom:2px solid #0f172a; padding-bottom:0.3rem; margin-top:2rem;">📌 3. Event-Aufgaben & Zuständigkeiten</h3>`;
+      printHTML += `<div class="category-group">`;
+      tasks.forEach(t => {
+        printHTML += `
+          <div class="result-item">
+            <div>
+              <span class="print-checkbox"></span>
+              <span class="result-name">${t.title}</span>
+              ${t.assignee ? `<span class="result-buyer-tag">👤 ${t.assignee}</span>` : ''}
+            </div>
+            <div style="font-weight:bold; font-size:0.95rem; text-align:right;">${t.done ? '✅ Erledigt' : '⏳ Offen'}</div>
+          </div>
+        `;
+      });
+      printHTML += `</div>`;
+    }
+
+    resultsContainer.innerHTML = printHTML;
+
+    // Trigger Print
+    window.print();
+
+    // Restore original view
+    currentModule = savedModule;
+    titleHeader.innerText = oldTitle;
+    renderItems();
+  }
+
+  // --- UI NAVIGATION ---
+  function switchMainTab(tab) {
+    document.getElementById('btnTabCalc').classList.toggle('active', tab === 'calc');
+    document.getElementById('btnTabPrice').classList.toggle('active', tab === 'price');
+    document.getElementById('btnTabSell').classList.toggle('active', tab === 'sell');
+    document.getElementById('btnTabExport').classList.toggle('active', tab === 'export');
+
+    document.getElementById('tab-calculator').classList.toggle('active', tab === 'calc');
+    document.getElementById('tab-pricing').classList.toggle('active', tab === 'price');
+    document.getElementById('tab-selling').classList.toggle('active', tab === 'sell');
+    document.getElementById('tab-export').classList.toggle('active', tab === 'export');
+
+    if (tab === 'price') {
+      renderPricingScreen();
+      renderFixedCostsUI();
+    }
+    if (tab === 'sell')  renderSellingScreen();
+    if (tab === 'export') document.getElementById('htmlOutput').value = generateHTMLCode();
+  }
+
+  function switchView(view) {
+    activeView = view;
+    document.getElementById('btnViewCombined').classList.toggle('active', view === 'combined');
+    document.getElementById('btnViewPerDrink').classList.toggle('active', view === 'perDrink');
+    calculateShoppingList();
+  }
+
+  function getPricingUnitLabel(name, unit) {
+    const cat = getCategory(name, unit);
+    const nameLower = name.toLowerCase();
+    if (cat === 'bottles') return `Preis pro Flasche (${guessBottleSize(name).toFixed(2)}L)`;
+    if (cat === 'ice') return `Preis pro kg`;
+    if (cat === 'fruits') {
+      if (nameLower.includes('minz') || unit === 'Zweige') return `Preis pro Bund/Zweig`;
+      if (nameLower.includes('gurke')) return `Preis pro ganze Gurke`;
+      if (nameLower.includes('orange')) return `Preis pro ganze Orange`;
+      if (nameLower.includes('zitrone')) return `Preis pro ganze Zitrone`;
+      if (nameLower.includes('limette')) return `Preis pro ganze Limette`;
+      return `Preis pro Frucht`;
+    }
+    if (unit === 'g' || unit === 'EL (g)') return `Preis pro kg`;
+    return `Preis pro Stück / Packung`;
+  }
+
+  function getUnitPriceShortLabel(name, unit) {
+    const cat = getCategory(name, unit);
+    const nameLower = name.toLowerCase();
+    if (cat === 'bottles') return 'Fl.';
+    if (cat === 'ice' || unit === 'kg' || unit === 'g' || unit === 'EL (g)') return 'kg';
+    if (nameLower.includes('minz') || unit === 'Zweige') return 'Zweig';
+    return 'Stk';
+  }
+
+  // --- ITEM CARDS RENDERING ---
+  function renderItems() {
+    const data = loadSavedData(currentModule);
+    const container = document.getElementById('itemsList');
+    container.innerHTML = '';
+
+    const labelText = (currentModule === 'drinks') ? 'Gläser:' : 'Portionen:';
+    const unitOpts = (currentModule === 'drinks') ? drinkUnitOptions : foodUnitOptions;
+
+    data.forEach((item, idx) => {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.id = `card-${idx}`;
+      card.draggable = true;
+
+      card.addEventListener('dragstart', (e) => handleDragStart(e, idx));
+      card.addEventListener('dragover', handleDragOver);
+      card.addEventListener('drop', (e) => handleDrop(e, idx));
+      card.addEventListener('dragend', handleDragEnd);
+
+      let rowsHTML = '';
+      item.ingredients.forEach(ing => {
+        rowsHTML += createIngredientRow(ing.name, ing.amount, ing.unit, unitOpts);
+      });
+
+      const imgVal = item.image || '';
+      const cleanName = getCleanTitle(item.name, imgVal);
+
+      let imgTag = '';
+      if (imgVal.startsWith('http://') || imgVal.startsWith('https://')) {
+        imgTag = `<img src="${imgVal}" class="item-img-preview" alt="img">`;
+      } else if (imgVal.length > 0) {
+        imgTag = `<span style="font-size:1.3rem;">${imgVal}</span>`;
+      }
+
+      card.innerHTML = `
+        <div class="item-header">
+          <span class="item-title">
+            <span class="drag-handle" title="Ziehen zum Sortieren">⋮⋮</span>
+            ${imgTag}
+            <span class="title-text">${cleanName}</span>
+          </span>
+          <div class="item-controls">
+            <label style="font-size: 0.9rem; color: var(--muted);">${labelText}</label>
+            <input type="number" class="item-qty-input" value="${item.glasses}" min="0" oninput="onDataChanged()">
+            <button class="btn-edit" onclick="toggleEditor(${idx})">⚙️ Bearbeiten</button>
+          </div>
+        </div>
+        <div class="recipe-editor" id="editor-${idx}">
+          <div class="editor-top-bar">
+            <label style="font-size:0.85rem; color:var(--muted); min-width: 60px;">Name:</label>
+            <input type="text" class="item-name-input" value="${cleanName}" oninput="updateItemNameText(${idx}, this.value); onDataChanged();" style="flex:2;">
+            <label style="font-size:0.85rem; color:var(--muted); min-width: 80px;">Bild/Emoji:</label>
+            <input type="text" class="item-image-input" placeholder="z.B. 🍹" value="${imgVal}" oninput="onDataChanged()" style="flex:1;">
+            <button class="btn-danger" style="padding: 0.4rem 0.8rem;" onclick="deleteItem(${idx})">🗑️ Löschen</button>
+          </div>
+          <div class="ing-list-container">${rowsHTML}</div>
+          <button class="btn-add" onclick="addIngredientToCard(${idx})">+ Zutat hinzufügen</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+    updateBuyerFilterDropdown();
+    calculateShoppingList();
+  }
+
+  function createIngredientRow(name = "", amount = "", unit = "cl", optionsList = drinkUnitOptions) {
+    let optionsHTML = '';
+    optionsList.forEach(opt => { optionsHTML += `<option value="${opt}" ${unit === opt ? 'selected' : ''}>${opt}</option>`; });
+    return `
+      <div class="ingredient-row">
+        <input type="text" class="ing-name" placeholder="Name" value="${name}" oninput="onDataChanged()">
+        <input type="number" class="ing-amount" step="any" placeholder="Menge" value="${amount}" oninput="onDataChanged()">
+        <select class="ing-unit" onchange="onDataChanged()">
+          ${optionsHTML}
+        </select>
+        <button class="btn-danger" onclick="this.parentElement.remove(); onDataChanged();">✕</button>
+      </div>
+    `;
+  }
+
+  function toggleEditor(index) {
+    const editor = document.getElementById(`editor-${index}`);
+    editor.style.display = (editor.style.display === 'block') ? 'none' : 'block';
+  }
+  function addIngredientToCard(index) {
+    const list = document.querySelector(`#card-${index} .ing-list-container`);
+    const tempDiv = document.createElement('div');
+    const unitOpts = (currentModule === 'drinks') ? drinkUnitOptions : foodUnitOptions;
+    const defaultUnit = (currentModule === 'drinks') ? 'cl' : 'g';
+    tempDiv.innerHTML = createIngredientRow("", "", defaultUnit, unitOpts);
+    list.appendChild(tempDiv.firstElementChild);
+    onDataChanged();
+  }
+  function addNewItem() {
+    saveData();
+    const data = loadSavedData(currentModule);
+    const nameStr = (currentModule === 'drinks') ? "Neuer Cocktail" : "Neues Gericht";
+    const defaultUnit = (currentModule === 'drinks') ? 'cl' : 'g';
+    data.push({ id: `custom_${Date.now()}`, name: nameStr, image: (currentModule === 'drinks' ? "🍹" : "🍽️"), glasses: 10, ingredients: [{ name: "Zutat 1", amount: 10, unit: defaultUnit }] });
+    saveDataForModule(currentModule, data);
+    renderItems();
+  }
+  function deleteItem(index) {
+    if (confirm("Möchtest du diesen Eintrag wirklich löschen?")) {
+      saveData();
+      const data = loadSavedData(currentModule);
+      data.splice(index, 1);
+      saveDataForModule(currentModule, data);
+      renderItems();
+    }
+  }
+  function updateItemNameText(index, newName) {
+    const card = document.getElementById(`card-${index}`);
+    if (card) card.querySelector('.title-text').innerText = newName || "Unbenannt";
+  }
+
+  /* Drag and Drop */
+  function handleDragStart(e, index) { draggedCardIndex = index; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
+  function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+  function handleDrop(e, targetIndex) {
+    e.preventDefault();
+    if (draggedCardIndex !== null && draggedCardIndex !== targetIndex) {
+      saveData();
+      const data = loadSavedData(currentModule);
+      const movedItem = data.splice(draggedCardIndex, 1)[0];
+      data.splice(targetIndex, 0, movedItem);
+      saveDataForModule(currentModule, data);
+      renderItems();
+    }
+  }
+  function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); draggedCardIndex = null; }
+
+  function saveData() {
+    const cards = document.querySelectorAll('.item-card');
+    const dataToSave = [];
+    cards.forEach((card, index) => {
+      const glasses = parseFloat(card.querySelector('.item-qty-input').value) || 0;
+      const nameInput = card.querySelector('.item-name-input');
+      const imgInput = card.querySelector('.item-image-input');
+      const name = nameInput ? nameInput.value.trim() : "Unbenannt";
+      const image = imgInput ? imgInput.value.trim() : "";
+      const ingredients = [];
+      const rows = card.querySelectorAll('.ingredient-row');
+      rows.forEach(row => {
+        const ingName = row.querySelector('.ing-name').value.trim();
+        const ingAmount = parseFloat(row.querySelector('.ing-amount').value) || 0;
+        const ingUnit = row.querySelector('.ing-unit').value;
+        if (ingName || ingAmount > 0) ingredients.push({ name: ingName, amount: ingAmount, unit: ingUnit });
+      });
+      dataToSave.push({ id: `item_${index}`, name: name, image: image, glasses: glasses, ingredients: ingredients });
+    });
+    saveDataForModule(currentModule, dataToSave);
+  }
+  function onDataChanged() { saveData(); calculateShoppingList(); updateBuyerFilterDropdown(); }
+  function resetToDefaults() {
+    if (confirm("Alle Rezepte, Fixkosten, Aufgaben und Preise auf Standard zurücksetzen?")) {
+      localStorage.removeItem(DRINKS_STORAGE_KEY);
+      localStorage.removeItem(FOOD_STORAGE_KEY);
+      localStorage.removeItem(PRICE_STORAGE_KEY);
+      localStorage.removeItem(SELLPRICE_STORAGE_KEY);
+      localStorage.removeItem(FIXEDCOST_STORAGE_KEY);
+      localStorage.removeItem(BUYER_STORAGE_KEY);
+      localStorage.removeItem(COMMISSION_STORAGE_KEY);
+      localStorage.removeItem(TASKS_STORAGE_KEY);
+      
+      if (isHTAMode()) {
+        try {
+          var fso = new ActiveXObject("Scripting.FileSystemObject");
+          var path = unescape(window.location.pathname).replace(/^\/([A-Z]:)/i, "$1");
+          var dir = fso.GetParentFolderName(path);
+          var fullPath = dir + "\\" + HTA_SAVE_FILENAME;
+          if (fso.FileExists(fullPath)) fso.DeleteFile(fullPath);
+        } catch(e) {}
+      }
+      
+      renderItems();
+    }
+  }
+
+  // --- FIXKOSTEN UI ---
+  function renderFixedCostsUI() {
+    const fc = loadFixedCosts();
+    const list = fc[currentModule] || [];
+    const container = document.getElementById('fixedCostsList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    list.forEach((item, idx) => {
+      container.innerHTML += `
+        <div class="fixed-cost-row">
+          <input type="text" placeholder="z.B. Fritteuse Miete, Speiseöl..." value="${item.name}" oninput="updateFixedCost('${idx}', 'name', this.value)" style="flex:2;">
+          <input type="number" step="0.50" placeholder="0.00" value="${item.amount || ''}" oninput="updateFixedCost('${idx}', 'amount', this.value)" style="width:90px; text-align:right; font-weight:bold;">
+          <span style="font-weight:bold;">${CURRENCY}</span>
+          <button class="btn-danger" onclick="deleteFixedCostRow(${idx})">✕</button>
+        </div>
+      `;
+    });
+  }
+
+  function addFixedCostRow() {
+    const fc = loadFixedCosts();
+    if (!fc[currentModule]) fc[currentModule] = [];
+    fc[currentModule].push({ id: `fc_${Date.now()}`, name: "Neue Fixkosten (z.B. Miete)", amount: 10 });
+    saveFixedCosts(fc);
+    renderFixedCostsUI();
+    calculateShoppingList();
+  }
+
+  function updateFixedCost(index, field, value) {
+    const fc = loadFixedCosts();
+    if (fc[currentModule] && fc[currentModule][index]) {
+      fc[currentModule][index][field] = field === 'amount' ? (parseFloat(value) || 0) : value;
+      saveFixedCosts(fc);
+      calculateShoppingList();
+    }
+  }
+
+  function deleteFixedCostRow(index) {
+    const fc = loadFixedCosts();
+    if (fc[currentModule]) {
+      fc[currentModule].splice(index, 1);
+      saveFixedCosts(fc);
+      renderFixedCostsUI();
+      calculateShoppingList();
+    }
+  }
+
+  // --- TAB 2: EINKAUFSPREISE, EINKÄUFER & KOMMISSION ---
+  function renderPricingScreen() {
+    const data = loadSavedData(currentModule);
+    const prices = loadPrices();
+    const buyers = loadBuyers();
+    const commission = loadCommission();
+    const uniqueIngredients = {};
+
+    data.forEach(item => {
+      item.ingredients.forEach(ing => {
+        const name = ing.name.trim();
+        if (name) {
+          const key = name.toLowerCase();
+          if (!uniqueIngredients[key]) uniqueIngredients[key] = { name: name, unitLabel: getPricingUnitLabel(name, ing.unit) };
+        }
+      });
+    });
+
+    const container = document.getElementById('pricingList');
+    container.innerHTML = '';
+    Object.values(uniqueIngredients).forEach(item => {
+      const currentPrice = prices[item.name] !== undefined ? prices[item.name] : '';
+      const currentBuyer = buyers[item.name] || '';
+      const isComm = commission[item.name] || false;
+
+      container.innerHTML += `
+        <div class="price-row">
+          <div class="price-info">
+            <div class="price-name">${item.name}</div>
+            <div class="price-unit">${item.unitLabel}</div>
+          </div>
+          <div class="price-input-wrapper">
+            <label style="font-size:0.8rem; color:var(--warning); display:flex; align-items:center; gap:0.25rem; cursor:pointer;" title="Kein finanzielles Risiko bei Nicht-Verkauf">
+              <input type="checkbox" ${isComm ? 'checked' : ''} onchange="updateSingleCommission('${item.name.replace(/'/g, "\\'")}', this.checked)">
+              🔄 Kommission
+            </label>
+            <input type="text" class="buyer-input" placeholder="Einkäufer / Laden" value="${currentBuyer}" oninput="updateSingleBuyer('${item.name.replace(/'/g, "\\'")}', this.value)">
+            <input type="number" step="0.01" class="price-input" placeholder="0.00" value="${currentPrice}" oninput="updateSinglePrice('${item.name.replace(/'/g, "\\'")}', this.value)">
+            <span style="color:var(--text); font-weight:bold;">${CURRENCY}</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+  function updateSinglePrice(name, value) {
+    const prices = loadPrices();
+    prices[name] = parseFloat(value) || 0;
+    savePrices(prices);
+    calculateShoppingList(); 
+  }
+  function updateSingleBuyer(name, value) {
+    const buyers = loadBuyers();
+    buyers[name] = value.trim();
+    saveBuyers(buyers);
+    updateBuyerFilterDropdown();
+    calculateShoppingList();
+  }
+  function updateSingleCommission(name, isChecked) {
+    const comm = loadCommission();
+    comm[name] = isChecked;
+    saveCommission(comm);
+    calculateShoppingList();
+    if (document.getElementById('tab-selling').classList.contains('active')) renderSellingScreen();
+  }
+
+  function updateBuyerFilterDropdown() {
+    const buyers = loadPrices() ? loadBuyers() : {};
+    const select = document.getElementById('buyerFilterSelect');
+    if (!select) return;
+
+    const currentVal = select.value;
+    const uniqueBuyers = new Set();
+    Object.values(buyers).forEach(b => { if (b) uniqueBuyers.add(b); });
+
+    select.innerHTML = `<option value="ALL">Alle Einkäufer &amp; Läden anzeigen</option>`;
+    uniqueBuyers.forEach(b => {
+      select.innerHTML += `<option value="${b}">${b}</option>`;
+    });
+
+    if (Array.from(select.options).some(opt => opt.value === currentVal)) {
+      select.value = currentVal;
+    } else {
+      select.value = 'ALL';
+    }
+  }
+
+  function onBuyerFilterChanged() {
+    calculateShoppingList();
+  }
+
+  // --- TAB 3: VERKAUFSPREISE & GEWINN (ZEIGT BEIDE MODULE GLEICHZEITIG AN) ---
+  function renderSellingScreen() {
+    const prices = loadPrices();
+    const sellPrices = loadSellPrices();
+    const commission = loadCommission();
+
+    // 1. EVENT MASTER SUMMARY (COMBINED DRINKS + FOOD)
+    const drinksStats = calcModuleStats('drinks');
+    const foodStats = calcModuleStats('food');
+
+    const totalEventCost = drinksStats.totalCost + foodStats.totalCost;
+    const totalEventRiskCost = drinksStats.riskCost + foodStats.riskCost;
+    const totalEventCommCost = drinksStats.commCost + foodStats.commCost;
+    const totalEventRevenue = drinksStats.revenue + foodStats.revenue;
+    const totalEventProfit = totalEventRevenue - totalEventCost;
+    const totalEventItems = drinksStats.totalItems + foodStats.totalItems;
+    const totalMissingPrices = drinksStats.missingPrices + foodStats.missingPrices;
+
+    let eventBreakEvenText = "";
+    if (totalEventItems === 0) {
+      eventBreakEvenText = `<span style="font-size:0.85rem; color:var(--muted); font-weight:normal;">Keine Menge geplant</span>`;
+    } else if (totalMissingPrices > 0) {
+      eventBreakEvenText = `<span style="font-size:0.85rem; color:var(--warning); font-weight:normal;">⚠️ Verkaufspreise unvollständig</span>`;
+    } else if (totalEventRiskCost === 0) {
+      eventBreakEvenText = `<span style="color:var(--success);">0 Verkäufe (100% Kommission)</span>`;
+    } else {
+      let avgMarginForFixedRisk = (totalEventRevenue - totalEventCommCost) / totalEventItems;
+      if (avgMarginForFixedRisk > 0) {
+        let overallBreakEven = Math.ceil(totalEventRiskCost / avgMarginForFixedRisk);
+        eventBreakEvenText = `ca. ${overallBreakEven} Verkäufe <span style="font-size:0.75rem; color:var(--muted); font-weight:normal;">(von ${totalEventItems} gesamt)</span>`;
+      } else {
+        eventBreakEvenText = `<span style="font-size:0.85rem; color:var(--danger);">Kein Deckungsbeitrag</span>`;
+      }
+    }
+
+    let masterProfitClass = totalEventProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+    const masterSummaryBox = document.getElementById('sellingEventMasterSummary');
+    masterSummaryBox.innerHTML = `
+      <div class="grand-total-box" style="text-align:left; background:#0f172a; border:2px solid var(--warning); border-radius:10px; padding:1.2rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:0.5rem; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+          <div style="font-size:1.2rem; font-weight:bold; color:var(--warning);">
+            🌐 EVENT GESAMTBILANZ (Drinks &amp; Speisen Kombiniert)
+          </div>
+          <button class="btn-action btn-master-pdf" onclick="printFullEventPDF()">🌐 Event Gesamt-PDF Export</button>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:1rem;">
+          <div>
+            <div style="font-size:0.85rem; color:var(--muted);">Gesamter Einkauf (incl. Fixkosten):</div>
+            <div style="font-size:1.4rem; font-weight:bold; color:var(--warning);">${totalEventCost.toFixed(2)} ${CURRENCY}</div>
+            <div style="font-size:0.75rem; color:var(--muted);">(Vorab-Risiko: ${totalEventRiskCost.toFixed(2)}€)</div>
+          </div>
+          <div>
+            <div style="font-size:0.85rem; color:var(--muted);">Gesamter Umsatz:</div>
+            <div style="font-size:1.4rem; font-weight:bold; color:var(--text);">${totalEventRevenue.toFixed(2)} ${CURRENCY}</div>
+          </div>
+          <div>
+            <div style="font-size:0.85rem; color:var(--muted);">Gesamter Reingewinn:</div>
+            <div style="font-size:1.4rem; font-weight:bold; color:${masterProfitClass};">${totalEventProfit > 0 ? '+' : ''}${totalEventProfit.toFixed(2)} ${CURRENCY}</div>
+          </div>
+          <div>
+            <div style="font-size:0.85rem; color:var(--muted);">Gesamt Break-Even:</div>
+            <div style="font-size:1.15rem; font-weight:bold; color:var(--accent);">${eventBreakEvenText}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 2. RENDER BOTH DRINKS & FOOD SECTIONS
+    const container = document.getElementById('sellingList');
+    container.innerHTML = '';
+
+    const modulesToRender = [
+      { mod: 'drinks', title: '🍹 Cocktails & Drinks', color: 'var(--accent)' },
+      { mod: 'food', title: '🍽️ Essen & Speisen', color: 'var(--accent-food)' }
+    ];
+
+    modulesToRender.forEach(m => {
+      const data = loadSavedData(m.mod);
+      const modStats = (m.mod === 'drinks') ? drinksStats : foodStats;
+      const modProfitClass = modStats.profit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+      const secHeader = document.createElement('div');
+      secHeader.style.marginTop = '1.8rem';
+      secHeader.style.marginBottom = '1rem';
+      secHeader.style.paddingBottom = '0.4rem';
+      secHeader.style.borderBottom = `2px solid ${m.color}`;
+      secHeader.style.display = 'flex';
+      secHeader.style.justifyContent = 'space-between';
+      secHeader.style.alignItems = 'center';
+      secHeader.style.flexWrap = 'wrap';
+      secHeader.style.gap = '0.5rem';
+
+      secHeader.innerHTML = `
+        <h3 style="color:${m.color}; margin:0; font-size:1.3rem;">${m.title}</h3>
+        <div style="font-size:0.9rem; font-weight:bold; color:var(--muted);">
+          Umsatz: <span style="color:var(--text);">${modStats.revenue.toFixed(2)}€</span> | 
+          Gewinn: <span style="color:${modProfitClass};">${modStats.profit > 0 ? '+' : ''}${modStats.profit.toFixed(2)}€</span>
+        </div>
+      `;
+      container.appendChild(secHeader);
+
+      data.forEach((item, idx) => {
+        const glasses = item.glasses;
+        
+        const sellKey = `${m.mod}_${item.id || idx}`;
+        const legacyKey = item.id || `item_${idx}`;
+
+        let defaultFallback = (m.mod === 'drinks') ? DEFAULT_DRINK_SELL_PRICE : 0;
+        let sellPrice = sellPrices[sellKey] !== undefined ? sellPrices[sellKey] 
+                     : (sellPrices[legacyKey] !== undefined ? sellPrices[legacyKey] 
+                     : (sellPrices[item.name] !== undefined ? sellPrices[item.name] : defaultFallback));
+
+        let itemBatchCost = 0;
+        let itemRiskCost = 0;
+        let itemCommCost = 0;
+
+        if (glasses > 0) {
+          item.ingredients.forEach(ing => {
+            const amount = parseFloat(ing.amount) || 0;
+            if (ing.name && amount > 0) {
+              const totalAmount = amount * glasses;
+              const userPrice = prices[ing.name] || 0;
+              const buyQty = calculatePurchaseQuantity(ing.name, ing.unit, totalAmount);
+              const lineCost = buyQty * userPrice;
+              
+              itemBatchCost += lineCost;
+              if (commission[ing.name]) {
+                itemCommCost += lineCost;
+              } else {
+                itemRiskCost += lineCost;
+              }
+            }
+          });
+        }
+
+        const costPerGlassTotal = glasses > 0 ? (itemBatchCost / glasses) : 0;
+        const commCostPerGlass = glasses > 0 ? (itemCommCost / glasses) : 0;
+        const totalRevenue = sellPrice * glasses;
+        const totalProfit = totalRevenue - itemBatchCost;
+        const profitPerGlass = sellPrice - costPerGlassTotal;
+
+        const marginForRiskPerGlass = sellPrice - commCostPerGlass;
+
+        let breakEvenGlasses = 0;
+        if (itemRiskCost > 0 && marginForRiskPerGlass > 0) {
+          breakEvenGlasses = Math.ceil(itemRiskCost / marginForRiskPerGlass);
+        }
+
+        const unitLabel = (m.mod === 'drinks') ? 'Gläser' : 'Portionen';
+        const singleUnitLabel = (m.mod === 'drinks') ? 'Glas' : 'Portion';
+
+        let breakEvenText = "-";
+        if (glasses === 0) {
+          breakEvenText = `<span style="color:var(--muted); font-size:0.85rem;">(0 ${unitLabel} geplant)</span>`;
+        } else if (sellPrice <= 0) {
+          breakEvenText = `<span style="color:var(--muted); font-size:0.85rem;">(Verkaufspreis eintragen)</span>`;
+        } else if (itemBatchCost <= 0) {
+          breakEvenText = `<span style="color:var(--muted); font-size:0.85rem;">(Einkaufspreis fehlt)</span>`;
+        } else if (itemRiskCost === 0) {
+          breakEvenText = `<b style="color:var(--success); font-size:1.1rem;">0 ${unitLabel}</b> <span style="font-size:0.8rem; color:var(--success);">(100% Kommission)</span>`;
+        } else if (breakEvenGlasses > glasses) {
+          breakEvenText = `<b style="color:var(--danger);">${breakEvenGlasses} ${unitLabel}</b> <span style="font-size:0.75rem; color:var(--danger);">(mehr als geplant!)</span>`;
+        } else {
+          breakEvenText = `<b style="color:var(--success); font-size:1.1rem;">${breakEvenGlasses} ${unitLabel}</b> <span style="font-size:0.8rem; color:var(--muted);">(ab ${singleUnitLabel} ${breakEvenGlasses} Risikofrei)</span>`;
+        }
+
+        let profitClass = totalProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+        const cleanName = getCleanTitle(item.name, item.image);
+
+        const cardEl = document.createElement('div');
+        cardEl.className = 'category-group';
+        cardEl.style.padding = '1rem';
+        cardEl.style.marginBottom = '1rem';
+
+        cardEl.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.8rem;">
+            <div style="font-weight:bold; font-size:1.2rem; color:${m.color};">${item.image ? item.image + ' ' : ''}${cleanName} (${glasses} ${unitLabel})</div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <label style="font-size:0.9rem; color:var(--muted); font-weight:600;">Verkaufspreis pro ${singleUnitLabel}:</label>
+              <input type="number" step="0.50" class="price-input" style="width:85px; font-weight:bold; font-size:1rem;" placeholder="0.00" value="${sellPrice || ''}" oninput="updateSingleSellPrice('${sellKey.replace(/'/g, "\\'")}', this.value)">
+              <span style="font-weight:bold;">${CURRENCY}</span>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:0.8rem; background:var(--card-alt); padding:0.8rem; border-radius:6px; border:1px solid var(--border);">
+            <div>
+              <div style="font-size:0.8rem; color:var(--muted);">Zutaten-Einkauf:</div>
+              <div style="font-weight:bold; color:var(--warning);">${itemBatchCost.toFixed(2)} ${CURRENCY} <span style="font-size:0.75rem; color:var(--muted);">(∅ ${costPerGlassTotal.toFixed(2)}€)</span></div>
+              ${itemCommCost > 0 ? `<div style="font-size:0.72rem; color:var(--warning);">davon Kommission: ${itemCommCost.toFixed(2)}€</div>` : ''}
+            </div>
+            <div>
+              <div style="font-size:0.8rem; color:var(--muted);">Gesamt-Umsatz:</div>
+              <div style="font-weight:bold; color:var(--text);">${totalRevenue.toFixed(2)} ${CURRENCY}</div>
+            </div>
+            <div>
+              <div style="font-size:0.8rem; color:var(--muted);">Reingewinn (vor Fixkosten):</div>
+              <div style="font-weight:bold; color:${profitClass};">${totalProfit > 0 ? '+' : ''}${totalProfit.toFixed(2)} ${CURRENCY} <span style="font-size:0.75rem;">(${profitPerGlass > 0 ? '+' : ''}${profitPerGlass.toFixed(2)}€)</span></div>
+            </div>
+            <div>
+              <div style="font-size:0.8rem; color:var(--muted);">Break-Even (Risiko-Schwelle):</div>
+              <div>${breakEvenText}</div>
+            </div>
+          </div>
+        `;
+        container.appendChild(cardEl);
+      });
+    });
+  }
+
+  function updateSingleSellPrice(key, value) {
+    const sellPrices = loadSellPrices();
+    sellPrices[key] = parseFloat(value) || 0;
+    saveSellPrices(sellPrices);
+    renderSellingScreen();
+  }
+
+  // --- TAB 4: AUFGABEN & ZUSTÄNDIGKEITEN (KLICKBARER TOGGLE-STATUS) ---
+  function renderTasksScreen() {
+    const tasks = loadTasks();
+    const container = document.getElementById('tasksList');
+    const filterSelect = document.getElementById('taskFilterSelect');
+    const selectedPerson = filterSelect ? filterSelect.value : 'ALL';
+
+    updateTaskAssigneeDropdown();
+
+    container.innerHTML = '';
+
+    if (tasks.length === 0) {
+      container.innerHTML = `<p style="color: var(--muted); padding:1rem 0;">Noch keine Aufgaben vorhanden. Klicke oben auf "+ Aufgabe hinzufügen".</p>`;
+      return;
+    }
+
+    let count = 0;
+    tasks.forEach((task, idx) => {
+      if (selectedPerson !== 'ALL' && task.assignee !== selectedPerson) {
+        return;
+      }
+      count++;
+
+      const card = document.createElement('div');
+      card.className = 'price-row';
+
+      card.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.6rem; flex:2; min-width:200px;">
+          <input type="text" placeholder="Aufgaben-Titel (z.B. Bar aufbauen)" value="${task.title || ''}" oninput="updateTask(${idx}, 'title', this.value)" style="flex:1; font-weight:bold; color:var(--warning);">
+        </div>
+        <div class="price-input-wrapper" style="flex:1.5; min-width:240px;">
+          <input type="text" class="buyer-input" placeholder="Verantwortlicher" value="${task.assignee || ''}" oninput="updateTask(${idx}, 'assignee', this.value)" title="Name der verantwortlichen Person">
+          <button type="button" onclick="toggleTaskDone(${idx})" style="font-size:0.85rem; padding:0.35rem 0.75rem; cursor:pointer; border-radius:20px; background:${task.done ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'}; color:${task.done ? 'var(--success)' : 'var(--warning)'}; border:1px solid ${task.done ? 'var(--success)' : 'var(--warning)'}; font-weight:bold; transition:all 0.2s;">
+            ${task.done ? '✅ Erledigt' : '⏳ Offen'}
+          </button>
+          <button class="btn-danger" onclick="deleteTaskRow(${idx})">✕</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    if (count === 0) {
+      container.innerHTML = `<p style="color: var(--muted); padding:1rem 0;">Keine Aufgaben für "${selectedPerson}" gefunden.</p>`;
+    }
+  }
+
+  function toggleTaskDone(index) {
+    const tasks = loadTasks();
+    if (tasks[index]) {
+      tasks[index].done = !tasks[index].done;
+      saveTasks(tasks);
+      renderTasksScreen();
+    }
+  }
+
+  function addTaskRow() {
+    const tasks = loadTasks();
+    tasks.push({ id: `task_${Date.now()}`, title: "Neue Aufgabe", assignee: "", done: false });
+    saveTasks(tasks);
+    renderTasksScreen();
+  }
+
+  function updateTask(index, field, value) {
+    const tasks = loadTasks();
+    if (tasks[index]) {
+      tasks[index][field] = value;
+      saveTasks(tasks);
+      if (field === 'assignee') updateTaskAssigneeDropdown();
+    }
+  }
+
+  function deleteTaskRow(index) {
+    if (confirm("Möchtest du diese Aufgabe wirklich löschen?")) {
+      const tasks = loadTasks();
+      tasks.splice(index, 1);
+      saveTasks(tasks);
+      renderTasksScreen();
+    }
+  }
+
+  function updateTaskAssigneeDropdown() {
+    const tasks = loadTasks();
+    const select = document.getElementById('taskFilterSelect');
+    if (!select) return;
+
+    const currentVal = select.value;
+    const uniquePeople = new Set();
+    tasks.forEach(t => { if (t.assignee && t.assignee.trim()) uniquePeople.add(t.assignee.trim()); });
+
+    select.innerHTML = `<option value="ALL">Alle Aufgaben anzeigen</option>`;
+    uniquePeople.forEach(p => {
+      select.innerHTML += `<option value="${p}">${p}</option>`;
+    });
+
+    if (Array.from(select.options).some(opt => opt.value === currentVal)) {
+      select.value = currentVal;
+    } else {
+      select.value = 'ALL';
+    }
+  }
+
+  // --- SHOPPING LIST BERECHNUNG ---
+  function calculateShoppingList() {
+    const resultsContainer = document.getElementById('resultsList');
+    resultsContainer.innerHTML = '';
+    const cards = document.querySelectorAll('.item-card');
+    if (activeView === 'combined') renderCombinedShoppingList(cards, resultsContainer);
+    else renderPerDrinkShoppingList(cards, resultsContainer);
+  }
+
+  function renderCombinedShoppingList(cards, resultsContainer) {
+    const aggregated = {};
+    const showCosts = document.getElementById('costToggle').checked;
+    const prices = loadPrices();
+    const buyers = loadBuyers();
+    const commission = loadCommission();
+    const filterSelect = document.getElementById('buyerFilterSelect');
+    const selectedBuyerFilter = filterSelect ? filterSelect.value : 'ALL';
+
+    const fixedCostsSum = getModuleFixedCostsTotal(currentModule);
+    let grandTotalCost = (selectedBuyerFilter === 'ALL') ? fixedCostsSum : 0;
+    let totalGlassesAll = 0;
+
+    cards.forEach(card => {
+      const glasses = parseFloat(card.querySelector('.item-qty-input').value) || 0;
+      if (glasses > 0) {
+        totalGlassesAll += glasses;
+        const rows = card.querySelectorAll('.ingredient-row');
+        rows.forEach(row => {
+          const name = row.querySelector('.ing-name').value.trim();
+          const amount = parseFloat(row.querySelector('.ing-amount').value) || 0;
+          const unit = row.querySelector('.ing-unit').value;
+
+          if (name && amount > 0) {
+            const cat = getCategory(name, unit);
+            const nameLower = name.toLowerCase().trim();
+            const fruitKey = getCanonicalFruitKey(name, unit);
+
+            let key = fruitKey || `${cat}_${nameLower}`;
+
+            if (!aggregated[key]) {
+              let displayName = name;
+              if (fruitKey === 'fruit_limette') displayName = 'Limetten';
+              else if (fruitKey === 'fruit_orange') displayName = 'Orangen';
+              else if (fruitKey === 'fruit_zitrone') displayName = 'Zitronen';
+              else if (fruitKey === 'fruit_gurke') displayName = 'Gurken';
+              else if (fruitKey === 'fruit_grapefruit') displayName = 'Grapefruits';
+              else if (fruitKey === 'herb_minze') displayName = 'Minze';
+
+              aggregated[key] = {
+                name: displayName,
+                priceRef: name,
+                cat: cat,
+                unit: unit,
+                baseFruits: 0,
+                baseCl: 0,
+                baseGrams: 0,
+                baseCount: 0,
+                breakdown: []
+              };
+            }
+
+            const totalAmount = amount * glasses;
+
+            if (fruitKey) {
+              if (fruitKey === 'herb_minze') {
+                aggregated[key].baseCount += totalAmount;
+                aggregated[key].breakdown.push(`${totalAmount} Zweige`);
+              } else {
+                let divisor = 1;
+                let unitLabel = unit;
+                if (fruitKey === 'fruit_limette' || fruitKey === 'fruit_zitrone') {
+                  divisor = (unit === 'Stück (geachtelt)') ? 8 : (unit === 'Scheibe' ? 5 : 1);
+                  unitLabel = (unit === 'Stück (geachtelt)') ? 'Achtel' : (unit === 'Scheibe' ? 'Scheiben' : 'Stück');
+                } else if (fruitKey === 'fruit_orange' || fruitKey === 'fruit_grapefruit') {
+                  divisor = (unit === 'Scheibe') ? 6 : 1;
+                  unitLabel = (unit === 'Scheibe') ? 'Scheiben' : 'Stück';
+                } else if (fruitKey === 'fruit_gurke') {
+                  divisor = (unit === 'Scheibe') ? 35 : 1;
+                  unitLabel = (unit === 'Scheibe') ? 'Scheiben' : 'Stück';
+                }
+
+                aggregated[key].baseFruits += (totalAmount / divisor);
+                aggregated[key].breakdown.push(`${totalAmount} ${unitLabel}`);
+              }
+            } else if (cat === 'bottles') {
+              aggregated[key].baseCl += (unit === 'EL (cl)' ? totalAmount * 1.5 : totalAmount);
+            } else if (cat === 'ice') {
+              if (unit === 'Eiswürfel') aggregated[key].baseGrams += (totalAmount * 20);
+              else aggregated[key].baseGrams += totalAmount;
+            } else {
+              if (unit === 'EL (g)') aggregated[key].baseGrams += (totalAmount * 15);
+              else if (unit === 'g') aggregated[key].baseGrams += totalAmount;
+              else if (unit === 'kg') aggregated[key].baseGrams += (totalAmount * 1000);
+              else aggregated[key].baseCount += totalAmount;
+            }
+          }
+        });
+      }
+    });
+
+    if (Object.keys(aggregated).length === 0) {
+      resultsContainer.innerHTML = `<p style="color: var(--muted);">Bitte Mengen eintragen oder Zutaten hinzufügen.</p>`;
+      return;
+    }
+
+    const categories = (currentModule === 'drinks') ? {
+      bottles: { title: "🍾 Getränke & Flaschen", items: [], totalCost: 0 },
+      fruits: { title: "🍋 Früchte & Frisches", items: [], totalCost: 0 },
+      ice: { title: "🧊 Eis", items: [], totalCost: 0 },
+      other: { title: "🛒 Sonstiges (Zucker, Kräuter, etc.)", items: [], totalCost: 0 }
+    } : {
+      meat: { title: "🥩 Fleisch, Wurst & Fisch", items: [], totalCost: 0 },
+      bakery: { title: "🥖 Bäckerei & Brot", items: [], totalCost: 0 },
+      produce: { title: "🥗 Obst, Gemüse & Salat", items: [], totalCost: 0 },
+      sauces: { title: "🧂 Feinkost, Soßen & Gewürze", items: [], totalCost: 0 },
+      other: { title: "🛒 Sonstiges & Verpackung", items: [], totalCost: 0 }
+    };
+
+    Object.keys(aggregated).forEach(key => {
+      const item = aggregated[key];
+      const assignedBuyer = buyers[item.priceRef] || buyers[item.name] || '';
+      const isComm = commission[item.priceRef] || commission[item.name] || false;
+
+      if (selectedBuyerFilter !== 'ALL' && assignedBuyer !== selectedBuyerFilter) {
+        return;
+      }
+
+      let totalText = "", buyText = "", costHtml = "";
+      let buyQty = 0;
+      const userPrice = prices[item.priceRef] || prices[item.name] || 0;
+      const unitShort = getUnitPriceShortLabel(item.name, item.unit);
+
+      if (item.cat === 'bottles') {
+        const liters = item.baseCl / 100;
+        const bottleSize = guessBottleSize(item.name);
+        buyQty = Math.ceil(liters / bottleSize);
+        totalText = `${liters.toFixed(2)} Liter gesamt`;
+        buyText = (buyQty === 1) ? `📦 1 Fl. (à ${bottleSize.toFixed(2)}L)` : `📦 ${buyQty} Fl. (à ${bottleSize.toFixed(2)}L)`;
+      } 
+      else if (item.cat === 'ice') {
+        const kg = item.baseGrams / 1000;
+        buyQty = Math.ceil(kg);
+        totalText = `${item.baseGrams} g gesamt`;
+        buyText = `🧊 ${buyQty} kg`;
+      } 
+      else if (item.cat === 'fruits') {
+        if (key === 'herb_minze') {
+          buyQty = Math.ceil(item.baseCount);
+          totalText = `${buyQty} Zweige gesamt`;
+          buyText = `🌿 ${buyQty} Zweige`;
+        } else {
+          let singular = "Frucht", plural = "Früchte", emoji = "🍏";
+          if (key === 'fruit_gurke') { singular = "Gurke"; plural = "Gurken"; emoji = "🥒"; }
+          else if (key === 'fruit_orange') { singular = "Orange"; plural = "Orangen"; emoji = "🍊"; }
+          else if (key === 'fruit_zitrone') { singular = "Zitrone"; plural = "Zitronen"; emoji = "🍋"; }
+          else if (key === 'fruit_limette') { singular = "Limette"; plural = "Limetten"; emoji = "🍋"; }
+
+          let baseCount = Math.ceil(item.baseFruits);
+          buyQty = baseCount;
+          if (baseCount > 0) {
+            if (baseCount >= 20) buyQty += 3;
+            else if (baseCount >= 10) buyQty += 2;
+            else buyQty += 1;
+          }
+
+          const detailsStr = item.breakdown.length > 0 ? ` (${item.breakdown.join(', ')})` : '';
+          totalText = `ca. ${item.baseFruits.toFixed(1)} Früchte${detailsStr}`;
+          buyText = (buyQty === 1) ? `${emoji} 1 ${singular}` : `${emoji} ${buyQty} ${plural}`;
+        }
+      } 
+      else {
+        if (item.baseGrams > 0) {
+          const totalKg = item.baseGrams / 1000;
+          buyQty = Math.ceil(totalKg);
+          totalText = `${item.baseGrams} g gesamt`;
+          buyText = buyQty >= 1 ? `⚖️ ${buyQty} kg` : `⚖️ ${Math.ceil(item.baseGrams)} g`;
+        } else {
+          buyQty = Math.ceil(item.baseCount);
+          totalText = `${buyQty} ${item.unit} gesamt`;
+          buyText = `${buyQty} ${item.unit}`;
+        }
+      }
+
+      const destCat = categories[item.cat] ? item.cat : 'other';
+
+      if (showCosts) {
+        const itemCost = buyQty * userPrice;
+        grandTotalCost += itemCost;
+        categories[destCat].totalCost += itemCost;
+
+        if (itemCost > 0) {
+          costHtml = `<div class="result-cost">${itemCost.toFixed(2)} ${CURRENCY} <span style="font-size:0.78rem; color:var(--muted); font-weight:normal;">(${userPrice.toFixed(2)} ${CURRENCY}/${unitShort})</span></div>`;
+        } else {
+          costHtml = `<div class="result-cost" style="color:var(--muted); font-size:0.8rem;">(Preis fehlt)</div>`;
+        }
+      }
+
+      const buyerBadgeStr = assignedBuyer ? `<span class="result-buyer-tag">👤 ${assignedBuyer}</span>` : '';
+      const commBadgeStr = isComm ? `<span class="result-comm-tag">🔄 Kommission</span>` : '';
+
+      categories[destCat].items.push(`
+        <div class="result-item">
+          <div><span class="print-checkbox"></span><span class="result-name">${item.name}</span>${buyerBadgeStr}${commBadgeStr}<div class="result-total">${totalText}</div></div>
+          <div><div class="result-buy">${buyText}</div>${costHtml}</div>
+        </div>
+      `);
+    });
+
+    renderCategoryGroups(categories, resultsContainer, showCosts);
+
+    if (fixedCostsSum > 0 && selectedBuyerFilter === 'ALL') {
+      const fcList = loadFixedCosts()[currentModule] || [];
+      let fcRows = '';
+      fcList.forEach(fc => {
+        const fcCostStr = showCosts ? `<div class="result-cost">${(parseFloat(fc.amount)||0).toFixed(2)} ${CURRENCY}</div>` : '';
+        fcRows += `
+          <div class="result-item">
+            <div><span class="print-checkbox"></span><span class="result-name">${fc.name}</span><div class="result-total">Pauschale Fixkosten</div></div>
+            <div><div class="result-buy">📌 Fixkosten</div>${fcCostStr}</div>
+          </div>
+        `;
+      });
+
+      const fcContainer = document.createElement('div');
+      fcContainer.className = 'category-group';
+      const badgeStr = showCosts ? `<span class="category-cost-badge">${fixedCostsSum.toFixed(2)} ${CURRENCY}</span>` : '';
+      fcContainer.innerHTML = `<div class="category-header"><span>📌 Event Fixkosten (Miete, Equipment etc.)</span>${badgeStr}</div>` + fcRows;
+      resultsContainer.appendChild(fcContainer);
+    }
+
+    if (showCosts && grandTotalCost > 0) {
+      let avgCost = grandTotalCost / totalGlassesAll;
+      const unitStr = (currentModule === 'drinks') ? 'Cocktail' : 'Portion';
+      const filterLabel = selectedBuyerFilter !== 'ALL' ? ` (${selectedBuyerFilter})` : ' (ALLE KATEGORIEN)';
+      resultsContainer.innerHTML += `
+        <div class="grand-total-box">
+          <div class="grand-total-title">GESAMTER EINKAUFSWERT${filterLabel}</div>
+          <div class="grand-total-amount">${grandTotalCost.toFixed(2)} ${CURRENCY}</div>
+          <div class="grand-total-avg">∅ ${avgCost.toFixed(2)} ${CURRENCY} pro ${unitStr}</div>
+        </div>
+      `;
+    }
+  }
+
+  function renderPerDrinkShoppingList(cards, resultsContainer) {
+    let hasData = false;
+    const showCosts = document.getElementById('costToggle').checked;
+    const prices = loadPrices();
+    const buyers = loadBuyers();
+    const commission = loadCommission();
+    const filterSelect = document.getElementById('buyerFilterSelect');
+    const selectedBuyerFilter = filterSelect ? filterSelect.value : 'ALL';
+
+    cards.forEach(card => {
+      const glasses = parseFloat(card.querySelector('.item-qty-input').value) || 0;
+      const drinkName = card.querySelector('.title-text').innerText.trim();
+      const unitLabelStr = (currentModule === 'drinks') ? 'Gläser' : 'Portionen';
+
+      if (glasses > 0) {
+        let drinkTotalCost = 0;
+        let itemRowsHTML = '';
+        let hasMatchingItems = false;
+
+        const rows = card.querySelectorAll('.ingredient-row');
+        rows.forEach(row => {
+          const name = row.querySelector('.ing-name').value.trim();
+          const amount = parseFloat(row.querySelector('.ing-amount').value) || 0;
+          const unit = row.querySelector('.ing-unit').value;
+
+          if (name && amount > 0) {
+            const assignedBuyer = buyers[name] || '';
+            const isComm = commission[name] || false;
+
+            if (selectedBuyerFilter !== 'ALL' && assignedBuyer !== selectedBuyerFilter) {
+              return;
+            }
+
+            hasMatchingItems = true;
+            const cat = getCategory(name, unit);
+            const totalAmount = amount * glasses;
+            const nameLower = name.toLowerCase();
+            const userPrice = prices[name] || 0;
+            const unitShort = getUnitPriceShortLabel(name, unit);
+            
+            const buyQty = calculatePurchaseQuantity(name, unit, totalAmount);
+            const exactCostForBatch = buyQty * userPrice;
+            drinkTotalCost += exactCostForBatch;
+
+            let totalText = "", buyText = "", costHtml = "";
+            if (cat === 'bottles') {
+              const liters = (unit === 'cl') ? totalAmount / 100 : (totalAmount * 1.5) / 100;
+              const bottleSize = guessBottleSize(name);
+              totalText = `${liters.toFixed(2)} Liter (${totalAmount} ${unit})`;
+              buyText = `📦 ${buyQty} Fl. (à ${bottleSize.toFixed(2)}L)`;
+            } else if (cat === 'ice') {
+              totalText = `${totalAmount} ${unit}`;
+              buyText = `🧊 ${buyQty} kg`;
+            } else if (cat === 'fruits') {
+              if (nameLower.includes('minz') || unit === 'Zweige') {
+                totalText = `${totalAmount} Zweige`;
+                buyText = `🌿 ${buyQty} Zweige`;
+              } else {
+                let emoji = "🍋", singular = "Limette", plural = "Limetten";
+                if (nameLower.includes('gurke')) { emoji = "🥒"; singular = "Gurke"; plural = "Gurken"; }
+                else if (nameLower.includes('orange')) { emoji = "🍊"; singular = "Orange"; plural = "Orangen"; }
+                else if (nameLower.includes('zitrone')) { emoji = "🍋"; singular = "Zitrone"; plural = "Zitronen"; }
+                totalText = `${totalAmount} ${unit}`;
+                buyText = (buyQty === 1) ? `${emoji} 1 ${singular}` : `${emoji} ${buyQty} ${plural}`;
+              }
+            } else {
+              totalText = `${totalAmount} ${unit}`;
+              buyText = (unit === 'g' || unit === 'EL (g)') ? `⚖️ ${buyQty} kg` : `${buyQty} ${unit}`;
+            }
+
+            if (showCosts) {
+              if (exactCostForBatch > 0) {
+                costHtml = `<div class="result-cost">${exactCostForBatch.toFixed(2)} ${CURRENCY} <span style="font-size:0.78rem; color:var(--muted); font-weight:normal;">(${userPrice.toFixed(2)} ${CURRENCY}/${unitShort})</span></div>`;
+              } else {
+                costHtml = `<div class="result-cost" style="color:var(--muted); font-size:0.8rem;">(Preis fehlt)</div>`;
+              }
+            }
+
+            const buyerBadgeStr = assignedBuyer ? `<span class="result-buyer-tag">👤 ${assignedBuyer}</span>` : '';
+            const commBadgeStr = isComm ? `<span class="result-comm-tag">🔄 Kommission</span>` : '';
+
+            itemRowsHTML += `
+              <div class="result-item">
+                <div><span class="print-checkbox"></span><span class="result-name">${name}</span>${buyerBadgeStr}${commBadgeStr}<div class="result-total">${totalText}</div></div>
+                <div><div class="result-buy">${buyText}</div>${costHtml}</div>
+              </div>
+            `;
+          }
+        });
+
+        if (hasMatchingItems) {
+          hasData = true;
+          const drinkGroup = document.createElement('div');
+          drinkGroup.className = 'category-group';
+          drinkGroup.innerHTML = `<div class="subcard-header"><div class="subcard-title">${drinkName} (${glasses} ${unitLabelStr})</div><div class="header-cost-placeholder"></div></div>` + itemRowsHTML;
+
+          if (showCosts && drinkTotalCost > 0) {
+            const singleCost = drinkTotalCost / glasses;
+            const singleStr = (currentModule === 'drinks') ? 'Glas' : 'Portion';
+            const headerPlaceholder = drinkGroup.querySelector('.header-cost-placeholder');
+            headerPlaceholder.innerHTML = `
+              <div class="subcard-cost">Zutaten-Einkauf pro ${singleStr}: <b>${singleCost.toFixed(2)} ${CURRENCY}</b></div>
+              <div class="subcard-cost">Zutaten-Einkaufswert (${glasses}x): <b>${drinkTotalCost.toFixed(2)} ${CURRENCY}</b></div>
+            `;
+          }
+          resultsContainer.appendChild(drinkGroup);
+        }
+      }
+    });
+
+    if (!hasData) resultsContainer.innerHTML = `<p style="color: var(--muted);">Keine passenden Zutaten für diesen Filter gefunden.</p>`;
+  }
+
+  function renderCategoryGroups(categories, container, showCosts = false) {
+    Object.values(categories).forEach(cat => {
+      if (cat.items.length > 0) {
+        const catContainer = document.createElement('div');
+        catContainer.className = 'category-group';
+
+        let costBadgeHtml = '';
+        if (showCosts && cat.totalCost > 0) {
+          costBadgeHtml = `<span class="category-cost-badge">${cat.totalCost.toFixed(2)} ${CURRENCY}</span>`;
+        }
+
+        catContainer.innerHTML = `
+          <div class="category-header">
+            <span>${cat.title}</span>
+            ${costBadgeHtml}
+          </div>
+        ` + cat.items.join('');
+        
+        container.appendChild(catContainer);
+      }
+    });
+  }
+
+  // App starten & HTA-Daten laden
+  initHTAData();
+  switchMainModule('drinks');
+</script>
+
+</body>
+</html>
