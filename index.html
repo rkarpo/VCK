@@ -35,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* Mikasa-Style Volleybälle als durchgehendes Hintergrundmuster */
+        /* Dynamisch verstreute Mikasa-Volleybälle im Hintergrund */
         body::before {
             content: "";
             position: fixed;
@@ -44,12 +44,25 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            opacity: 0.12;
-            /* Mikasa V200W Wellen-Design Vektor */
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92" fill="none"/><path d="M 50,8 C 75,25 75,75 50,92" fill="none"/><path d="M 8,50 C 25,25 75,25 92,50" fill="none"/><path d="M 8,50 C 25,75 75,75 92,50" fill="none"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>');
-            background-repeat: repeat;
-            background-size: 160px 160px;
-            background-position: center;
+            
+            /* Kombination aus 4 versetzten Bällen unterschiedlicher Größe & Positionen */
+            background-image: 
+                /* Ball 1: Oben links */
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2" opacity="0.12"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                /* Ball 2: Mitte rechts (leicht gedreht/dezent) */
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2" opacity="0.09"><circle cx="50" cy="50" r="42"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                /* Ball 3: Unten links (groß) */
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2" opacity="0.11"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>'),
+                /* Ball 4: Unten rechts (klein) */
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2" opacity="0.1"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>');
+
+            background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+            
+            /* Unterschiedliche Größen für Asymmetrie */
+            background-size: 180px 180px, 240px 240px, 280px 280px, 140px 140px;
+            
+            /* Verteilt über den Bildschirmecken und Rändern */
+            background-position: 5% 8%, 92% 40%, 8% 88%, 85% 90%;
         }
 
         .container {
