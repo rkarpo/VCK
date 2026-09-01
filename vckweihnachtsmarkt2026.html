@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCK Weihnachtsmarkt Umfrage 🎄</title>
+    <title>VCK Weihnachtsmarkt Umfrage 2026 🎄</title>
     
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -25,7 +26,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg-main); padding: 16px; color: var(--text-light); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 
-        /* Standard / Mobilansicht */
         .card {
             background: var(--bg-card);
             width: 100%;
@@ -37,7 +37,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Rot-Goldener Disclaimer Kasten */
         .disclaimer-box {
             background: rgba(220, 38, 38, 0.12);
             border: 1.5px solid var(--red);
@@ -124,7 +123,6 @@
 
         .btn-submit:hover { background: var(--gold-hover); }
 
-        /* Ergebnisse */
         .results-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; }
         .results-title { font-size: 14px; color: var(--gold); margin-bottom: 12px; text-transform: uppercase; text-align: center; }
 
@@ -140,7 +138,6 @@
         .tag-yes { color: var(--green); font-weight: bold; }
         .tag-no { color: var(--red); font-weight: bold; }
 
-        /* PC / Desktop Darstellung */
         @media (min-width: 768px) {
             .card { max-width: 700px; padding: 40px; border-radius: 16px; }
             .disclaimer-box { padding: 16px; margin-bottom: 24px; }
@@ -171,4 +168,147 @@
             </div>
         </div>
 
-        <div class
+        <div class="header">
+            <h1>🎅 VCK Weihnachtsmarkt 2026</h1>
+            <p>Sollen wir dieses Jahr wieder mit einem eigenen Stand am Weihnachtsmarkt dabei sein und etwas verkaufen?</p>
+        </div>
+
+        <div id="pollFormSection">
+            <div class="form-group">
+                <label for="memberName">Dein Name / Name der Person</label>
+                <input type="text" id="memberName" placeholder="z. B. Frank">
+            </div>
+
+            <label>Deine Rückmeldung</label>
+            <div class="options">
+                <div class="option-btn" onclick="selectOption('ja')">
+                    <input type="radio" name="vote" id="opt-yes" value="ja">
+                    <label for="opt-yes" style="margin:0; cursor:pointer; color:#fff;">Ja, wir sollten dabei sein! 🎄</label>
+                </div>
+                <div class="option-btn" onclick="selectOption('nein')">
+                    <input type="radio" name="vote" id="opt-no" value="nein">
+                    <label for="opt-no" style="margin:0; cursor:pointer; color:#fff;">Nein, wir lassen es dieses Jahr. ❄️</label>
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="submitVote()">Abstimmen</button>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <div class="results-title">Aktuelles Ergebnis</div>
+            
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>Ja, dabei sein</span>
+                    <span id="countYes">0 Stimme(n) (0%)</span>
+                </div>
+                <div class="bar-outer"><div id="barYes" class="bar-inner-yes"></div></div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>Nein, lassen</span>
+                    <span id="countNo">0 Stimme(n) (0%)</span>
+                </div>
+                <div class="bar-outer"><div id="barNo" class="bar-inner-no"></div></div>
+            </div>
+
+            <div class="voter-list" id="voterList">
+                <div style="text-align:center; color: var(--text-muted);">Lade Ergebnisse...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7UmrLGoePSvE1H0nZMUFjXY6HvWSynq4",
+            authDomain: "vckuppenheim.firebaseapp.com",
+            databaseURL: "https://vckuppenheim-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "vckuppenheim",
+            storageBucket: "vckuppenheim.firebasestorage.app",
+            messagingSenderId: "83870233719",
+            appId: "1:83870233719:web:626c70cfd99d0690208272",
+            measurementId: "G-Z6PY5520H6"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // EIGENER PFAD NUR FÜR DIE UMFRAGE 2026:
+        const votesRef = database.ref('vck_weihnachtsmarkt_2026');
+
+        let selectedVote = null;
+
+        function selectOption(val) {
+            selectedVote = val;
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            if(val === 'ja') {
+                document.getElementById('opt-yes').checked = true;
+                document.getElementById('opt-yes').closest('.option-btn').classList.add('selected');
+            } else {
+                document.getElementById('opt-no').checked = true;
+                document.getElementById('opt-no').closest('.option-btn').classList.add('selected');
+            }
+        }
+
+        function submitVote() {
+            const nameInput = document.getElementById('memberName').value.trim();
+
+            if (!nameInput) {
+                alert('Bitte gib deinen Namen ein!');
+                return;
+            }
+            if (!selectedVote) {
+                alert('Bitte wähle eine Antwortmöglichkeit aus!');
+                return;
+            }
+
+            votesRef.push({
+                name: nameInput,
+                vote: selectedVote,
+                timestamp: Date.now()
+            }).then(() => {
+                document.getElementById('memberName').value = '';
+                selectedVote = null;
+                document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+                document.querySelectorAll('input[name="vote"]').forEach(radio => radio.checked = false);
+            }).catch(error => {
+                alert("Fehler beim Speichern: " + error.message);
+            });
+        }
+
+        votesRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            const votes = data ? Object.values(data) : [];
+            renderResults(votes);
+        });
+
+        function renderResults(votes) {
+            const total = votes.length;
+            const yesVotes = votes.filter(v => v.vote === 'ja').length;
+            const noVotes = votes.filter(v => v.vote === 'nein').length;
+
+            const yesPercent = total > 0 ? Math.round((yesVotes / total) * 100) : 0;
+            const noPercent = total > 0 ? Math.round((noVotes / total) * 100) : 0;
+
+            document.getElementById('countYes').innerText = `${yesVotes} (${yesPercent}%)`;
+            document.getElementById('countNo').innerText = `${noVotes} (${noPercent}%)`;
+
+            document.getElementById('barYes').style.width = yesPercent + '%';
+            document.getElementById('barNo').style.width = noPercent + '%';
+
+            const listContainer = document.getElementById('voterList');
+            if (votes.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; color: var(--text-muted);">Noch keine Stimmen abgegeben.</div>';
+            } else {
+                listContainer.innerHTML = votes.slice().reverse().map(v => `
+                    <div class="voter-item">
+                        <span>${v.name}</span>
+                        <span class="${v.vote === 'ja' ? 'tag-yes' : 'tag-no'}">${v.vote === 'ja' ? 'Dabei 🎄' : 'Nein ❄️'}</span>
+                    </div>
+                `).join('');
+            }
+        }
+    </script>
+</body>
+</html>
