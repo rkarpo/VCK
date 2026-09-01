@@ -35,6 +35,30 @@
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.6);
             border: 1px solid var(--gold);
+            position: relative;
+        }
+
+        /* Zurück-Button */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            color: var(--gold);
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
         }
 
         .disclaimer-box {
@@ -140,7 +164,6 @@
         .tag-yes { color: var(--green); font-weight: bold; }
         .tag-no { color: var(--red); font-weight: bold; }
 
-        /* Roter X Löschen Button */
         .btn-delete {
             background: rgba(220, 38, 38, 0.2);
             color: var(--red);
@@ -166,6 +189,7 @@
 
         @media (min-width: 768px) {
             .card { max-width: 700px; padding: 40px; border-radius: 16px; }
+            .btn-back { font-size: 13px; padding: 6px 12px; margin-bottom: 20px; }
             .disclaimer-box { padding: 16px; margin-bottom: 24px; }
             .disclaimer-title { font-size: 14px; margin-bottom: 6px; }
             .disclaimer-text { font-size: 14px; }
@@ -185,6 +209,11 @@
 <body>
 
     <div class="card">
+        <!-- Dezenter Zurück-Button -->
+        <a href="index.html" class="btn-back">
+            &#8592; Startseite
+        </a>
+
         <!-- Rot-Goldener Disclaimer Kasten -->
         <div class="disclaimer-box">
             <div class="disclaimer-title">📌 Wichtiger Hinweis</div>
@@ -306,11 +335,10 @@
             });
         }
 
-        // Funktion zum Löschen einer Stimme mit Passwortabfrage
         function deleteVote(key, name) {
             const password = prompt(`Möchtest du den Eintrag von "${name}" wirklich löschen?\n\nBitte gib das Admin-Passwort ein:`);
             
-            if (password === null) return; // Abgebrochen
+            if (password === null) return;
             
             if (password === "VCK") {
                 votesRef.child(key).remove()
@@ -325,7 +353,6 @@
             }
         }
 
-        // Live-Daten aus Firebase lesen
         votesRef.on('value', (snapshot) => {
             const data = snapshot.val();
             renderResults(data);
@@ -335,7 +362,6 @@
         });
 
         function renderResults(data) {
-            // Umwandlung des Datenbank-Objekts in ein Array inklusive Key für den Lösch-Befehl
             const votes = data ? Object.keys(data).map(key => ({
                 key: key,
                 ...data[key]
