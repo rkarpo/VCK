@@ -52,46 +52,61 @@
             background-color: #f0f4f9;
             color: #2b5797;
             border: 1px dashed #2b5797;
-            padding: 12px;
-            font-size: 14px;
+            padding: 10px 16px;
+            font-size: 13px;
             font-weight: 600;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            width: 100%;
-            text-align: center;
             transition: all 0.2s;
         }
 
-        .btn-add:hover {
-            background-color: #e2ebf8;
-        }
+        .btn-add:hover { background-color: #e2ebf8; }
 
         .btn-del {
-            background: #f8d7da;
+            background: transparent;
             border: none;
-            color: #842029;
-            font-size: 14px;
+            color: #aaa;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 6px;
-            transition: all 0.2s;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
+        .btn-del:hover { color: #dc3545; background: #ffebe9; }
+
+        .scroll-hint {
+            display: block;
+            font-size: 11px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        /* TABELLEN STYLES MIT FIXIERTER SPALTE (DESKTOP) */
         .table-container {
-            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #ffffff;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             text-align: center;
             font-size: 13px;
+            min-width: 900px;
         }
 
         th, td {
-            border: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
             padding: 8px;
+            white-space: nowrap;
+            background-color: #ffffff;
         }
 
         th {
@@ -101,23 +116,68 @@
         }
 
         .header-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             color: #2b5797;
+            text-align: left;
         }
 
-        /* Formular Controls Desktop */
+        /* FIXIEREN DER NAME-SPALTE (Z-Index und Sticky Verankerung) */
+        th:first-child, td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background-color: #ffffff !important;
+            min-width: 140px;
+            max-width: 140px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+
+        thead tr th:first-child {
+            z-index: 6;
+            background-color: #f8f9fa !important;
+        }
+
+        /* FIXIEREN DER SCROLL-TITEL IM FOOTER */
+        tfoot tr td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background-color: #ffffff !important;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+
+        /* FORMULAR ELEMENTE DESKTOP */
         td input, td select {
             width: 100%;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background: #fff;
+            border: 1px solid #dcdcdc;
+            border-radius: 4px;
+            background: #ffffff;
             font-size: 13px;
             color: #333;
-            padding: 6px;
+            padding: 5px;
+            text-align: center;
         }
 
+        td input { text-align: left; }
         td select { text-align-last: center; }
+
+        td input:focus, td select:focus {
+            outline: none;
+            border-color: #2b5797;
+            box-shadow: 0 0 0 2px rgba(43, 87, 151, 0.15);
+        }
+
+        .calc-row-title {
+            text-align: right;
+            padding-right: 12px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .calc-row-separator td {
+            border-top: 2px solid #333;
+        }
 
         .status-ok {
             background-color: #d1e7dd !important;
@@ -131,120 +191,105 @@
             font-weight: bold;
         }
 
-        /* ===================================================
-           MOBIL-DESIGNS (Karten-Ansicht für Smartphones)
-           =================================================== */
-        @media (max-width: 768px) {
-            body { padding: 6px; }
-            .container { padding: 12px; border-radius: 8px; }
+        .col-action {
+            width: 35px;
+            border-right: none;
+        }
 
-            /* Tabelle in Blocks auflösen */
+        /* MOBIL-ANSICHT (OPTIMIERT FÜR SMARTPHONES) */
+        @media (max-width: 768px) {
+            .scroll-hint { display: none; }
+            .table-container { border: none; }
+
             table, thead, tbody, tfoot, th, td, tr {
                 display: block;
+                min-width: 100% !important;
             }
 
-            /* Kopfzeile der Desktop-Tabelle ausblenden */
             thead tr {
                 position: absolute;
                 top: -9999px;
                 left: -9999px;
             }
 
-            /* Jede Person als eigene Karte */
             tbody tr:not(#addRowContainer) {
                 background: #ffffff;
                 border: 1px solid #dcdcdc;
                 border-radius: 10px;
                 padding: 12px;
-                margin-bottom: 16px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                margin-bottom: 14px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.04);
             }
 
             tbody td {
                 border: none;
-                padding: 6px 0;
+                padding: 5px 0;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                text-align: right;
+                position: static !important;
+                box-shadow: none !important;
             }
 
-            /* Name & Rolle ganz oben hervorheben */
-            tbody td:nth-child(1),
-            tbody td:nth-child(2) {
-                display: block;
-                padding: 4px 0;
+            tbody td:first-child {
+                min-width: 100% !important;
+                max-width: 100% !important;
+                margin-bottom: 4px;
             }
 
-            tbody td:nth-child(1) input {
-                font-size: 16px;
+            tbody td input {
+                font-size: 15px;
                 font-weight: bold;
-                border-color: #2b5797;
-                padding: 8px;
             }
 
-            tbody td:nth-child(2) select {
-                padding: 8px;
-                font-weight: 500;
-            }
-
-            /* Schicht-Label per CSS-Attribut data-label einblenden */
             tbody td[data-label]::before {
                 content: attr(data-label);
                 font-weight: 600;
                 font-size: 12px;
                 color: #555;
                 text-align: left;
-                padding-right: 10px;
                 flex: 1;
             }
 
-            tbody td select.select-shift {
-                width: 140px;
-                padding: 8px;
+            tbody td select {
+                width: 150px;
             }
 
             .col-action {
-                margin-top: 10px;
-                border-top: 1px solid #eee;
-                padding-top: 10px !important;
-                display: flex;
+                margin-top: 8px;
+                border-top: 1px dashed #eee !important;
+                padding-top: 8px !important;
                 justify-content: flex-end;
             }
 
             .btn-del {
-                width: 100%;
-                text-align: center;
+                color: #dc3545;
+                font-size: 13px;
             }
 
-            /* Zusammenfassung (Footer) Mobil styling */
+            /* Zusammenfassung (Footer) auf Smartphone */
             tfoot {
-                margin-top: 25px;
+                margin-top: 20px;
                 background: #f8f9fa;
-                border-radius: 10px;
-                padding: 12px;
+                border-radius: 8px;
+                padding: 10px;
                 border: 1px solid #e0e0e0;
             }
 
             tfoot tr {
                 display: flex;
                 flex-wrap: wrap;
-                margin-bottom: 10px;
-                border-bottom: 1px solid #ddd;
-                padding-bottom: 8px;
+                margin-bottom: 8px;
             }
 
-            tfoot tr:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-            }
-
-            .calc-row-title {
+            tfoot tr td:first-child {
+                position: static !important;
+                box-shadow: none !important;
                 width: 100%;
                 text-align: left;
                 font-weight: bold;
-                margin-bottom: 6px;
                 color: #2b5797;
+                padding-bottom: 4px;
             }
 
             tfoot td[id] {
@@ -252,8 +297,8 @@
                 font-size: 11px;
                 padding: 4px;
                 margin: 2px;
-                border-radius: 4px;
                 border: 1px solid #ddd;
+                border-radius: 4px;
                 text-align: center;
             }
         }
@@ -264,31 +309,35 @@
     <div class="container">
         <a href="index.html" class="btn btn-back">← Zurück zur Startseite</a>
 
+        <span class="scroll-hint">↔ Nach rechts wischen für alle Schichten</span>
+
         <div class="table-container">
             <table id="planTable">
                 <thead>
                     <tr>
-                        <th colspan="2" class="header-title">Einsatzplan VCK</th>
+                        <th class="header-title">Name</th>
+                        <th>Rolle</th>
                         <th>18.09. Fr<br><small>Aufbau (10:00)</small></th>
                         <th>19.09. Sa 1<br><small>16:00-20:30</small></th>
                         <th>19.09. Sa 2<br><small>20:30-01:00</small></th>
                         <th>20.09. So 1<br><small>11:00-16:00</small></th>
                         <th>20.09. So 2<br><small>16:00-21:00</small></th>
                         <th>20.09. So<br><small>Abbau (21:00)</small></th>
-                        <th style="width:40px;"></th>
+                        <th class="col-action"></th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     <tr id="addRowContainer">
-                        <td colspan="9" style="border:none; padding: 10px 0;">
+                        <td colspan="9" style="text-align: left; border: none; padding: 10px 0;">
                             <button class="btn-add" onclick="window.addNewPerson()">+ Person hinzufügen</button>
                         </td>
                     </tr>
                 </tbody>
 
                 <tfoot>
-                    <tr>
-                        <td colspan="2" class="calc-row-title">Benötigt</td>
+                    <tr class="calc-row-separator">
+                        <td class="calc-row-title">Benötigt</td>
+                        <td style="background-color: #f8f9fa;">--</td>
                         <td id="req-0">6</td>
                         <td id="req-1">7</td>
                         <td id="req-2">8</td>
@@ -298,7 +347,8 @@
                         <td class="col-action"></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="calc-row-title">Gesamt eingeteilt</td>
+                        <td class="calc-row-title">Gesamt eingeteilt</td>
+                        <td style="background-color: #f8f9fa;">--</td>
                         <td id="total-0">0</td>
                         <td id="total-1">0</td>
                         <td id="total-2">0</td>
@@ -308,7 +358,8 @@
                         <td class="col-action"></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="calc-row-title">Status</td>
+                        <td class="calc-row-title">Status</td>
+                        <td style="background-color: #f8f9fa;">--</td>
                         <td id="status-0">--</td>
                         <td id="status-1">--</td>
                         <td id="status-2">--</td>
@@ -380,7 +431,7 @@
         };
 
         window.deleteRow = function(key) {
-            if (confirm("Möchtest du diese Person wirklich löschen?")) {
+            if (confirm("Möchtest du diese Person wirklich entfernen?")) {
                 remove(ref(database, `vck_einsatzplan_2026/${key}`));
             }
         };
@@ -425,14 +476,14 @@
                 }).join('');
 
                 tr.innerHTML = `
-                    <td><input type="text" class="input-name" value="${person.name || ''}" placeholder="Name der Person" onchange="window.updateRow('${key}')"></td>
-                    <td>
+                    <td><input type="text" class="input-name" value="${person.name || ''}" placeholder="Name..." onchange="window.updateRow('${key}')"></td>
+                    <td data-label="Rolle">
                         <select class="select-role" onchange="window.updateRow('${key}')">
                             ${roleOptionsHtml}
                         </select>
                     </td>
                     ${shiftsHtml}
-                    <td class="col-action"><button class="btn-del" onclick="window.deleteRow('${key}')">Person entfernen</button></td>
+                    <td class="col-action"><button class="btn-del" onclick="window.deleteRow('${key}')" title="Löschen">✕</button></td>
                 `;
 
                 tbody.insertBefore(tr, addRowContainer);
