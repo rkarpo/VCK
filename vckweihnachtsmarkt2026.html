@@ -214,7 +214,7 @@
             </div>
 
             <div class="voter-list" id="voterList">
-                <div style="text-align:center; color: var(--text-muted);">Lade Ergebnisse...</div>
+                <div style="text-align:center; color: var(--text-muted);">Noch keine Stimmen abgegeben.</div>
             </div>
         </div>
     </div>
@@ -231,10 +231,11 @@
             measurementId: "G-Z6PY5520H6"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch(e) {}
+        
         const database = firebase.database();
-
-        // EIGENER PFAD NUR FÜR DIE UMFRAGE 2026:
         const votesRef = database.ref('vck_weihnachtsmarkt_2026');
 
         let selectedVote = null;
@@ -273,14 +274,18 @@
                 document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
                 document.querySelectorAll('input[name="vote"]').forEach(radio => radio.checked = false);
             }).catch(error => {
-                alert("Fehler beim Speichern: " + error.message);
+                alert("Fehler beim Speichern: " + error.message + "\n\nPrüfe bitte die Regeln in der Firebase Konsole!");
             });
         }
 
+        // Live-Daten abrufen
         votesRef.on('value', (snapshot) => {
             const data = snapshot.val();
             const votes = data ? Object.values(data) : [];
             renderResults(votes);
+        }, (error) => {
+            console.error(error);
+            document.getElementById('voterList').innerHTML = '<div style="text-align:center; color: var(--red);">Fehler beim Laden der Daten. Bitte Regeln in Firebase prüfen.</div>';
         });
 
         function renderResults(votes) {
@@ -291,8 +296,8 @@
             const yesPercent = total > 0 ? Math.round((yesVotes / total) * 100) : 0;
             const noPercent = total > 0 ? Math.round((noVotes / total) * 100) : 0;
 
-            document.getElementById('countYes').innerText = `${yesVotes} (${yesPercent}%)`;
-            document.getElementById('countNo').innerText = `${noVotes} (${noPercent}%)`;
+            document.getElementById('countYes').innerText = `${yesVotes} Stimme(n) (${yesPercent}%)`;
+            document.getElementById('countNo').innerText = `${noVotes} Stimme(n) (${noPercent}%)`;
 
             document.getElementById('barYes').style.width = yesPercent + '%';
             document.getElementById('barNo').style.width = noPercent + '%';
