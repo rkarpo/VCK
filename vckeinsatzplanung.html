@@ -45,22 +45,32 @@
 
         .btn-back {
             background-color: #6c757d;
+        }
+
+        /* Top Action Bar über der Tabelle */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 15px;
         }
 
         .btn-add {
-            background-color: #f0f4f9;
-            color: #2b5797;
-            border: 1px dashed #2b5797;
-            padding: 10px 16px;
-            font-size: 13px;
+            background-color: #2b5797;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
             font-weight: 600;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(43, 87, 151, 0.2);
         }
 
-        .btn-add:hover { background-color: #e2ebf8; }
+        .btn-add:hover { background-color: #1e3d6b; }
 
         .btn-del {
             background: transparent;
@@ -76,11 +86,8 @@
         .btn-del:hover { color: #dc3545; background: #ffebe9; }
 
         .scroll-hint {
-            display: block;
             font-size: 11px;
             color: #6c757d;
-            margin-bottom: 8px;
-            text-align: right;
         }
 
         /* TABELLEN STYLES MIT FIXIERTER SPALTE (DESKTOP) */
@@ -122,7 +129,7 @@
             text-align: left;
         }
 
-        /* FIXIEREN DER NAME-SPALTE (Z-Index und Sticky Verankerung) */
+        /* FIXIEREN DER NAME-SPALTE */
         th:first-child, td:first-child {
             position: sticky;
             left: 0;
@@ -196,10 +203,22 @@
             border-right: none;
         }
 
-        /* MOBIL-ANSICHT (OPTIMIERT FÜR SMARTPHONES) */
+        /* MOBIL-ANSICHT */
         @media (max-width: 768px) {
             .scroll-hint { display: none; }
             .table-container { border: none; }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-add {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+                font-size: 15px;
+            }
 
             table, thead, tbody, tfoot, th, td, tr {
                 display: block;
@@ -212,7 +231,7 @@
                 left: -9999px;
             }
 
-            tbody tr:not(#addRowContainer) {
+            tbody tr {
                 background: #ffffff;
                 border: 1px solid #dcdcdc;
                 border-radius: 10px;
@@ -267,7 +286,7 @@
                 font-size: 13px;
             }
 
-            /* Zusammenfassung (Footer) auf Smartphone */
+            /* Footer Smartphone */
             tfoot {
                 margin-top: 20px;
                 background: #f8f9fa;
@@ -309,7 +328,10 @@
     <div class="container">
         <a href="index.html" class="btn btn-back">← Zurück zur Startseite</a>
 
-        <span class="scroll-hint">↔ Nach rechts wischen für alle Schichten</span>
+        <div class="top-bar">
+            <button class="btn-add" onclick="window.addNewPerson()">+ Person hinzufügen</button>
+            <span class="scroll-hint">↔ Nach rechts wischen für alle Schichten</span>
+        </div>
 
         <div class="table-container">
             <table id="planTable">
@@ -327,11 +349,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr id="addRowContainer">
-                        <td colspan="9" style="text-align: left; border: none; padding: 10px 0;">
-                            <button class="btn-add" onclick="window.addNewPerson()">+ Person hinzufügen</button>
-                        </td>
-                    </tr>
+                    <!-- Zeilen werden dynamsich aus Firebase geladen -->
                 </tbody>
 
                 <tfoot>
@@ -440,15 +458,14 @@
             const data = snapshot.val();
             if (data) {
                 renderTable(data);
+            } else {
+                document.getElementById('tableBody').innerHTML = "";
             }
         });
 
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
-            const addRowContainer = document.getElementById('addRowContainer');
-
-            const existingRows = tbody.querySelectorAll('tr:not(#addRowContainer)');
-            existingRows.forEach(row => row.remove());
+            tbody.innerHTML = "";
 
             Object.keys(data).forEach(key => {
                 const person = data[key];
@@ -486,7 +503,7 @@
                     <td class="col-action"><button class="btn-del" onclick="window.deleteRow('${key}')" title="Löschen">✕</button></td>
                 `;
 
-                tbody.insertBefore(tr, addRowContainer);
+                tbody.appendChild(tr);
             });
 
             calculateTotals();
