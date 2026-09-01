@@ -33,6 +33,35 @@
             transition: all 0.3s ease;
         }
 
+        /* Rot-Goldener Disclaimer Kasten */
+        .disclaimer-box {
+            background: rgba(220, 38, 38, 0.12);
+            border: 1.5px solid var(--red);
+            border-left: 6px solid var(--gold);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .disclaimer-title {
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .disclaimer-text {
+            color: #fca5a5;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
         .header { text-align: center; margin-bottom: 20px; }
         .header h1 { color: var(--gold); font-size: 20px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
         .header p { color: var(--text-muted); font-size: 13px; line-height: 1.4; }
@@ -109,15 +138,17 @@
 
         .hidden { display: none; }
 
-        /* ========================================================= */
-        /* ANPASSUNGEN FÜR DESKTOP / PC (Bildschirme ab 768px Breite) */
-        /* ========================================================= */
+        /* Desktop-Anpassung */
         @media (min-width: 768px) {
             .card {
-                max-width: 700px; /* Breitere Karte auf dem PC */
+                max-width: 700px;
                 padding: 40px;
                 border-radius: 16px;
             }
+
+            .disclaimer-box { padding: 16px; margin-bottom: 24px; }
+            .disclaimer-title { font-size: 14px; margin-bottom: 6px; }
+            .disclaimer-text { font-size: 14px; }
 
             .header h1 { font-size: 28px; }
             .header p { font-size: 16px; }
@@ -140,6 +171,15 @@
 <body>
 
     <div class="card">
+        <!-- Rot-Goldener Disclaimer Kasten -->
+        <div class="disclaimer-box">
+            <div class="disclaimer-title">📌 Wichtiger Hinweis</div>
+            <div class="disclaimer-text">
+                Hierbei handelt es sich <strong>nur um eine reine Stimmungsabfrage</strong>, OB wir als Verein am Weihnachtsmarkt teilnehmen wollen. 
+                Dies ist noch <u>keine</u> verbindliche Schichteinteilung oder Helferliste!
+            </div>
+        </div>
+
         <div class="header">
             <h1>🎅 VCK Weihnachtsmarkt</h1>
             <p>Sollen wir dieses Jahr wieder mit einem eigenen Stand am Weihnachtsmarkt dabei sein und etwas verkaufen?</p>
