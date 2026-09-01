@@ -65,3 +65,27 @@
         <div class="home-grid">
             <div class="card">
                 <h2>Einsatzplanung</h2>
+                <p>Frei zugänglich für alle Helferinnen und Helfer.</p>
+                <a href="vckeinsatzplanung.html" class="btn">Zur Einsatzplanung</a>
+            </div>
+
+            <div class="card">
+                <h2>Detailplanung</h2>
+                <p>Passwortgeschützter Bereich.</p>
+                <button class="btn" onclick="openDetailplanung()">Zur Detailplanung</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDetailplanung() {
+            const password = prompt("Bitte gib das Passwort für die Detailplanung ein:");
+            if (password === "2026") {
+                window.location.href = "drinks.html";
+            } else if (password !== null) {
+                alert("Falsches Passwort! Zugriff verweigert.");
+            }
+        }
+    </script>
+</body>
+</html>
