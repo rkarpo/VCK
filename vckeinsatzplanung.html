@@ -8,34 +8,35 @@
     <style>
         * {
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background-color: #f8f9fa;
+            background-color: #f4f6f9;
             margin: 0;
-            padding: 10px;
-            color: #212529;
+            padding: 15px;
+            color: #333;
         }
 
         .container {
-            max-width: 1150px;
+            max-width: 1200px;
             margin: 0 auto;
             background: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
 
         .btn {
             background-color: #2b5797;
             color: white;
             border: none;
-            padding: 10px 18px;
-            font-size: 14px;
-            border-radius: 4px;
+            padding: 9px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
             text-decoration: none;
             display: inline-block;
         }
@@ -54,53 +55,53 @@
         }
 
         .btn-add {
-            background-color: #ffffff;
-            color: #6c757d;
-            border: 1px dashed #adb5bd;
-            padding: 6px 12px;
+            background-color: #f8f9fa;
+            color: #2b5797;
+            border: 1px dashed #2b5797;
+            padding: 8px 16px;
             font-size: 13px;
-            border-radius: 4px;
+            font-weight: 600;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-block;
         }
 
         .btn-add:hover {
-            background-color: #f8f9fa;
-            color: #212529;
-            border-color: #495057;
+            background-color: #eef4ff;
+            border-color: #1e3d6b;
         }
 
         .btn-del {
             background: transparent;
             border: none;
-            color: #ccc;
-            font-size: 16px;
+            color: #aaa;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            padding: 0 4px;
-            line-height: 1;
-            border-radius: 3px;
-            transition: color 0.2s, background 0.2s;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
         }
 
         .btn-del:hover {
             color: #dc3545;
-            background: #f8d7da;
+            background: #ffebe9;
         }
 
         .scroll-hint {
             display: block;
             font-size: 11px;
             color: #6c757d;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             text-align: right;
         }
 
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            border: 1px solid #777777;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
         }
 
         table {
@@ -109,55 +110,44 @@
             border-spacing: 0;
             text-align: center;
             font-size: 13px;
-            min-width: 850px;
+            min-width: 950px;
         }
 
         th, td {
-            border-right: 1px solid #777777;
-            border-bottom: 1px solid #777777;
+            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
             padding: 6px 8px;
             white-space: nowrap;
         }
 
         th {
             background-color: #ffffff;
-            font-weight: normal;
+            font-weight: 600;
+            color: #495057;
         }
 
         .header-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
+            color: #2b5797;
         }
 
-        th:nth-child(1),
-        td:nth-child(1) {
+        /* Fixed columns for Name & Role */
+        th:nth-child(1), td:nth-child(1) {
             position: sticky;
             left: 0;
             background-color: #ffffff;
             z-index: 3;
-            min-width: 90px;
+            min-width: 120px;
         }
 
-        th:nth-child(2),
-        td:nth-child(2) {
+        th:nth-child(2), td:nth-child(2) {
             position: sticky;
-            left: 90px;
+            left: 120px;
             background-color: #ffffff;
             z-index: 3;
-            min-width: 110px;
-            border-right: 2px solid #555555;
-        }
-
-        td:nth-child(2)::after,
-        th:nth-child(2)::after {
-            content: "";
-            position: absolute;
-            right: -5px;
-            top: 0;
-            bottom: 0;
-            width: 5px;
-            box-shadow: 3px 0 5px rgba(0,0,0,0.1);
-            pointer-events: none;
+            min-width: 140px;
+            border-right: 2px solid #ccc;
         }
 
         tfoot tr td:first-child {
@@ -167,72 +157,90 @@
             z-index: 3;
         }
 
-        thead tr th:nth-child(3),
-        thead tr th:nth-child(5),
-        thead tr th:nth-child(7),
-        tbody tr td:nth-child(4),
-        tbody tr td:nth-child(6),
-        tbody tr td:nth-child(8),
+        /* Alternating Column Colors */
+        thead tr th:nth-child(3), thead tr th:nth-child(5), thead tr th:nth-child(7),
+        tbody tr td:nth-child(4), tbody tr td:nth-child(6), tbody tr td:nth-child(8),
         tfoot tr:not(:last-child) td:nth-child(3),
         tfoot tr:not(:last-child) td:nth-child(5),
         tfoot tr:not(:last-child) td:nth-child(7) {
-            background-color: #f0f2f5;
+            background-color: #f8f9fa;
         }
 
         .add-row-cell {
             text-align: left;
-            padding: 8px 6px;
+            padding: 10px;
             background-color: #ffffff !important;
         }
 
-        td input {
+        /* Styled Form Controls */
+        td input, td select {
             width: 100%;
-            border: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
             background: transparent;
             text-align: center;
             font-size: 13px;
-            color: #000000;
+            color: #333;
+            padding: 4px;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
         }
 
-        td input:focus {
-            outline: 2px solid #2b5797;
-            background: #ffffff;
+        td input {
+            text-align: left;
+        }
+
+        td select {
+            text-align-last: center;
+        }
+
+        td input:hover, td select:hover {
+            border-color: #cbd5e1;
+            background-color: #f8fafc;
+        }
+
+        td input:focus, td select:focus {
+            outline: none;
+            border-color: #2b5797;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px rgba(43, 87, 151, 0.15);
         }
 
         .calc-row-title {
             text-align: right;
-            padding-right: 10px;
-            font-weight: normal;
+            padding-right: 12px;
+            font-weight: 600;
+            color: #495057;
             background-color: #ffffff !important;
         }
 
         .calc-row-separator td {
-            border-top: 2px solid #000000;
+            border-top: 2px solid #333;
         }
 
         .status-ok {
-            background-color: #c3e6cb !important;
-            color: #155724;
+            background-color: #d1e7dd !important;
+            color: #0f5132;
             font-weight: bold;
         }
 
         .status-fehlen {
-            background-color: #f5c6cb !important;
-            color: #721c24;
+            background-color: #f8d7da !important;
+            color: #842029;
             font-weight: bold;
         }
 
         .col-action {
-            width: 25px;
+            width: 30px;
             border-right: none;
             background-color: transparent !important;
         }
 
         @media (max-width: 600px) {
-            body { padding: 4px; }
-            .container { padding: 8px; }
-            th, td { font-size: 12px; padding: 4px 3px; }
-            td input { font-size: 12px; }
+            body { padding: 6px; }
+            .container { padding: 10px; }
+            th, td { font-size: 12px; padding: 4px; }
+            td input, td select { font-size: 12px; }
         }
     </style>
 </head>
@@ -248,19 +256,19 @@
                 <thead>
                     <tr>
                         <th colspan="2" class="header-title">Einsatzplan VCK</th>
-                        <th><b>18.09.2026</b><br>Freitag<br>Aufbau<br>ab 10.00 Uhr</th>
-                        <th><b>19.09.2026</b><br>Samstag<br>Schicht 1<br>16:00-20:30 Uhr</th>
-                        <th><b>19.09.2026</b><br>Samstag<br>Schicht 2<br>20:30-ca 01.00 Uhr</th>
-                        <th><b>20.09.2026</b><br>Sonntag<br>Schicht 1<br>11.00-16.00 Uhr</th>
-                        <th><b>20.09.2026</b><br>Sonntag<br>Schicht 2<br>16.00 - 21.00 Uhr</th>
-                        <th><b>20.09.2026</b><br>Sonntag<br>Abbau<br>ab ca 21.00 Uhr</th>
+                        <th><b>18.09.2026</b><br>Freitag<br>Aufbau<br><small>ab 10:00 Uhr</small></th>
+                        <th><b>19.09.2026</b><br>Samstag<br>Schicht 1<br><small>16:00-20:30 Uhr</small></th>
+                        <th><b>19.09.2026</b><br>Samstag<br>Schicht 2<br><small>20:30-ca 01:00 Uhr</small></th>
+                        <th><b>20.09.2026</b><br>Sonntag<br>Schicht 1<br><small>11:00-16:00 Uhr</small></th>
+                        <th><b>20.09.2026</b><br>Sonntag<br>Schicht 2<br><small>16:00-21:00 Uhr</small></th>
+                        <th><b>20.09.2026</b><br>Sonntag<br>Abbau<br><small>ab ca 21:00 Uhr</small></th>
                         <th class="col-action"></th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     <tr id="addRowContainer">
                         <td colspan="9" class="add-row-cell">
-                            <button class="btn-add" onclick="addNewPerson()">+ Person / Zeile hinzufügen</button>
+                            <button class="btn-add" onclick="window.addNewPerson()">+ Person hinzufügen</button>
                         </td>
                     </tr>
                 </tbody>
@@ -277,7 +285,7 @@
                         <td class="col-action"></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="calc-row-title">Gesamt</td>
+                        <td colspan="2" class="calc-row-title">Gesamt eingeteilt</td>
                         <td id="total-0">0</td>
                         <td id="total-1">0</td>
                         <td id="total-2">0</td>
@@ -320,10 +328,12 @@
         const database = getDatabase(app);
         const planRef = ref(database, 'vck_einsatzplan_2026');
 
+        const roleOptions = ["Freizeit", "Damen 1", "Damen 2", "Jugend", "Trainer/Vorstand"];
+
         window.addNewPerson = function() {
             const newPerson = {
                 name: "",
-                role: "",
+                role: "Freizeit",
                 shifts: ["", "", "", "", "", ""]
             };
             push(planRef, newPerson);
@@ -333,14 +343,13 @@
             const tr = document.querySelector(`tr[data-key="${key}"]`);
             if (!tr) return;
 
-            const inputs = tr.querySelectorAll('input');
-            const name = inputs[0].value;
-            const role = inputs[1].value;
-            const shifts = [];
+            const nameInput = tr.querySelector('.input-name');
+            const roleSelect = tr.querySelector('.select-role');
+            const shiftSelects = tr.querySelectorAll('.select-shift');
 
-            for (let i = 2; i < inputs.length; i++) {
-                shifts.push(inputs[i].value);
-            }
+            const name = nameInput.value;
+            const role = roleSelect.value;
+            const shifts = Array.from(shiftSelects).map(select => select.value);
 
             set(ref(database, `vck_einsatzplan_2026/${key}`), {
                 name: name,
@@ -361,15 +370,15 @@
             { name: "Alex", role: "Freizeit", shifts: ["Aufbau", "verfügbar", "verfügbar", "", "", "Abbau"] },
             { name: "Jochen", role: "Freizeit", shifts: ["Aufbau", "verfügbar", "", "", "", "Abbau"] },
             { name: "Eddie", role: "Freizeit", shifts: ["Aufbau", "verfügbar", "", "verfügbar", "", "Abbau"] },
-            { name: "Jan", role: "Trainer/Freizeit", shifts: ["Aufbau", "verfügbar", "verfügbar", "verfügbar", "verfügbar", "Abbau"] },
+            { name: "Jan", role: "Trainer/Vorstand", shifts: ["Aufbau", "verfügbar", "verfügbar", "verfügbar", "verfügbar", "Abbau"] },
             { name: "Chris", role: "Freizeit", shifts: ["", "", "verfügbar", "", "", ""] },
             { name: "Ines", role: "Freizeit", shifts: ["", "", "", "verfügbar", "", ""] },
             { name: "Anna", role: "Freizeit", shifts: ["", "", "", "verfügbar", "", ""] },
-            { name: "Markus", role: "Trainer/Freizeit", shifts: ["", "", "", "", "verfügbar", "Abbau"] },
+            { name: "Markus", role: "Trainer/Vorstand", shifts: ["", "", "", "", "verfügbar", "Abbau"] },
             { name: "Katja", role: "Damen 1", shifts: ["", "", "", "", "verfügbar", ""] },
             { name: "Jessie", role: "Damen 1", shifts: ["", "", "verfügbar", "", "", ""] },
-            { name: "Micha", role: "Trainer/Freizeit", shifts: ["", "", "", "", "verfügbar", ""] },
-            { name: "Michael", role: "Trainer/Freizeit", shifts: ["", "", "", "", "", ""] }
+            { name: "Micha", role: "Trainer/Vorstand", shifts: ["", "", "", "", "verfügbar", ""] },
+            { name: "Michael", role: "Trainer/Vorstand", shifts: ["", "", "", "", "", ""] }
         ];
 
         onValue(planRef, (snapshot) => {
@@ -393,13 +402,35 @@
                 const tr = document.createElement('tr');
                 tr.dataset.key = key;
 
-                const shiftsHtml = (person.shifts || ["","","","","",""]).map((s, col) => 
-                    `<td><input type="text" class="shift-input" data-col="${col}" value="${s || ''}" onchange="window.updateRow('${key}')" oninput="window.calculateTotals()"></td>`
+                // Rollen Dropdown zusammenbauen
+                const roleOptionsHtml = roleOptions.map(r => 
+                    `<option value="${r}" ${person.role === r ? 'selected' : ''}>${r}</option>`
                 ).join('');
 
+                // Schichten Dropdowns (inkl. Spezialoptionen Aufbau/Abbau)
+                const shiftsHtml = (person.shifts || ["","","","","",""]).map((s, col) => {
+                    let extraOption = "";
+                    if (col === 0) extraOption = `<option value="Aufbau" ${s === 'Aufbau' ? 'selected' : ''}>Aufbau</option>`;
+                    if (col === 5) extraOption = `<option value="Abbau" ${s === 'Abbau' ? 'selected' : ''}>Abbau</option>`;
+
+                    return `
+                        <td>
+                            <select class="select-shift" data-col="${col}" onchange="window.updateRow('${key}'); window.calculateTotals();">
+                                <option value="" ${!s ? 'selected' : ''}>---</option>
+                                <option value="verfügbar" ${s === 'verfügbar' ? 'selected' : ''}>verfügbar</option>
+                                ${extraOption}
+                            </select>
+                        </td>
+                    `;
+                }).join('');
+
                 tr.innerHTML = `
-                    <td><input type="text" value="${person.name || ''}" placeholder="Name" onchange="window.updateRow('${key}')"></td>
-                    <td><input type="text" value="${person.role || ''}" placeholder="Gruppe/Rolle" onchange="window.updateRow('${key}')"></td>
+                    <td><input type="text" class="input-name" value="${person.name || ''}" placeholder="Name..." onchange="window.updateRow('${key}')"></td>
+                    <td>
+                        <select class="select-role" onchange="window.updateRow('${key}')">
+                            ${roleOptionsHtml}
+                        </select>
+                    </td>
                     ${shiftsHtml}
                     <td class="col-action"><button class="btn-del" onclick="window.deleteRow('${key}')" title="Zeile entfernen">×</button></td>
                 `;
@@ -415,11 +446,11 @@
             const requiredCount = [6, 7, 8, 6, 7, 6];
 
             for (let col = 0; col < numCols; col++) {
-                const inputs = document.querySelectorAll(`.shift-input[data-col="${col}"]`);
+                const selects = document.querySelectorAll(`.select-shift[data-col="${col}"]`);
                 let count = 0;
 
-                inputs.forEach(input => {
-                    if (input.value.trim() !== '') {
+                selects.forEach(select => {
+                    if (select.value.trim() !== '') {
                         count++;
                     }
                 });
