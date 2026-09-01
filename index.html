@@ -9,8 +9,8 @@
             --primary-color: #d00000;
             --accent-blue: #007bff;
             --accent-blue-hover: #0056b3;
-            --bg-color: #eef2f7;
-            --card-bg: rgba(255, 255, 255, 0.96);
+            --bg-color: #f0f4f8;
+            --card-bg: rgba(255, 255, 255, 0.94);
             --text-color: #1a1a1a;
             --text-muted: #596573;
         }
@@ -35,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* Eleganter Hintergrund: Große blasse Volleybälle & diagonale Feldlinien */
+        /* Edler, hochdetaillierter Spielfeld & Volleyball-Hintergrund */
         body::before {
             content: "";
             position: fixed;
@@ -45,22 +45,22 @@
             height: 100%;
             z-index: -1;
             opacity: 0.85;
-            background-color: #edf1f6;
+            background-color: #f2f5f9;
             background-image: 
-                /* Diagonale Spielfeld-Linien */
-                linear-gradient(135deg, rgba(43, 87, 151, 0.08) 25%, transparent 25%, transparent 50%, rgba(43, 87, 151, 0.08) 50%, rgba(43, 87, 151, 0.08) 75%, transparent 75%, transparent),
-                /* Riesige dezente Volleyball-Graphik rechts/oben */
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100"><g fill="none" stroke="%232b5797" stroke-width="0.8" opacity="0.12"><circle cx="80" cy="20" r="60"/><path d="M 35,-25 Q 80,20 125,-25"/><path d="M 35,65 Q 80,20 125,65"/><path d="M 40,-20 Q 75,25 40,70"/><path d="M 120,-20 Q 85,25 120,70"/><circle cx="10" cy="90" r="50"/><path d="M -30,50 Q 10,90 50,50"/><path d="M -30,130 Q 10,90 50,130"/></g></svg>');
-            background-size: 180px 180px, 450px 450px;
-            background-position: center center, right top;
+                /* Sanfter Lichtverlauf von oben nach unten */
+                radial-gradient(circle at 50% 30%, rgba(255,255,255,0.8) 0%, rgba(235,240,246,0.5) 100%),
+                /* SVG mit echten Detaillierten Volleybällen & Netzgitter */
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800"><g fill="none" stroke="%232b5797" stroke-width="1.2" opacity="0.14"><path d="M-100,500 L900,500 M-100,650 L900,650" stroke-dasharray="12,8"/><line x1="400" y1="0" x2="400" y2="800" stroke-width="2.5"/><circle cx="120" cy="180" r="110"/><path d="M 10,180 C 40,100 120,70 120,70 C 120,70 200,100 230,180 M 10,180 C 40,260 120,290 120,290 C 120,290 200,260 230,180"/><path d="M 120,70 C 40,100 20,180 20,180 M 120,70 C 200,100 220,180 220,180"/><path d="M 120,290 C 40,260 20,180 20,180 M 120,290 C 200,260 220,180 220,180"/><circle cx="690" cy="580" r="140"/><path d="M 550,580 C 590,480 690,440 690,440 C 690,440 790,480 830,580 M 550,580 C 590,680 690,720 690,720 C 690,720 790,680 830,580"/><path d="M 690,440 C 590,480 570,580 570,580 M 690,440 C 790,480 810,580 810,580"/><path d="M 690,720 C 590,680 570,580 570,580 M 690,720 C 790,680 810,580 810,580"/></g></svg>');
+            background-size: cover;
+            background-position: center;
         }
 
         .container {
             width: 100%;
             max-width: 440px;
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             padding: 35px 24px;
             border-radius: 24px;
             box-shadow: 0 15px 35px rgba(43, 87, 151, 0.08), 0 5px 15px rgba(0, 0, 0, 0.03);
@@ -163,7 +163,7 @@
         }
 
         .btn-primary:hover {
-            background: linear-gradient(180deg, #0077edd1 0%, #005bbd 100%);
+            background: linear-gradient(180deg, #0077ed 0%, #005bbd 100%);
             box-shadow: 0 6px 14px rgba(0, 123, 255, 0.35);
         }
 
@@ -180,7 +180,7 @@
             <img src="logo.jpg" alt="VC Kuppenheim Logo">
         </div>
 
-        <!-- Haupttitel & Untertitel -->
+        <!-- Titel -->
         <h1>Planung Volleyball Club Kuppenheim</h1>
         <p class="subtitle">Herzlich Willkommen!<br>Bitte wähle den gewünschten Bereich aus:</p>
 
