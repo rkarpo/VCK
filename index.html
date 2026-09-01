@@ -11,7 +11,7 @@
             --accent-blue: #007bff;
             --accent-blue-hover: #0056b3;
             --bg-color: #f4f6f9;
-            --card-bg: rgba(255, 255, 255, 0.92);
+            --card-bg: rgba(255, 255, 255, 0.94);
             --text-color: #212529;
             --text-muted: #6c757d;
         }
@@ -31,11 +31,14 @@
             justify-content: center;
             align-items: center;
             padding: 20px 15px;
-            /* Volleyball-Feldlinien als dezent-transparenter Hintergrund */
+            margin: 0;
+
+            /* Transparenter Volleyball-Hintergrund (Volleybälle & Spielfeldlinien) */
             background-image: 
-                linear-gradient(rgba(244, 246, 249, 0.85), rgba(244, 246, 249, 0.85)),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect x='20' y='20' width='360' height='560' fill='none' stroke='%3C%23d00000' stroke-width='4' opacity='0.25'/%3E%3Cline x1='20' y1='300' x2='380' y2='300' stroke='%3C%23d00000' stroke-width='6' opacity='0.3'/%3E%3Cline x1='20' y1='200' x2='380' y2='200' stroke='%3C%23d00000' stroke-width='3' stroke-dasharray='8,8' opacity='0.25'/%3E%3Cline x1='20' y1='400' x2='380' y2='400' stroke='%3C%23d00000' stroke-width='3' stroke-dasharray='8,8' opacity='0.25'/%3E%3C/svg%3E");
+                linear-gradient(rgba(244, 246, 249, 0.88), rgba(244, 246, 249, 0.88)),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%3C%23d00000' stroke-width='1.2' opacity='0.15'%3E%3Ccircle cx='50' cy='50' r='40'/%3E%3Cpath d='M20,30 Q50,55 80,30'/%3E%3Cpath d='M20,70 Q50,45 80,70'/%3E%3Cpath d='M30,20 Q55,50 30,80'/%3E%3Cpath d='M70,20 Q45,50 70,80'/%3E%3C/g%3E%3C/svg%3E");
             background-repeat: repeat;
+            background-size: 220px 220px;
             background-position: center;
         }
 
@@ -43,12 +46,13 @@
             width: 100%;
             max-width: 480px;
             background: var(--card-bg);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             padding: 30px 20px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
 
         .logo-container {
@@ -58,7 +62,7 @@
         .logo-container img {
             max-width: 110px;
             height: auto;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
         }
 
         h1 {
@@ -128,14 +132,13 @@
             text-decoration: none;
             display: inline-block;
             transition: background-color 0.2s ease, transform 0.1s ease;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
         }
 
         .btn:active {
             transform: scale(0.98);
         }
 
-        /* Haupt-Buttons (Blau wie im Screen) */
         .btn-primary {
             background-color: var(--accent-blue);
             color: #ffffff;
@@ -145,7 +148,6 @@
             background-color: var(--accent-blue-hover);
         }
 
-        /* Passwort-Bereich / Warnung Akzent */
         .card-lock {
             border-left: 4px solid var(--primary-color);
         }
@@ -154,14 +156,17 @@
 <body>
 
     <div class="container">
+        <!-- Logo aus dem Ordner "images" -->
         <div class="logo-container">
-            <img src="301890443_404006065246268_9100595673000209446_n.jpg" alt="VC Kuppenheim Logo">
+            <img src="images/logo.jpg" alt="VC Kuppenheim Logo">
         </div>
 
+        <!-- Titel & Begrüßung -->
         <h1>Planung Volleyball Club Kuppenheim</h1>
         <p class="subtitle">Herzlich Willkommen!<br>Bitte wähle den gewünschten Bereich aus:</p>
 
         <div class="sections-wrapper">
+            <!-- Stadtfest 2026 -->
             <div class="card">
                 <div class="card-icon">📅</div>
                 <h2>Einsatzplanung Stadtfest 2026</h2>
@@ -169,6 +174,7 @@
                 <a href="vckeinsatzplanung.html" class="btn btn-primary">Zur Einsatzplanung</a>
             </div>
 
+            <!-- Weihnachtsmarkt 2026 -->
             <div class="card">
                 <div class="card-icon">🎄</div>
                 <h2>Einsatzplanung Weihnachtsmarkt 2026</h2>
@@ -176,6 +182,7 @@
                 <a href="weihnachtsmarkt.html" class="btn btn-primary">Zur Einsatzplanung</a>
             </div>
 
+            <!-- Detailplanung -->
             <div class="card card-lock">
                 <div class="card-icon">🔒</div>
                 <h2>Detailplanung</h2>
