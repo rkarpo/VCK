@@ -3,76 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Startseite - VCK 2026</title>
+    <title>Planung Volleyball Club Kuppenheim</title>
     <style>
+        :root {
+            --primary-color: #d00000;
+            --primary-hover: #a80000;
+            --accent-blue: #007bff;
+            --accent-blue-hover: #0056b3;
+            --bg-color: #f4f6f9;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --text-color: #212529;
+            --text-muted: #6c757d;
+        }
+
         * {
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        body {
-            background-color: #f8f9fa;
             margin: 0;
-            padding: 20px;
-            color: #212529;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 15px;
+            /* Volleyball-Feldlinien als dezent-transparenter Hintergrund */
+            background-image: 
+                linear-gradient(rgba(244, 246, 249, 0.85), rgba(244, 246, 249, 0.85)),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect x='20' y='20' width='360' height='560' fill='none' stroke='%3C%23d00000' stroke-width='4' opacity='0.25'/%3E%3Cline x1='20' y1='300' x2='380' y2='300' stroke='%3C%23d00000' stroke-width='6' opacity='0.3'/%3E%3Cline x1='20' y1='200' x2='380' y2='200' stroke='%3C%23d00000' stroke-width='3' stroke-dasharray='8,8' opacity='0.25'/%3E%3Cline x1='20' y1='400' x2='380' y2='400' stroke='%3C%23d00000' stroke-width='3' stroke-dasharray='8,8' opacity='0.25'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-position: center;
+        }
+
         .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.6);
         }
-        .home-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+
+        .logo-container {
+            margin-bottom: 15px;
         }
+
+        .logo-container img {
+            max-width: 110px;
+            height: auto;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        .sections-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
         .card {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 25px;
-            text-align: center;
             background: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            border-radius: 14px;
+            padding: 20px 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-color);
+        }
+
+        .card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
         .btn {
-            background-color: #2b5797;
-            color: white;
+            width: 100%;
+            padding: 12px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 10px;
             border: none;
-            padding: 12px 22px;
-            font-size: 15px;
-            border-radius: 4px;
             cursor: pointer;
-            transition: background 0.2s;
             text-decoration: none;
             display: inline-block;
-            margin-top: 15px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         }
-        .btn:hover {
-            background-color: #1e3d6b;
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Haupt-Buttons (Blau wie im Screen) */
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-blue-hover);
+        }
+
+        /* Passwort-Bereich / Warnung Akzent */
+        .card-lock {
+            border-left: 4px solid var(--primary-color);
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Einsatzplanung VCK 2026</h1>
-        <p>Bitte wähle den gewünschten Bereich aus:</p>
+        <div class="logo-container">
+            <img src="301890443_404006065246268_9100595673000209446_n.jpg" alt="VC Kuppenheim Logo">
+        </div>
 
-        <div class="home-grid">
+        <h1>Planung Volleyball Club Kuppenheim</h1>
+        <p class="subtitle">Herzlich Willkommen!<br>Bitte wähle den gewünschten Bereich aus:</p>
+
+        <div class="sections-wrapper">
             <div class="card">
-                <h2>Einsatzplanung</h2>
+                <div class="card-icon">📅</div>
+                <h2>Einsatzplanung Stadtfest 2026</h2>
                 <p>Frei zugänglich für alle Helferinnen und Helfer.</p>
-                <a href="vckeinsatzplanung.html" class="btn">Zur Einsatzplanung</a>
+                <a href="vckeinsatzplanung.html" class="btn btn-primary">Zur Einsatzplanung</a>
             </div>
 
             <div class="card">
+                <div class="card-icon">🎄</div>
+                <h2>Einsatzplanung Weihnachtsmarkt 2026</h2>
+                <p>Frei zugänglich für alle Helferinnen und Helfer.</p>
+                <a href="weihnachtsmarkt.html" class="btn btn-primary">Zur Einsatzplanung</a>
+            </div>
+
+            <div class="card card-lock">
+                <div class="card-icon">🔒</div>
                 <h2>Detailplanung</h2>
                 <p>Passwortgeschützter Bereich.</p>
-                <button class="btn" onclick="openDetailplanung()">Zur Detailplanung</button>
+                <button class="btn btn-primary" onclick="openDetailplanung()">Zur Detailplanung</button>
             </div>
         </div>
     </div>
@@ -87,5 +195,6 @@
             }
         }
     </script>
+
 </body>
 </html>
