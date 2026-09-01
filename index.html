@@ -6,13 +6,14 @@
     <title>Planung Volleyball Club Kuppenheim</title>
     <style>
         :root {
-            --primary-color: #d00000;
-            --accent-blue: #007bff;
-            --accent-blue-hover: #0056b3;
-            --bg-color: #eef2f7;
-            --card-bg: rgba(255, 255, 255, 0.94);
-            --text-color: #1a1a1a;
-            --text-muted: #596573;
+            --primary-red: #d00000;
+            --primary-red-hover: #9e0000;
+            --gold-accent: #d4af37;
+            --gold-hover: #f3ce5a;
+            --bg-color: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #111111;
+            --text-muted: #444444;
         }
 
         * {
@@ -24,7 +25,7 @@
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-dark);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -44,24 +45,14 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            
-            /* Kombination aus 4 versetzten Bällen unterschiedlicher Größe & Positionen */
             background-image: 
-                /* Ball 1: Oben links */
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2" opacity="0.12"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/></g></svg>'),
-                /* Ball 2: Mitte rechts (leicht gedreht/dezent) */
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2" opacity="0.09"><circle cx="50" cy="50" r="42"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>'),
-                /* Ball 3: Unten links (groß) */
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2" opacity="0.11"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>'),
-                /* Ball 4: Unten rechts (klein) */
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2" opacity="0.1"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>');
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.12"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23111111" stroke-width="1.2" opacity="0.08"><circle cx="50" cy="50" r="42"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.1"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d4af37" stroke-width="1.2" opacity="0.15"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>');
 
             background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-            
-            /* Unterschiedliche Größen für Asymmetrie */
             background-size: 180px 180px, 240px 240px, 280px 280px, 140px 140px;
-            
-            /* Verteilt über den Bildschirmecken und Rändern */
             background-position: 5% 8%, 92% 40%, 8% 88%, 85% 90%;
         }
 
@@ -73,9 +64,9 @@
             -webkit-backdrop-filter: blur(14px);
             padding: 35px 24px;
             border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0, 51, 170, 0.08), 0 5px 15px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(208, 0, 0, 0.05);
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--gold-accent);
         }
 
         .logo-container {
@@ -93,7 +84,7 @@
         h1 {
             font-size: 1.45rem;
             font-weight: 800;
-            color: #111827;
+            color: var(--text-dark);
             margin-bottom: 8px;
             line-height: 1.25;
             letter-spacing: -0.02em;
@@ -116,8 +107,8 @@
             background: #ffffff;
             border-radius: 16px;
             padding: 22px 18px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e5e5;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
@@ -126,8 +117,8 @@
 
         .card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
-            border-color: #cbd5e1;
+            box-shadow: 0 10px 20px rgba(208, 0, 0, 0.08);
+            border-color: var(--gold-accent);
         }
 
         .card-icon {
@@ -139,7 +130,7 @@
             font-size: 1.15rem;
             font-weight: 700;
             margin-bottom: 6px;
-            color: #1e293b;
+            color: var(--text-dark);
         }
 
         .card p {
@@ -149,36 +140,38 @@
             line-height: 1.35;
         }
 
+        /* Rot-Weiß-Goldene Buttons */
         .btn {
             width: 100%;
-            padding: 13px 20px;
+            padding: 12px 20px;
             font-size: 0.95rem;
-            font-weight: 600;
+            font-weight: 700;
             border-radius: 12px;
-            border: none;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25);
+            
+            /* Roter Hintergrund, weißer Text, dicker Goldrahmen */
+            background: linear-gradient(180deg, var(--primary-red) 0%, #b00000 100%);
+            color: #ffffff;
+            border: 3.5px solid var(--gold-accent);
+            box-shadow: 0 4px 12px rgba(208, 0, 0, 0.25);
         }
 
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-primary {
-            background: linear-gradient(180deg, #0084ff 0%, #0066d6 100%);
+        .btn:hover {
+            background: linear-gradient(180deg, #e60000 0%, var(--primary-red-hover) 100%);
+            border-color: var(--gold-hover);
+            box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
             color: #ffffff;
         }
 
-        .btn-primary:hover {
-            background: linear-gradient(180deg, #0077ed 0%, #005bbd 100%);
-            box-shadow: 0 6px 14px rgba(0, 123, 255, 0.35);
+        .btn:active {
+            transform: scale(0.97);
         }
 
         .card-lock {
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--primary-red);
         }
     </style>
 </head>
@@ -200,7 +193,7 @@
                 <div class="card-icon">📅</div>
                 <h2>Einsatzplanung Stadtfest 2026</h2>
                 <p>Frei zugänglich für alle Helferinnen und Helfer.</p>
-                <a href="vckeinsatzplanung.html" class="btn btn-primary">Zur Einsatzplanung</a>
+                <a href="vckeinsatzplanung.html" class="btn">Zur Einsatzplanung</a>
             </div>
 
             <!-- Weihnachtsmarkt 2026 -->
@@ -208,7 +201,7 @@
                 <div class="card-icon">🎄</div>
                 <h2>Einsatzplanung Weihnachtsmarkt 2026</h2>
                 <p>Frei zugänglich für alle Helferinnen und Helfer.</p>
-                <a href="weihnachtsmarkt.html" class="btn btn-primary">Zur Einsatzplanung</a>
+                <a href="weihnachtsmarkt.html" class="btn">Zur Einsatzplanung</a>
             </div>
 
             <!-- Detailplanung -->
@@ -216,7 +209,7 @@
                 <div class="card-icon">🔒</div>
                 <h2>Detailplanung</h2>
                 <p>Passwortgeschützter Bereich.</p>
-                <button class="btn btn-primary" onclick="openDetailplanung()">Zur Detailplanung</button>
+                <button class="btn" onclick="openDetailplanung()">Zur Detailplanung</button>
             </div>
         </div>
     </div>
