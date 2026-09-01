@@ -17,13 +17,14 @@
     const database = getDatabase(app);
     const planRef = ref(database, 'vck_einsatzplan_2026');
 
-    // Funktionen global verfügbar machen für HTML-Events (onclick/onchange)
+    // Zeile direkt mit Firebase-Push-ID anlegen
     window.addNewPerson = function() {
         const newPerson = {
             name: "",
             role: "",
             shifts: ["", "", "", "", "", ""]
         };
+        // push() gibt eine Referenz inklusive der neuen eindeutigen ID zurück
         push(planRef, newPerson);
     };
 
@@ -40,10 +41,13 @@
             shifts.push(inputs[i].value);
         }
 
+        // Pfad explizit angeben zum Speichern
         set(ref(database, `vck_einsatzplan_2026/${key}`), {
             name: name,
             role: role,
             shifts: shifts
+        }).catch((error) => {
+            console.error("Fehler beim Speichern:", error);
         });
     };
 
@@ -83,6 +87,11 @@
         const tbody = document.getElementById('tableBody');
         const addRowContainer = document.getElementById('addRowContainer');
         
+        // Aktiven Fokus sichern, damit die Tastatur beim Schreiben auf Mobilgeräten nicht zugeht
+        const activeInput = document.activeElement;
+        const activeKey = activeInput ? activeInput.closest('tr')?.dataset?.key : null;
+        const activeIndex = activeInput ? Array.from(activeInput.closest('tr')?.querySelectorAll('input') || []).indexOf(activeInput) : -1;
+
         const existingRows = tbody.querySelectorAll('tr:not(#addRowContainer)');
         existingRows.forEach(row => row.remove());
 
@@ -92,7 +101,7 @@
             tr.dataset.key = key;
 
             const shiftsHtml = (person.shifts || ["","","","","",""]).map((s, col) => 
-                `<td><input type="text" class="shift-input" data-col="${col}" value="${s || ''}" onchange="updateRow('${key}')"></td>`
+                `<td><input type="text" class="shift-input" data-col="${col}" value="${s || ''}" onchange="updateRow('${key}')" oninput="calculateTotals()"></td>`
             ).join('');
 
             tr.innerHTML = `
@@ -104,6 +113,15 @@
 
             tbody.insertBefore(tr, addRowContainer);
         });
+
+        // Fokus nach dem Rendern wiederherstellen
+        if (activeKey && activeIndex !== -1) {
+            const row = document.querySelector(`tr[data-key="${activeKey}"]`);
+            if (row) {
+                const input = row.querySelectorAll('input')[activeIndex];
+                if (input) input.focus();
+            }
+        }
 
         calculateTotals();
     }
