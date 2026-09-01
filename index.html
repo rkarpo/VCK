@@ -9,7 +9,7 @@
             --primary-color: #d00000;
             --accent-blue: #007bff;
             --accent-blue-hover: #0056b3;
-            --bg-color: #f0f4f8;
+            --bg-color: #eef2f7;
             --card-bg: rgba(255, 255, 255, 0.94);
             --text-color: #1a1a1a;
             --text-muted: #596573;
@@ -35,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* Edler, hochdetaillierter Spielfeld & Volleyball-Hintergrund */
+        /* Mikasa-Style Volleybälle als durchgehendes Hintergrundmuster */
         body::before {
             content: "";
             position: fixed;
@@ -44,14 +44,11 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            opacity: 0.85;
-            background-color: #f2f5f9;
-            background-image: 
-                /* Sanfter Lichtverlauf von oben nach unten */
-                radial-gradient(circle at 50% 30%, rgba(255,255,255,0.8) 0%, rgba(235,240,246,0.5) 100%),
-                /* SVG mit echten Detaillierten Volleybällen & Netzgitter */
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800"><g fill="none" stroke="%232b5797" stroke-width="1.2" opacity="0.14"><path d="M-100,500 L900,500 M-100,650 L900,650" stroke-dasharray="12,8"/><line x1="400" y1="0" x2="400" y2="800" stroke-width="2.5"/><circle cx="120" cy="180" r="110"/><path d="M 10,180 C 40,100 120,70 120,70 C 120,70 200,100 230,180 M 10,180 C 40,260 120,290 120,290 C 120,290 200,260 230,180"/><path d="M 120,70 C 40,100 20,180 20,180 M 120,70 C 200,100 220,180 220,180"/><path d="M 120,290 C 40,260 20,180 20,180 M 120,290 C 200,260 220,180 220,180"/><circle cx="690" cy="580" r="140"/><path d="M 550,580 C 590,480 690,440 690,440 C 690,440 790,480 830,580 M 550,580 C 590,680 690,720 690,720 C 690,720 790,680 830,580"/><path d="M 690,440 C 590,480 570,580 570,580 M 690,440 C 790,480 810,580 810,580"/><path d="M 690,720 C 590,680 570,580 570,580 M 690,720 C 790,680 810,580 810,580"/></g></svg>');
-            background-size: cover;
+            opacity: 0.12;
+            /* Mikasa V200W Wellen-Design Vektor */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 100 100"><g fill="none" stroke="%230033aa" stroke-width="1.2"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92" fill="none"/><path d="M 50,8 C 75,25 75,75 50,92" fill="none"/><path d="M 8,50 C 25,25 75,25 92,50" fill="none"/><path d="M 8,50 C 25,75 75,75 92,50" fill="none"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>');
+            background-repeat: repeat;
+            background-size: 160px 160px;
             background-position: center;
         }
 
@@ -63,7 +60,7 @@
             -webkit-backdrop-filter: blur(14px);
             padding: 35px 24px;
             border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(43, 87, 151, 0.08), 0 5px 15px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 15px 35px rgba(0, 51, 170, 0.08), 0 5px 15px rgba(0, 0, 0, 0.03);
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.9);
         }
