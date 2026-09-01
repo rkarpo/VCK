@@ -10,7 +10,7 @@
             --accent-blue: #007bff;
             --accent-blue-hover: #0056b3;
             --bg-color: #f4f6f9;
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg: rgba(255, 255, 255, 0.94);
             --text-color: #212529;
             --text-muted: #6c757d;
         }
@@ -35,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* Robusterer Volleyball-Hintergrund über ein Pseudo-Element */
+        /* Volleyball-Feld & Netz-Hintergrund */
         body::before {
             content: "";
             position: fixed;
@@ -44,10 +44,11 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            opacity: 0.12;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.8"><circle cx="50" cy="50" r="40"/><path d="M20,30 Q50,55 80,30"/><path d="M20,70 Q50,45 80,70"/><path d="M30,20 Q55,50 30,80"/><path d="M70,20 Q45,50 70,80"/></g></svg>');
+            opacity: 0.15;
+            /* SVG-Spielfeld & Netzstruktur */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><rect x="30" y="20" width="240" height="360" fill="none" stroke="%23d00000" stroke-width="3"/><line x1="30" y1="200" x2="270" y2="200" stroke="%23d00000" stroke-width="6"/><line x1="30" y1="130" x2="270" y2="130" stroke="%23d00000" stroke-width="2" stroke-dasharray="6,6"/><line x1="30" y1="270" x2="270" y2="270" stroke="%23d00000" stroke-width="2" stroke-dasharray="6,6"/><pattern id="net" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23d00000" stroke-width="0.8"/></pattern><rect x="30" y="193" width="240" height="14" fill="url(%23net)" opacity="0.6"/></svg>');
             background-repeat: repeat;
-            background-size: 150px 150px;
+            background-size: 260px 350px;
             background-position: center;
         }
 
@@ -70,12 +71,10 @@
             justify-content: center;
         }
 
-        /* Nahtlose Integration des Logos */
         .logo-container img {
             max-width: 130px;
             height: auto;
             border-radius: 12px;
-            /* Blend-Modus lässt den Hintergrund des Bildes natürlicher wirken */
             mix-blend-mode: multiply;
         }
 
