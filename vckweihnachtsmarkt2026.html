@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VCK Weihnachtsmarkt Umfrage 🎄</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --bg-main: #121212;
@@ -25,7 +29,7 @@
         .card {
             background: var(--bg-card);
             width: 100%;
-            max-width: 500px; /* Standardgröße für Mobilgeräte */
+            max-width: 500px;
             padding: 24px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.6);
@@ -136,33 +140,21 @@
         .tag-yes { color: var(--green); font-weight: bold; }
         .tag-no { color: var(--red); font-weight: bold; }
 
-        .hidden { display: none; }
-
-        /* Desktop-Anpassung */
+        /* PC / Desktop Darstellung */
         @media (min-width: 768px) {
-            .card {
-                max-width: 700px;
-                padding: 40px;
-                border-radius: 16px;
-            }
-
+            .card { max-width: 700px; padding: 40px; border-radius: 16px; }
             .disclaimer-box { padding: 16px; margin-bottom: 24px; }
             .disclaimer-title { font-size: 14px; margin-bottom: 6px; }
             .disclaimer-text { font-size: 14px; }
-
             .header h1 { font-size: 28px; }
             .header p { font-size: 16px; }
-
             label { font-size: 14px; margin-bottom: 8px; }
             input[type="text"] { font-size: 16px; padding: 14px; }
-
             .option-btn { font-size: 16px; padding: 16px; }
             .btn-submit { font-size: 16px; padding: 16px; }
-
             .results-title { font-size: 18px; margin-bottom: 18px; }
             .bar-label { font-size: 15px; margin-bottom: 6px; }
             .bar-outer { height: 22px; border-radius: 11px; }
-
             .voter-list { font-size: 14px; max-height: 220px; padding: 16px; }
             .voter-item { padding: 8px 0; }
         }
@@ -171,7 +163,6 @@
 <body>
 
     <div class="card">
-        <!-- Rot-Goldener Disclaimer Kasten -->
         <div class="disclaimer-box">
             <div class="disclaimer-title">📌 Wichtiger Hinweis</div>
             <div class="disclaimer-text">
@@ -180,138 +171,4 @@
             </div>
         </div>
 
-        <div class="header">
-            <h1>🎅 VCK Weihnachtsmarkt</h1>
-            <p>Sollen wir dieses Jahr wieder mit einem eigenen Stand am Weihnachtsmarkt dabei sein und etwas verkaufen?</p>
-        </div>
-
-        <!-- Formular -->
-        <div id="pollFormSection">
-            <div class="form-group">
-                <label for="memberName">Dein Name / Name der Person</label>
-                <input type="text" id="memberName" placeholder="z. B. Frank">
-            </div>
-
-            <label>Deine Rückmeldung</label>
-            <div class="options">
-                <div class="option-btn" onclick="selectOption('ja')">
-                    <input type="radio" name="vote" id="opt-yes" value="ja">
-                    <label for="opt-yes" style="margin:0; cursor:pointer; color:#fff;">Ja, wir sollten dabei sein! 🎄</label>
-                </div>
-                <div class="option-btn" onclick="selectOption('nein')">
-                    <input type="radio" name="vote" id="opt-no" value="nein">
-                    <label for="opt-no" style="margin:0; cursor:pointer; color:#fff;">Nein, wir lassen es dieses Jahr. ❄️</label>
-                </div>
-            </div>
-
-            <button class="btn-submit" onclick="submitVote()">Abstimmen</button>
-        </div>
-
-        <!-- Ergebnisse -->
-        <div id="resultsSection" class="results-section">
-            <div class="results-title">Aktuelles Ergebnis</div>
-            
-            <div class="bar-container">
-                <div class="bar-label">
-                    <span>Ja, dabei sein</span>
-                    <span id="countYes">0 Stimme(n) (0%)</span>
-                </div>
-                <div class="bar-outer"><div id="barYes" class="bar-inner-yes"></div></div>
-            </div>
-
-            <div class="bar-container">
-                <div class="bar-label">
-                    <span>Nein, lassen</span>
-                    <span id="countNo">0 Stimme(n) (0%)</span>
-                </div>
-                <div class="bar-outer"><div id="barNo" class="bar-inner-no"></div></div>
-            </div>
-
-            <div class="voter-list" id="voterList">
-                <!-- Namensliste wird dynamisch gefüllt -->
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let selectedVote = null;
-
-        function selectOption(val) {
-            selectedVote = val;
-            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
-            if(val === 'ja') {
-                document.getElementById('opt-yes').checked = true;
-                document.getElementById('opt-yes').closest('.option-btn').classList.add('selected');
-            } else {
-                document.getElementById('opt-no').checked = true;
-                document.getElementById('opt-no').closest('.option-btn').classList.add('selected');
-            }
-        }
-
-        function getVotes() {
-            return JSON.parse(localStorage.getItem('vck_christmas_votes')) || [];
-        }
-
-        function submitVote() {
-            const nameInput = document.getElementById('memberName').value.trim();
-
-            if (!nameInput) {
-                alert('Bitte gib deinen Namen ein!');
-                return;
-            }
-            if (!selectedVote) {
-                alert('Bitte wähle eine Antwortmöglichkeit aus!');
-                return;
-            }
-
-            const votes = getVotes();
-            
-            // Neuen Eintrag hinzufügen
-            votes.push({ name: nameInput, vote: selectedVote });
-            localStorage.setItem('vck_christmas_votes', JSON.stringify(votes));
-
-            // Formular zurücksetzen & Ergebnis aktualisieren
-            document.getElementById('memberName').value = '';
-            selectedVote = null;
-            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
-            document.querySelectorAll('input[name="vote"]').forEach(radio => radio.checked = false);
-
-            renderResults();
-        }
-
-        function renderResults() {
-            const votes = getVotes();
-            const total = votes.length;
-
-            const yesVotes = votes.filter(v => v.vote === 'ja').length;
-            const noVotes = votes.filter(v => v.vote === 'nein').length;
-
-            const yesPercent = total > 0 ? Math.round((yesVotes / total) * 100) : 0;
-            const noPercent = total > 0 ? Math.round((noVotes / total) * 100) : 0;
-
-            // Balken und Zahlen updaten
-            document.getElementById('countYes').innerText = `${yesVotes} (${yesPercent}%)`;
-            document.getElementById('countNo').innerText = `${noVotes} (${noPercent}%)`;
-
-            document.getElementById('barYes').style.width = yesPercent + '%';
-            document.getElementById('barNo').style.width = noPercent + '%';
-
-            // Namensliste aktualisieren
-            const listContainer = document.getElementById('voterList');
-            if (votes.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; color: var(--text-muted);">Noch keine Stimmen abgegeben.</div>';
-            } else {
-                listContainer.innerHTML = votes.slice().reverse().map(v => `
-                    <div class="voter-item">
-                        <span>${v.name}</span>
-                        <span class="${v.vote === 'ja' ? 'tag-yes' : 'tag-no'}">${v.vote === 'ja' ? 'Dabei 🎄' : 'Nein ❄️'}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Beim ersten Laden Ergebnisse anzeigen
-        window.onload = renderResults;
-    </script>
-</body>
-</html>
+        <div class
