@@ -208,7 +208,7 @@
             display: none;
         }
 
-        /* NEUE ROLLEN-ZUSAMMENFASSUNG */
+        /* ROLLEN-ZUSAMMENFASSUNG */
         .role-summary-section {
             margin-top: 30px;
             border-top: 2px solid #2b5797;
@@ -223,7 +223,7 @@
 
         .role-cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 12px;
         }
 
@@ -237,19 +237,31 @@
             align-items: center;
         }
 
+        .role-card-info {
+            display: flex;
+            flex-direction: column;
+        }
+
         .role-card-title {
             font-weight: 600;
             font-size: 14px;
             color: #333;
         }
 
-        .role-card-count {
+        .role-card-sub {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .role-card-badge {
             background-color: #2b5797;
             color: #ffffff;
             font-weight: bold;
             font-size: 13px;
             padding: 4px 10px;
             border-radius: 12px;
+            text-align: right;
         }
 
         /* MOBIL-ANSICHT */
@@ -486,7 +498,7 @@
 
         <!-- Zusammenfassung nach Rollen -->
         <div class="role-summary-section">
-            <h3>Anzahl Personen nach Rollen</h3>
+            <h3>Schichteinsätze nach Gruppierung</h3>
             <div class="role-cards-grid" id="roleSummaryCards">
                 <!-- Dynamisch generierte Kacheln -->
             </div>
@@ -679,27 +691,55 @@
                 }
             }
 
-            // 2. Rollen auswerten
-            const roleCounts = {};
-            roleOptions.forEach(role => roleCounts[role] = 0);
+            // 2. Schichteinsätze nach Rollen & Prozente auswerten
+            const roleShifts = {};
+            const rolePersons = {};
+            let totalAssignedShifts = 0;
 
-            const roleSelects = document.querySelectorAll('.select-role');
-            roleSelects.forEach(select => {
-                if (roleCounts.hasOwnProperty(select.value)) {
-                    roleCounts[select.value]++;
-                }
+            roleOptions.forEach(role => {
+                roleShifts[role] = 0;
+                rolePersons[role] = 0;
+            });
+
+            // Alle Tabellenzeilen durchgehen
+            const trs = document.querySelectorAll('#tableBody tr');
+            trs.forEach(tr => {
+                const roleSelect = tr.querySelector('.select-role');
+                if (!roleSelect) return;
+
+                const role = roleSelect.value;
+                rolePersons[role] = (rolePersons[role] || 0) + 1;
+
+                const shiftSelects = tr.querySelectorAll('.select-shift');
+                shiftSelects.forEach(select => {
+                    if (select.value.trim() !== '') {
+                        roleShifts[role] = (roleShifts[role] || 0) + 1;
+                        totalAssignedShifts++;
+                    }
+                });
             });
 
             const roleContainer = document.getElementById('roleSummaryCards');
             if (roleContainer) {
                 roleContainer.innerHTML = "";
                 roleOptions.forEach(role => {
-                    const count = roleCounts[role] || 0;
+                    const shiftsCount = roleShifts[role] || 0;
+                    const personsCount = rolePersons[role] || 0;
+                    const percentage = totalAssignedShifts > 0 
+                        ? Math.round((shiftsCount / totalAssignedShifts) * 100) 
+                        : 0;
+
                     const card = document.createElement('div');
                     card.className = 'role-card';
                     card.innerHTML = `
-                        <span class="role-card-title">${role}</span>
-                        <span class="role-card-count">${count} Pers.</span>
+                        <div class="role-card-info">
+                            <span class="role-card-title">${role}</span>
+                            <span class="role-card-sub">${personsCount} Person(en) im Plan</span>
+                        </div>
+                        <div class="role-card-badge">
+                            ${shiftsCount} Schichten<br>
+                            <small style="font-weight: normal; font-size: 11px;">(${percentage}%)</small>
+                        </div>
                     `;
                     roleContainer.appendChild(card);
                 });
