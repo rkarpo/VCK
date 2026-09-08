@@ -202,9 +202,12 @@
             font-size: 0.95rem;
             padding: 3px 6px;
             border-radius: 4px;
+            color: #666;
+            transition: background 0.15s ease;
         }
         .btn-icon:hover {
             background: #eee;
+            color: #111;
         }
 
         .sub-group-title {
@@ -262,6 +265,18 @@
             border-radius: 10px;
             color: var(--text-muted);
             border: 1px solid #dcdcdc;
+        }
+
+        .item-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .title-edit-form {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .item-body {
@@ -411,6 +426,7 @@
 
         let dataStore = { getraenke: {}, verpflegung: {}, orga: {} };
         let openCards = new Set();
+        let editingTitleKey = null; // Speichert den Schlüssel des gerade bearbeiteten Eintrags
 
         // Live-Daten aus Firebase abrufen
         const stammdatenRef = ref(db, 'stammdaten');
@@ -461,6 +477,28 @@
                 set(newRef, { name: name, ingredients: {}, consumables: {}, equipment: {} });
                 document.getElementById(inputId).value = "";
             }
+        };
+
+        // Namen eines Eintrags bearbeiten / speichern
+        window.startEditTitle = function(key) {
+            editingTitleKey = key;
+            render();
+        };
+
+        window.saveItemTitle = function(category, key) {
+            const input = document.getElementById(`edit-title-input-${key}`);
+            if (input) {
+                const newName = input.value.trim();
+                if (newName) {
+                    update(ref(db, `stammdaten/${category}/${key}`), { name: newName });
+                }
+            }
+            editingTitleKey = null;
+        };
+
+        window.cancelEditTitle = function() {
+            editingTitleKey = null;
+            render();
         };
 
         window.deleteItem = function(category, key) {
@@ -565,6 +603,8 @@
         // Card HTML Render
         function renderCardHTML(category, key, item) {
             const isOpen = openCards.has(key);
+            const isEditingTitle = (editingTitleKey === key);
+
             const ingredientsObj = item.ingredients || {};
             const consumablesObj = item.consumables || {};
             const equipmentObj = item.equipment || {};
@@ -590,15 +630,33 @@
                 `;
             });
 
+            // Titel-Bereich oder Inline-Edit-Formular
+            let titleAreaHtml = "";
+            if (isEditingTitle) {
+                titleAreaHtml = `
+                    <div class="title-edit-form" onclick="event.stopPropagation();">
+                        <input type="text" id="edit-title-input-${key}" value="${item.name}" style="padding:4px 8px; font-size:0.9rem;" autofocus>
+                        <button class="btn btn-small" onclick="saveItemTitle('${category}', '${key}')">Speichern</button>
+                        <button class="btn-icon" onclick="cancelEditTitle()">✖</button>
+                    </div>
+                `;
+            } else {
+                titleAreaHtml = `
+                    <span>${item.name}</span>
+                    <span class="count-badge">${ingKeys.length} Zutaten | ${conKeys.length} Verbrauchsartikel | ${eqKeys.length} Ausrüstung</span>
+                `;
+            }
+
             return `
                 <div class="item-card ${isOpen ? 'open' : ''}">
                     <div class="item-header" onclick="toggleCard('${key}')">
                         <div class="title-area">
-                            <span>${item.name}</span>
-                            <!-- Anz. Zutaten, Verbrauchsgegenstände & Ausrüstung im Titel badge -->
-                            <span class="count-badge">${ingKeys.length} Zutaten | ${conKeys.length} Verbrauchsartikel | ${eqKeys.length} Ausrüstung</span>
+                            ${titleAreaHtml}
                         </div>
-                        <div>
+                        <div class="item-header-actions">
+                            ${!isEditingTitle ? `
+                                <button class="btn-icon" onclick="event.stopPropagation(); startEditTitle('${key}')" title="Name bearbeiten">✏️</button>
+                            ` : ''}
                             <button class="btn-icon" onclick="event.stopPropagation(); deleteItem('${category}', '${key}')" title="Löschen">🗑️</button>
                             <span class="chevron">▼</span>
                         </div>
