@@ -1,1 +1,649 @@
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verkaufs- & Preiskalkulator | VC Kuppenheim</title>
+    <style>
+        :root {
+            --primary-red: #d00000;
+            --primary-red-hover: #9e0000;
+            --gold-accent: #d4af37;
+            --gold-hover: #f3ce5a;
+            --bg-color: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #111111;
+            --text-muted: #555555;
+            --green-profit: #2e7d32;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.12"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23111111" stroke-width="1.2" opacity="0.08"><circle cx="50" cy="50" r="42"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>');
+            background-repeat: no-repeat, no-repeat;
+            background-size: 180px 180px, 240px 240px;
+            background-position: 5% 8%, 92% 40%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+            border: 2px solid var(--gold-accent);
+            position: relative;
+        }
+
+        .logo-container {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            max-width: 90px;
+            height: auto;
+            mix-blend-mode: multiply;
+        }
+
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 18px;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: var(--primary-red);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid var(--gold-accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Formulare */
+        .add-form {
+            background: #fff;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 18px;
+        }
+
+        .add-form h3 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"], input[type="number"], select {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            background-color: #fff;
+        }
+
+        .table-input {
+            width: 100%;
+            border: 1px solid transparent;
+            background: transparent;
+            padding: 4px 6px;
+            border-radius: 4px;
+        }
+
+        .table-input:hover, .table-input:focus {
+            border-color: var(--gold-accent);
+            background: #fff;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: linear-gradient(180deg, var(--primary-red) 0%, #b00000 100%);
+            color: #ffffff;
+            border: 1.5px solid var(--gold-accent);
+        }
+
+        .btn:hover {
+            background: linear-gradient(180deg, #e60000 0%, var(--primary-red-hover) 100%);
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 0.78rem;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: #666;
+        }
+        .btn-icon:hover { background: #eee; color: #111; }
+
+        /* Karten */
+        .calc-card {
+            background: #ffffff;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+            padding: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .calc-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        /* Dashboard & Kennzahlen */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            background: #fdfdfd;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .metric-box {
+            text-align: center;
+        }
+
+        .metric-box .label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .metric-box .val {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .metric-box .val.profit {
+            color: var(--green-profit);
+        }
+
+        /* Tabellen */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+        }
+
+        .data-table th {
+            background: #f0f0f0;
+            text-align: left;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .data-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .btn-back {
+            background: #ffffff;
+            color: var(--text-dark);
+            border: 2px solid #ccc;
+            margin-top: 20px;
+            display: block;
+            text-decoration: none;
+            text-align: center;
+        }
+        .btn-back:hover { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo-container">
+            <img src="logo.jpg" alt="VC Kuppenheim Logo">
+        </div>
+
+        <h1>Verkaufs- & Preiskalkulator</h1>
+        <p class="subtitle">Kalkulation von Verkaufsmengen, Preisen & Wareneinsatz</p>
+
+        <!-- Haupt-Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('getraenke')">🍹 Getränke Calc</button>
+            <button class="tab-btn" onclick="switchTab('verpflegung')">🍕 Speisen Calc</button>
+            <button class="tab-btn" onclick="switchTab('einkauf')">🛒 Einkaufspreise</button>
+        </div>
+
+        <!-- TAB 1: GETRÄNKE KALKULATION -->
+        <div id="tab-getraenke" class="tab-content active">
+            <div class="add-form">
+                <h3>Getränk zur Kalkulation hinzufügen</h3>
+                <div class="input-group">
+                    <select id="selectDrink" style="flex:2;">
+                        <option value="">-- Getränk aus Stammdaten wählen --</option>
+                    </select>
+                    <input type="number" id="drinkQty" placeholder="Soll-Menge" style="width:100px;">
+                    <input type="number" step="0.50" id="drinkPrice" placeholder="Preis (€)" style="width:100px;">
+                    <button class="btn btn-small" onclick="addCalcItem('getraenke')">+ Hinzufügen</button>
+                </div>
+            </div>
+
+            <div id="calc-list-getraenke">Lade Daten...</div>
+        </div>
+
+        <!-- TAB 2: SPEISEN KALKULATION -->
+        <div id="tab-verpflegung" class="tab-content">
+            <div class="add-form">
+                <h3>Speise zur Kalkulation hinzufügen</h3>
+                <div class="input-group">
+                    <select id="selectFood" style="flex:2;">
+                        <option value="">-- Speise aus Stammdaten wählen --</option>
+                    </select>
+                    <input type="number" id="foodQty" placeholder="Soll-Menge" style="width:100px;">
+                    <input type="number" step="0.50" id="foodPrice" placeholder="Preis (€)" style="width:100px;">
+                    <button class="btn btn-small" onclick="addCalcItem('verpflegung')">+ Hinzufügen</button>
+                </div>
+            </div>
+
+            <div id="calc-list-verpflegung">Lade Daten...</div>
+        </div>
+
+        <!-- TAB 3: EINKAUFSPREISE / ZUTATEN -->
+        <div id="tab-einkauf" class="tab-content">
+            <p style="font-size:0.85rem; color:#666; margin-bottom:12px;">
+                Hinterlege hier die Gebinde-Einkaufspreise deiner Zutaten/Artikel aus den Stammdaten. Der Kalkulator errechnet automatisch den exakten Wareneinsatz pro Portion.
+            </p>
+            <div id="einkaufspreise-container">Lade Einkaufspreise...</div>
+        </div>
+
+        <a href="vckstammdaten.html" class="btn btn-back">← Zurück zu den Stammdaten (vckstammdaten.html)</a>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getDatabase, ref, set, push, remove, update, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7UmrLGoePSvE1H0nZMUFjXY6HvWSynq4",
+            authDomain: "vckuppenheim.firebaseapp.com",
+            databaseURL: "https://vckuppenheim-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "vckuppenheim",
+            storageBucket: "vckuppenheim.firebasestorage.app",
+            messagingSenderId: "83870233719",
+            appId: "1:83870233719:web:1ff3c18818c1dda1208272",
+            measurementId: "G-CFWMCQSYVM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let stammdaten = { getraenke: {}, verpflegung: {} };
+        let kalkulation = { getraenke: {}, verpflegung: {} };
+        let einkaufspreise = {};
+
+        // Daten aus Firebase abrufen
+        onValue(ref(db), (snapshot) => {
+            const data = snapshot.val() || {};
+            stammdaten = data.stammdaten || { getraenke: {}, verpflegung: {} };
+            kalkulation = data.kalkulation || { getraenke: {}, verpflegung: {} };
+            einkaufspreise = data.einkaufspreise || {};
+
+            populateDropdowns();
+            render();
+            renderEinkaufspreise();
+        });
+
+        // Tab-Umschaltung
+        window.switchTab = function(cat) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${cat}`).classList.add('active');
+        };
+
+        // Dropdowns mit Daten aus vckstammdaten.html füllen
+        function populateDropdowns() {
+            const drinkSelect = document.getElementById('selectDrink');
+            const foodSelect = document.getElementById('selectFood');
+
+            drinkSelect.innerHTML = '<option value="">-- Getränk aus Stammdaten wählen --</option>';
+            Object.keys(stammdaten.getraenke || {}).forEach(key => {
+                const item = stammdaten.getraenke[key];
+                drinkSelect.innerHTML += `<option value="${key}">${item.name}</option>`;
+            });
+
+            foodSelect.innerHTML = '<option value="">-- Speise aus Stammdaten wählen --</option>';
+            Object.keys(stammdaten.verpflegung || {}).forEach(key => {
+                const item = stammdaten.verpflegung[key];
+                foodSelect.innerHTML += `<option value="${key}">${item.name}</option>`;
+            });
+        }
+
+        // Artikel zur Kalkulation hinzufügen
+        window.addCalcItem = function(category) {
+            const isDrink = category === 'getraenke';
+            const selectId = isDrink ? 'selectDrink' : 'selectFood';
+            const qtyId = isDrink ? 'drinkQty' : 'foodQty';
+            const priceId = isDrink ? 'drinkPrice' : 'foodPrice';
+
+            const itemKey = document.getElementById(selectId).value;
+            const targetQty = parseFloat(document.getElementById(qtyId).value) || 0;
+            const price = parseFloat(document.getElementById(priceId).value) || 0;
+
+            if (!itemKey) return alert("Bitte wähle ein Element aus den Stammdaten aus!");
+
+            const newRef = push(ref(db, `kalkulation/${category}`));
+            set(newRef, {
+                stammKey: itemKey,
+                targetQty: targetQty,
+                price: price
+            });
+
+            document.getElementById(qtyId).value = "";
+            document.getElementById(priceId).value = "";
+        };
+
+        window.updateCalcField = function(category, calcKey, field, value) {
+            update(ref(db, `kalkulation/${category}/${calcKey}`), {
+                [field]: parseFloat(value) || 0
+            });
+        };
+
+        window.removeCalcItem = function(category, calcKey) {
+            remove(ref(db, `kalkulation/${category}/${calcKey}`));
+        };
+
+        // Einkaufspreis-Abrechnung speichern
+        window.updateEinkaufspreis = function(ingredientName, field, value) {
+            // Speichern unter sanitisiertem Key
+            const cleanKey = ingredientName.replace(/[.#$/\[\]]/g, "_");
+            update(ref(db, `einkaufspreise/${cleanKey}`), {
+                name: ingredientName,
+                [field]: parseFloat(value) || 0,
+                unit: document.getElementById(`unit-einkauf-${cleanKey}`)?.value || 'Stück'
+            });
+        };
+
+        window.updateEinkaufUnit = function(ingredientName, unitValue) {
+            const cleanKey = ingredientName.replace(/[.#$/\[\]]/g, "_");
+            update(ref(db, `einkaufspreise/${cleanKey}`), {
+                name: ingredientName,
+                unit: unitValue
+            });
+        };
+
+        // Umrechnungs-Hilfe für Mengeneinheiten auf Basis-Einheit
+        function normalizeToStandard(amount, unit) {
+            const u = (unit || '').toLowerCase();
+            const val = parseFloat(amount) || 0;
+            if (u === 'cl') return val / 100; // in Liter
+            if (u === 'dl') return val / 10;
+            if (u === 'l') return val;
+            if (u === 'g') return val / 1000; // in kg
+            if (u === 'kg') return val;
+            return val; // Stück, Flasche, etc.
+        }
+
+        // Berechnet die Materialkosten (Wareneinsatz) pro Portion
+        function calculateCostPerPortion(stammItem) {
+            let totalCost = 0;
+
+            const calcList = (obj) => {
+                if (!obj) return;
+                Object.values(obj).forEach(ing => {
+                    const cleanKey = (ing.name || "").replace(/[.#$/\[\]]/g, "_");
+                    const einkauf = einkaufspreise[cleanKey];
+                    if (einkauf && einkauf.packagePrice > 0 && einkauf.packageSize > 0) {
+                        const pricePerBaseUnit = einkauf.packagePrice / einkauf.packageSize;
+                        const ingBaseAmount = normalizeToStandard(ing.amount, ing.unit);
+                        totalCost += (ingBaseAmount * pricePerBaseUnit);
+                    }
+                });
+            };
+
+            calcList(stammItem.ingredients);
+            calcList(stammItem.consumables);
+
+            return totalCost;
+        }
+
+        // Haupt-Render für Getränke & Speisen
+        function renderCategory(category) {
+            const container = document.getElementById(`calc-list-${category}`);
+            container.innerHTML = "";
+
+            const itemsObj = kalkulation[category] || {};
+            const keys = Object.keys(itemsObj);
+
+            if (keys.length === 0) {
+                container.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Noch keine Kalkulationen angelegt.</p>";
+                return;
+            }
+
+            keys.forEach(calcKey => {
+                const calcItem = itemsObj[calcKey];
+                const stammItem = (stammdaten[category] || {})[calcItem.stammKey];
+
+                if (!stammItem) return; // Falls in Stammdaten gelöscht
+
+                const costPerPortion = calculateCostPerPortion(stammItem);
+                const revenuePerPortion = calcItem.price || 0;
+                const profitPerPortion = revenuePerPortion - costPerPortion;
+
+                const totalRevenue = revenuePerPortion * calcItem.targetQty;
+                const totalCost = costPerPortion * calcItem.targetQty;
+                const totalProfit = profitPerPortion * calcItem.targetQty;
+
+                container.innerHTML += `
+                    <div class="calc-card">
+                        <div class="calc-card-header">
+                            <span>${stammItem.name}</span>
+                            <button class="btn-icon" onclick="removeCalcItem('${category}', '${calcKey}')" title="Entfernen">❌</button>
+                        </div>
+
+                        <div class="input-group">
+                            <label style="font-size:0.8rem; width:100%;"><strong>Planung:</strong></label>
+                            <span style="font-size:0.85rem;">Soll-Verkauf (Stk):</span>
+                            <input type="number" class="table-input" style="width:80px; border:1px solid #ccc;" value="${calcItem.targetQty || 0}"
+                                   onblur="updateCalcField('${category}', '${calcKey}', 'targetQty', this.value)">
+
+                            <span style="font-size:0.85rem; margin-left:10px;">Verkaufspreis (€):</span>
+                            <input type="number" step="0.10" class="table-input" style="width:80px; border:1px solid #ccc;" value="${calcItem.price || 0}"
+                                   onblur="updateCalcField('${category}', '${calcKey}', 'price', this.value)">
+                        </div>
+
+                        <div class="metrics-grid">
+                            <div class="metric-box">
+                                <div class="label">Wareneinsatz/Port.</div>
+                                <div class="val">${costPerPortion.toFixed(2)} €</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="label">Gewinn/Port.</div>
+                                <div class="val profit">${profitPerPortion.toFixed(2)} €</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="label">Umsatz ges.</div>
+                                <div class="val">${totalRevenue.toFixed(2)} €</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="label">Gewinn ges.</div>
+                                <div class="val profit">${totalProfit.toFixed(2)} €</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Render für Einkaufspreise-Tab
+        function renderEinkaufspreise() {
+            const container = document.getElementById('einkaufspreise-container');
+            
+            // Sammle alle eindeutigen Zutaten und Verbrauchsartikel aus den Stammdaten
+            const allIngredients = new Set();
+            
+            ['getraenke', 'verpflegung'].forEach(cat => {
+                Object.values(stammdaten[cat] || {}).forEach(item => {
+                    Object.values(item.ingredients || {}).forEach(ing => ing.name && allIngredients.add(ing.name));
+                    Object.values(item.consumables || {}).forEach(con => con.name && allIngredients.add(con.name));
+                });
+            });
+
+            if (allIngredients.size === 0) {
+                container.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine Zutaten in den Stammdaten vorhanden. Lege zuerst welche in vckstammdaten.html an.</p>";
+                return;
+            }
+
+            let rows = "";
+            allIngredients.forEach(ingName => {
+                const cleanKey = ingName.replace(/[.#$/\[\]]/g, "_");
+                const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'l' };
+
+                rows += `
+                    <tr>
+                        <td><strong>${ingName}</strong></td>
+                        <td>
+                            <input type="number" step="0.01" class="table-input" placeholder="0.00" value="${einkauf.packagePrice || ''}"
+                                   onblur="updateEinkaufspreis('${ingName}', 'packagePrice', this.value)"> €
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="table-input" placeholder="Gebindegröße" value="${einkauf.packageSize || ''}"
+                                   onblur="updateEinkaufspreis('${ingName}', 'packageSize', this.value)">
+                        </td>
+                        <td>
+                            <select id="unit-einkauf-${cleanKey}" class="table-input" onchange="updateEinkaufUnit('${ingName}', this.value)">
+                                ${['l','kg','Stück','Flasche','Dose','Packung','Rolle'].map(u => 
+                                    `<option value="${u}" ${einkauf.unit === u ? 'selected' : ''}>${u}</option>`
+                                ).join('')}
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Zutat / Material</th>
+                            <th>Einkaufspreis (€)</th>
+                            <th>Gebindemenge</th>
+                            <th>Einheit</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        function render() {
+            renderCategory('getraenke');
+            renderCategory('verpflegung');
+        }
+    </script>
+</body>
+</html>
