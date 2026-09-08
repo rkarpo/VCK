@@ -297,10 +297,11 @@
                 font-size: 13px;
             }
 
-            /* NEUE MOBIL-ZUSAMMENFASSUNG (Kacheln pro Schicht) */
+            /* NEUE MOBIL-ZUSAMMENFASSUNG (Kacheln pro Schicht - Jetzt oben platziert) */
             .mobile-summary {
                 display: block;
-                margin-top: 25px;
+                margin-bottom: 25px;
+                margin-top: 10px;
             }
 
             .mobile-summary h3 {
@@ -322,10 +323,13 @@
                 border: 1px solid #e0e0e0;
                 border-radius: 8px;
                 padding: 12px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            }
+
+            .summary-card-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             }
 
             .summary-card-title {
@@ -361,6 +365,31 @@
                 font-size: 12px;
                 color: #555;
             }
+
+            /* Ausklappbare Personenliste in Mobilkacheln */
+            .summary-card details {
+                margin-top: 8px;
+                border-top: 1px solid #f0f0f0;
+                padding-top: 6px;
+            }
+
+            .summary-card summary {
+                font-size: 12px;
+                color: #2b5797;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            .summary-people-list {
+                margin-top: 6px;
+                padding-left: 18px;
+                font-size: 12px;
+                color: #495057;
+            }
+
+            .summary-people-list li {
+                margin-bottom: 2px;
+            }
         }
     </style>
 </head>
@@ -372,6 +401,14 @@
         <div class="top-bar">
             <button class="btn-add" onclick="window.addNewPerson()">+ Person hinzufügen</button>
             <span class="scroll-hint">↔ Nach rechts wischen für alle Schichten</span>
+        </div>
+
+        <!-- Mobile Zusammenfassung (Jetzt oben platziert) -->
+        <div class="mobile-summary">
+            <h3>Auswertung nach Schichten</h3>
+            <div class="summary-cards" id="mobileSummaryCards">
+                <!-- Dynamisch generierte Kacheln -->
+            </div>
         </div>
 
         <div class="table-container">
@@ -430,14 +467,6 @@
                     </tr>
                 </tfoot>
             </table>
-        </div>
-
-        <!-- Mobile Zusammenfassung (Wird nur auf Mobilgeräten angezeigt) -->
-        <div class="mobile-summary">
-            <h3>Auswertung nach Schichten</h3>
-            <div class="summary-cards" id="mobileSummaryCards">
-                <!-- Dynamisch generierte Kacheln -->
-            </div>
         </div>
     </div>
 
@@ -513,6 +542,7 @@
                 renderTable(data);
             } else {
                 document.getElementById('tableBody').innerHTML = "";
+                calculateTotals();
             }
         });
 
@@ -581,12 +611,18 @@
             if (mobileContainer) mobileContainer.innerHTML = "";
 
             for (let col = 0; col < numCols; col++) {
-                const selects = document.querySelectorAll(`.select-shift[data-col="${col}"]`);
+                const rows = document.querySelectorAll('#tableBody tr');
                 let count = 0;
+                let assignedPeople = [];
 
-                selects.forEach(select => {
-                    if (select.value.trim() !== '') {
+                rows.forEach(row => {
+                    const nameInput = row.querySelector('.input-name');
+                    const select = row.querySelector(`.select-shift[data-col="${col}"]`);
+                    
+                    if (select && select.value.trim() !== '') {
                         count++;
+                        const name = nameInput && nameInput.value.trim() ? nameInput.value.trim() : "Unbenannt";
+                        assignedPeople.push(name);
                     }
                 });
 
@@ -594,28 +630,55 @@
                 const isOk = count >= needed;
 
                 // 1. Desktop Footer aktualisieren
-                document.getElementById(`total-${col}`).innerText = count;
+                const totalCell = document.getElementById(`total-${col}`);
+                if (totalCell) totalCell.innerText = count;
+                
                 const statusCell = document.getElementById(`status-${col}`);
-                if (isOk) {
-                    statusCell.innerText = "OK";
-                    statusCell.className = "status-ok";
-                } else {
-                    statusCell.innerText = "Fehlen";
-                    statusCell.className = "status-fehlen";
+                if (statusCell) {
+                    if (isOk) {
+                        statusCell.innerText = "OK";
+                        statusCell.className = "status-ok";
+                    } else {
+                        statusCell.innerText = "Fehlen";
+                        statusCell.className = "status-fehlen";
+                    }
                 }
 
-                // 2. Mobil-Kacheln dynamisch aufbauen
+                // 2. Mobil-Kacheln dynamisch aufbauen (inkl. Personenliste)
                 if (mobileContainer) {
                     const card = document.createElement('div');
                     card.className = 'summary-card';
+
+                    let peopleListHtml = "";
+                    if (assignedPeople.length > 0) {
+                        const items = assignedPeople.map(p => `<li>${p}</li>`).join('');
+                        peopleListHtml = `
+                            <details>
+                                <summary>Eingeteilt (${assignedPeople.length}):</summary>
+                                <ul class="summary-people-list">
+                                    ${items}
+                                </ul>
+                            </details>
+                        `;
+                    } else {
+                        peopleListHtml = `
+                            <details>
+                                <summary>Keine Personen eingetragen</summary>
+                            </details>
+                        `;
+                    }
+
                     card.innerHTML = `
-                        <div class="summary-card-title">${shiftLabels[col]}</div>
-                        <div class="summary-card-stats">
-                            <span class="summary-count">${count} / ${needed} eingeteilt</span>
-                            <span class="summary-badge ${isOk ? 'badge-ok' : 'badge-fehlen'}">
-                                ${isOk ? 'OK' : `Fehlen ${needed - count}`}
-                            </span>
+                        <div class="summary-card-header">
+                            <div class="summary-card-title">${shiftLabels[col]}</div>
+                            <div class="summary-card-stats">
+                                <span class="summary-count">${count} / ${needed} eingeteilt</span>
+                                <span class="summary-badge ${isOk ? 'badge-ok' : 'badge-fehlen'}">
+                                    ${isOk ? 'OK' : `Fehlen ${needed - count}`}
+                                </span>
+                            </div>
                         </div>
+                        ${peopleListHtml}
                     `;
                     mobileContainer.appendChild(card);
                 }
