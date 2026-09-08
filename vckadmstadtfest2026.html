@@ -51,7 +51,7 @@
 
         .container {
             width: 100%;
-            max-width: 1050px;
+            max-width: 1100px;
             background: var(--card-bg);
             backdrop-filter: blur(14px);
             padding: 22px;
@@ -188,7 +188,7 @@
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid #e0e0e0;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .calc-table th {
@@ -215,13 +215,15 @@
         .val-loss { color: var(--primary-red); font-weight: bold; }
 
         .group-title {
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             font-weight: 800;
             color: var(--primary-red);
             text-transform: uppercase;
-            margin: 14px 0 6px 0;
-            padding-bottom: 4px;
-            border-bottom: 1.5px solid var(--gold-accent);
+            margin: 18px 0 8px 0;
+            padding: 6px 10px;
+            background: #fff0f0;
+            border-left: 4px solid var(--primary-red);
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -292,7 +294,7 @@
             padding: 10px 14px;
             border-radius: 8px;
             border: 1px solid #e0e0e0;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -322,7 +324,7 @@
         <div id="tab-todo" class="tab-content active">
             <div class="filter-bar">
                 <strong>👤 Person filtern:</strong>
-                <select id="todoFilterPerson" onchange="renderTodoTab()" style="width: 180px;">
+                <select id="todoFilterPerson" onchange="renderTodoTab()" style="width: 190px;">
                     <option value="ALL">-- Alle Personen --</option>
                     <option value="Person 1">Person 1</option>
                     <option value="Person 2">Person 2</option>
@@ -489,7 +491,7 @@
             update(ref(db, `einkaufspreise/${cleanKey}`), updatedObj);
         };
 
-        // To-Do Speicherung (Person, Status, Menge, Kom)
+        // To-Do Speicherung (Person, Status, Menge, Kom, Ort)
         window.updateTodoItem = function(itemKey, field, value) {
             const cleanKey = itemKey.replace(/[.#$/\[\]]/g, "_");
             const existing = todoData[cleanKey] || {};
@@ -502,6 +504,7 @@
                 isDone: existing.isDone || false,
                 qty: existing.qty !== undefined ? existing.qty : 0,
                 isKommission: existing.isKommission || false,
+                location: existing.location || '',
                 [field]: valToSave
             };
 
@@ -538,8 +541,9 @@
             return totalCost;
         }
 
-        function calculateAggregatedIngredientDemands() {
-            const demands = {}; 
+        // Trennt Zutatennachfrage strikt nach Kategorie (Getränke vs Speisen)
+        function calculateCategorizedDemands() {
+            const result = { getraenke: {}, verpflegung: {} };
 
             ['getraenke', 'verpflegung'].forEach(cat => {
                 const calcItems = kalkulation[cat] || {};
@@ -555,10 +559,10 @@
                             const baseAmountPerPortion = normalizeToStandard(ing.amount, ing.unit);
                             const totalBaseDemand = baseAmountPerPortion * calcItem.targetQty;
 
-                            if (!demands[cleanKey]) {
-                                demands[cleanKey] = { name: ing.name, totalBaseDemand: 0 };
+                            if (!result[cat][cleanKey]) {
+                                result[cat][cleanKey] = { name: ing.name, totalBaseDemand: 0 };
                             }
-                            demands[cleanKey].totalBaseDemand += totalBaseDemand;
+                            result[cat][cleanKey].totalBaseDemand += totalBaseDemand;
                         });
                     };
 
@@ -567,147 +571,169 @@
                 });
             });
 
-            return demands;
+            return result;
+        }
+
+        // Hilfsfunktion zur Personen-Filterprüfung
+        function isPersonMatch(assignedTo, filterVal) {
+            const assigned = (assignedTo || '').trim().toLowerCase();
+            const filter = (filterVal || '').trim().toLowerCase();
+
+            if (filter === 'all') return true;
+            if (filter === 'unassigned') return assigned === '';
+            return assigned === filter;
         }
 
         /* --- RENDER TO-DO TAB --- */
-        function renderTodoTab() {
+        window.renderTodoTab = function() {
             const container = document.getElementById('todo-container');
             const selectedPerson = document.getElementById('todoFilterPerson').value;
             container.innerHTML = "";
 
-            const aggregatedDemands = calculateAggregatedIngredientDemands();
+            const categorizedDemands = calculateCategorizedDemands();
 
-            // 1. ZUTATEN & BESORGUNGEN (Aus Soll-Kalkulation & Gebinden)
-            let zutatenRows = "";
-            Object.keys(aggregatedDemands).forEach(cleanKey => {
-                const demand = aggregatedDemands[cleanKey];
-                const ingName = demand.name;
-                const einkauf = einkaufspreise[cleanKey] || {};
-                const todo = todoData[cleanKey] || { assignedTo: '', isDone: false, isKommission: false };
+            // Render-Helfer für Zutatentabellen
+            const renderDemandGroup = (demandsObj, groupTitle) => {
+                let rows = "";
+                Object.keys(demandsObj).forEach(cleanKey => {
+                    const demand = demandsObj[cleanKey];
+                    const ingName = demand.name;
+                    const einkauf = einkaufspreise[cleanKey] || {};
+                    const todo = todoData[cleanKey] || { assignedTo: '', isDone: false, isKommission: false, location: '' };
 
-                const packageSize = parseFloat(einkauf.packageSize) || 0;
-                const totalDemand = demand.totalBaseDemand || 0;
-                const neededPackages = (packageSize > 0 && totalDemand > 0) ? Math.ceil(totalDemand / packageSize) : 0;
+                    if (!isPersonMatch(todo.assignedTo, selectedPerson)) return;
 
-                // Person Filter Check
-                if (selectedPerson === 'UNASSIGNED' && todo.assignedTo) return;
-                if (selectedPerson !== 'ALL' && selectedPerson !== 'UNASSIGNED' && todo.assignedTo !== selectedPerson) return;
+                    const packageSize = parseFloat(einkauf.packageSize) || 0;
+                    const totalDemand = demand.totalBaseDemand || 0;
+                    const neededPackages = (packageSize > 0 && totalDemand > 0) ? Math.ceil(totalDemand / packageSize) : 0;
+                    const currentUnit = einkauf.unit || 'Stück';
 
-                const currentUnit = einkauf.unit || 'Stück';
+                    rows += `
+                        <tr>
+                            <td><strong>${ingName}</strong></td>
+                            <td class="text-center" style="font-weight:bold; color:var(--primary-red);">
+                                ${neededPackages > 0 ? neededPackages + ' Gebinde' : '0 Gebinde'}
+                            </td>
+                            <td class="text-right" style="color:#666; font-size:0.78rem;">
+                                (${totalDemand.toFixed(2)} ${currentUnit})
+                            </td>
+                            <td style="width:130px;">
+                                <input type="text" class="table-input" placeholder="z.B. Metro/Edeka" value="${todo.location || ''}"
+                                       onblur="updateTodoItem('${cleanKey}', 'location', this.value)">
+                            </td>
+                            <td class="text-center" style="width:65px;">
+                                <label class="kommission-label">
+                                    <input type="checkbox" ${todo.isKommission ? 'checked' : ''} 
+                                           onchange="updateTodoItem('${cleanKey}', 'isKommission', this.checked)">
+                                    Kom.
+                                </label>
+                            </td>
+                            <td style="width:150px;">
+                                <select class="table-input" onchange="updateTodoItem('${cleanKey}', 'assignedTo', this.value)">
+                                    <option value="">-- Unzugewiesen --</option>
+                                    ${persons.map(p => `<option value="${p}" ${todo.assignedTo === p ? 'selected' : ''}>${p}</option>`).join('')}
+                                </select>
+                            </td>
+                            <td class="text-center" style="width:110px;">
+                                <label class="status-pill ${todo.isDone ? 'done' : 'open'}">
+                                    <input type="checkbox" ${todo.isDone ? 'checked' : ''} 
+                                           onchange="updateTodoItem('${cleanKey}', 'isDone', this.checked)">
+                                    ${todo.isDone ? '✓ Erledigt' : '⭕ Offen'}
+                                </label>
+                            </td>
+                        </tr>
+                    `;
+                });
 
-                zutatenRows += `
-                    <tr>
-                        <td><strong>${ingName}</strong></td>
-                        <td class="text-center" style="font-weight:bold; color:var(--primary-red);">
-                            ${neededPackages > 0 ? neededPackages + ' Gebinde' : '0 Gebinde'}
-                        </td>
-                        <td class="text-right" style="color:#666; font-size:0.78rem;">
-                            (${totalDemand.toFixed(2)} ${currentUnit})
-                        </td>
-                        <td class="text-center">
-                            <label class="kommission-label">
-                                <input type="checkbox" ${todo.isKommission ? 'checked' : ''} 
-                                       onchange="updateTodoItem('${cleanKey}', 'isKommission', this.checked)">
-                                Kom.
-                            </label>
-                        </td>
-                        <td>
-                            <select class="table-input" onchange="updateTodoItem('${cleanKey}', 'assignedTo', this.value)">
-                                <option value="">-- Unzugewiesen --</option>
-                                ${persons.map(p => `<option value="${p}" ${todo.assignedTo === p ? 'selected' : ''}>${p}</option>`).join('')}
-                            </select>
-                        </td>
-                        <td class="text-center">
-                            <label class="status-pill ${todo.isDone ? 'done' : 'open'}">
-                                <input type="checkbox" ${todo.isDone ? 'checked' : ''} 
-                                       onchange="updateTodoItem('${cleanKey}', 'isDone', this.checked)">
-                                ${todo.isDone ? '✓ Erledigt' : '⭕ Offen'}
-                            </label>
-                        </td>
-                    </tr>
-                `;
-            });
+                if (!rows) return "";
 
-            // 2. AUSRÜSTUNG (Aus Stammdaten Ausrüstung)
-            let ausruestungRows = "";
-            const ausruestungStamm = stammdaten.ausruestung || {};
-            Object.keys(ausruestungStamm).forEach(key => {
-                const item = ausruestungStamm[key];
-                const cleanKey = item.name.replace(/[.#$/\[\]]/g, "_");
-                const todo = todoData[cleanKey] || { assignedTo: '', isDone: false, qty: 0, isKommission: false };
-
-                // Person Filter Check
-                if (selectedPerson === 'UNASSIGNED' && todo.assignedTo) return;
-                if (selectedPerson !== 'ALL' && selectedPerson !== 'UNASSIGNED' && todo.assignedTo !== selectedPerson) return;
-
-                ausruestungRows += `
-                    <tr>
-                        <td><strong>${item.name}</strong></td>
-                        <td style="width: 110px;">
-                            <input type="number" class="table-input text-center" placeholder="Menge" value="${todo.qty || ''}" 
-                                   onblur="updateTodoItem('${cleanKey}', 'qty', this.value)">
-                        </td>
-                        <td class="text-center" style="color:#666; font-size:0.78rem;">
-                            ${item.unit || 'Stück'}
-                        </td>
-                        <td class="text-center">
-                            <label class="kommission-label">
-                                <input type="checkbox" ${todo.isKommission ? 'checked' : ''} 
-                                       onchange="updateTodoItem('${cleanKey}', 'isKommission', this.checked)">
-                                Kom.
-                            </label>
-                        </td>
-                        <td>
-                            <select class="table-input" onchange="updateTodoItem('${cleanKey}', 'assignedTo', this.value)">
-                                <option value="">-- Unzugewiesen --</option>
-                                ${persons.map(p => `<option value="${p}" ${todo.assignedTo === p ? 'selected' : ''}>${p}</option>`).join('')}
-                            </select>
-                        </td>
-                        <td class="text-center">
-                            <label class="status-pill ${todo.isDone ? 'done' : 'open'}">
-                                <input type="checkbox" ${todo.isDone ? 'checked' : ''} 
-                                       onchange="updateTodoItem('${cleanKey}', 'isDone', this.checked)">
-                                ${todo.isDone ? '✓ Erledigt' : '⭕ Offen'}
-                            </label>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            let html = "";
-
-            if (zutatenRows) {
-                html += `
-                    <div class="group-title">🛒 Zutaten & Verbrauchsmaterialien (Einkauf)</div>
+                return `
+                    <div class="group-title">${groupTitle}</div>
                     <table class="calc-table">
                         <thead>
                             <tr>
                                 <th>Zutat / Artikel</th>
                                 <th class="text-center">Benötigte Gebinde</th>
                                 <th class="text-right">Gesamtbedarf</th>
+                                <th>Besorgungsort / Supermarkt</th>
                                 <th class="text-center">Kaufart</th>
-                                <th style="width:160px;">Zuständig</th>
-                                <th class="text-center" style="width:120px;">Status</th>
+                                <th>Zuständig</th>
+                                <th class="text-center">Status</th>
                             </tr>
                         </thead>
-                        <tbody>${zutatenRows}</tbody>
+                        <tbody>${rows}</tbody>
                     </table>
                 `;
-            }
+            };
 
+            // 1. GETRÄNKE ZUTATEN
+            const getraenkeHtml = renderDemandGroup(categorizedDemands.getraenke, "🍹 Besorgungsliste: Getränke & Bar");
+
+            // 2. SPEISEN ZUTATEN
+            const speisenHtml = renderDemandGroup(categorizedDemands.verpflegung, "🍕 Besorgungsliste: Speisen & Verpflegung");
+
+            // 3. AUSRÜSTUNG & ORGA
+            let ausruestungRows = "";
+            const ausruestungStamm = stammdaten.ausruestung || {};
+            Object.keys(ausruestungStamm).forEach(key => {
+                const item = ausruestungStamm[key];
+                const cleanKey = item.name.replace(/[.#$/\[\]]/g, "_");
+                const todo = todoData[cleanKey] || { assignedTo: '', isDone: false, qty: 0, isKommission: false, location: '' };
+
+                if (!isPersonMatch(todo.assignedTo, selectedPerson)) return;
+
+                ausruestungRows += `
+                    <tr>
+                        <td><strong>${item.name}</strong></td>
+                        <td style="width: 100px;">
+                            <input type="number" class="table-input text-center" placeholder="Menge" value="${todo.qty || ''}" 
+                                   onblur="updateTodoItem('${cleanKey}', 'qty', this.value)">
+                        </td>
+                        <td class="text-center" style="color:#666; font-size:0.78rem;">
+                            ${item.unit || 'Stück'}
+                        </td>
+                        <td style="width:140px;">
+                            <input type="text" class="table-input" placeholder="z.B. Lager / Ort" value="${todo.location || ''}"
+                                   onblur="updateTodoItem('${cleanKey}', 'location', this.value)">
+                        </td>
+                        <td class="text-center" style="width:65px;">
+                            <label class="kommission-label">
+                                <input type="checkbox" ${todo.isKommission ? 'checked' : ''} 
+                                       onchange="updateTodoItem('${cleanKey}', 'isKommission', this.checked)">
+                                Kom.
+                            </label>
+                        </td>
+                        <td style="width:150px;">
+                            <select class="table-input" onchange="updateTodoItem('${cleanKey}', 'assignedTo', this.value)">
+                                <option value="">-- Unzugewiesen --</option>
+                                ${persons.map(p => `<option value="${p}" ${todo.assignedTo === p ? 'selected' : ''}>${p}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="text-center" style="width:110px;">
+                            <label class="status-pill ${todo.isDone ? 'done' : 'open'}">
+                                <input type="checkbox" ${todo.isDone ? 'checked' : ''} 
+                                       onchange="updateTodoItem('${cleanKey}', 'isDone', this.checked)">
+                                ${todo.isDone ? '✓ Erledigt' : '⭕ Offen'}
+                            </label>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            let ausruestungHtml = "";
             if (ausruestungRows) {
-                html += `
-                    <div class="group-title">🛠️ Ausrüstung & Material-Bereitstellung</div>
+                ausruestungHtml = `
+                    <div class="group-title">🛠️ Ausrüstung, Equipment & Organisation</div>
                     <table class="calc-table">
                         <thead>
                             <tr>
                                 <th>Gegenstand</th>
-                                <th class="text-center">Anzahl / Menge</th>
+                                <th class="text-center">Menge</th>
                                 <th class="text-center">Einheit</th>
+                                <th>Standort / Lagerort</th>
                                 <th class="text-center">Kaufart</th>
-                                <th style="width:160px;">Zuständig</th>
-                                <th class="text-center" style="width:120px;">Status</th>
+                                <th>Zuständig</th>
+                                <th class="text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody>${ausruestungRows}</tbody>
@@ -715,12 +741,14 @@
                 `;
             }
 
-            if (!html) {
-                html = "<p style='font-size:0.85rem; color:#999; text-align:center; padding:20px;'>Keine To-Dos für die aktuelle Auswahl gefunden.</p>";
-            }
+            const totalHtml = getraenkeHtml + speisenHtml + ausruestungHtml;
 
-            container.innerHTML = html;
-        }
+            if (!totalHtml) {
+                container.innerHTML = "<p style='font-size:0.85rem; color:#999; text-align:center; padding:25px;'>Keine To-Dos / Aufgaben für die aktuelle Personenauswahl vorhanden.</p>";
+            } else {
+                container.innerHTML = totalHtml;
+            }
+        };
 
         function renderCategory(category) {
             const container = document.getElementById(`calc-list-${category}`);
@@ -806,7 +834,7 @@
             const container = document.getElementById('einkaufspreise-container');
             container.innerHTML = "";
 
-            const aggregatedDemands = calculateAggregatedIngredientDemands();
+            const categorizedDemands = calculateCategorizedDemands();
 
             const categories = [
                 { id: 'getraenke', label: '🍹 Zutaten & Artikel: Getränke' },
@@ -830,7 +858,7 @@
                         const cleanKey = ingName.replace(/[.#$/\[\]]/g, "_");
                         const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'Stück' };
                         const currentUnit = einkauf.unit || 'Stück';
-                        const demandInfo = aggregatedDemands[cleanKey];
+                        const demandInfo = categorizedDemands[cat.id][cleanKey];
 
                         const totalDemand = demandInfo ? demandInfo.totalBaseDemand : 0;
                         const packageSize = parseFloat(einkauf.packageSize) || 0;
