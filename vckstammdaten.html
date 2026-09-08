@@ -61,6 +61,31 @@
             border-radius: 24px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
             border: 2px solid var(--gold-accent);
+            position: relative;
+        }
+
+        /* Unauffälliger Drag & Drop Toggle ganz oben rechts */
+        .drag-toggle-wrapper {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            color: #888;
+            user-select: none;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .drag-toggle-wrapper:hover {
+            opacity: 1;
+        }
+
+        .drag-toggle-wrapper input[type="checkbox"] {
+            cursor: pointer;
+            accent-color: var(--primary-red);
         }
 
         .logo-container {
@@ -235,32 +260,23 @@
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
-        /* Drag & Drop Indikator nur auf Desktop (Desktop >= 769px) */
-        @media (min-width: 769px) {
-            .item-card[draggable="true"] {
-                cursor: grab;
-            }
-            .item-card[draggable="true"]:active {
-                cursor: grabbing;
-            }
-            .item-card.dragging {
-                opacity: 0.4;
-                border: 2px dashed var(--gold-accent);
-            }
-            .drag-handle {
-                display: inline-block;
-                color: #aaa;
-                margin-right: 6px;
-                cursor: grab;
-                font-size: 0.9rem;
-            }
+        .item-card[draggable="true"] {
+            cursor: grab;
+        }
+        .item-card[draggable="true"]:active {
+            cursor: grabbing;
+        }
+        .item-card.dragging {
+            opacity: 0.4;
+            border: 2px dashed var(--gold-accent);
         }
 
-        /* Auf Mobilgeräten kein Drag-Handle anzeigen */
-        @media (max-width: 768px) {
-            .drag-handle {
-                display: none;
-            }
+        .drag-handle {
+            display: inline-block;
+            color: #aaa;
+            margin-right: 6px;
+            cursor: grab;
+            font-size: 0.9rem;
         }
 
         .item-header {
@@ -381,6 +397,12 @@
 <body>
 
     <div class="container">
+        <!-- Kleine Drag & Drop Checkbox oben rechts -->
+        <label class="drag-toggle-wrapper">
+            <input type="checkbox" id="enableDragToggle" onchange="toggleDragAndDrop()">
+            <span>Drag & Drop</span>
+        </label>
+
         <div class="logo-container">
             <img src="logo.jpg" alt="VC Kuppenheim Logo">
         </div>
@@ -465,9 +487,14 @@
         let dataStore = { getraenke: {}, verpflegung: {}, orga: {} };
         let openCards = new Set();
         let editingTitleKey = null;
+        let isDragEnabled = false;
 
-        // Prüfen ob wir auf Desktop sind (für Drag and Drop)
-        const isDesktop = window.innerWidth > 768;
+        // Toggle für Drag & Drop (wird von der Checkbox aufgerufen)
+        window.toggleDragAndDrop = function() {
+            const checkbox = document.getElementById('enableDragToggle');
+            isDragEnabled = checkbox ? checkbox.checked : false;
+            render();
+        };
 
         // Live-Daten aus Firebase abrufen
         const stammdatenRef = ref(db, 'stammdaten');
@@ -691,7 +718,7 @@
                 `;
             } else {
                 titleAreaHtml = `
-                    <span class="drag-handle">::</span>
+                    ${isDragEnabled ? '<span class="drag-handle">::</span>' : ''}
                     <span>${item.name}</span>
                     <span class="count-badge ${isEmpty ? 'empty-badge' : ''}">
                         ${ingKeys.length} Zutaten | ${conKeys.length} Verbrauchsartikel | ${eqKeys.length} Ausrüstung
@@ -699,8 +726,8 @@
                 `;
             }
 
-            // Draggable Attribut nur für Desktop vergeben
-            const draggableAttr = isDesktop ? 'draggable="true"' : '';
+            // Draggable Attribut nur bei aktivierter Checkbox vergeben
+            const draggableAttr = isDragEnabled ? 'draggable="true"' : '';
 
             return `
                 <div class="item-card ${isOpen ? 'open' : ''}" data-key="${key}" data-category="${category}" ${draggableAttr}>
@@ -781,9 +808,9 @@
             `;
         }
 
-        // DRAG AND DROP HANDLER (Nur Desktop)
+        // DRAG AND DROP HANDLER (Nur wenn isDragEnabled wahr ist)
         function initDragAndDrop() {
-            if (!isDesktop) return;
+            if (!isDragEnabled) return;
 
             const containers = document.querySelectorAll('.drag-container');
 
@@ -791,6 +818,7 @@
                 let draggedItem = null;
 
                 container.addEventListener('dragstart', (e) => {
+                    if (!isDragEnabled) return;
                     const card = e.target.closest('.item-card');
                     if (!card) return;
                     draggedItem = card;
@@ -799,6 +827,7 @@
                 });
 
                 container.addEventListener('dragend', (e) => {
+                    if (!isDragEnabled) return;
                     const card = e.target.closest('.item-card');
                     if (card) card.classList.remove('dragging');
                     
@@ -807,6 +836,7 @@
                 });
 
                 container.addEventListener('dragover', (e) => {
+                    if (!isDragEnabled) return;
                     e.preventDefault();
                     const afterElement = getDragAfterElement(container, e.clientY);
                     if (!draggedItem) return;
