@@ -1,1 +1,267 @@
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin-Bereich | VC Kuppenheim</title>
+    <style>
+        :root {
+            --primary-red: #d00000;
+            --primary-red-hover: #9e0000;
+            --gold-accent: #d4af37;
+            --gold-hover: #f3ce5a;
+            --bg-color: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #111111;
+            --text-muted: #444444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Mikasa-Volleybälle im Hintergrund */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.12"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23111111" stroke-width="1.2" opacity="0.08"><circle cx="50" cy="50" r="42"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.1"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d4af37" stroke-width="1.2" opacity="0.15"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>');
+
+            background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+            background-size: 180px 180px, 240px 240px, 280px 280px, 140px 140px;
+            background-position: 5% 8%, 92% 40%, 8% 88%, 85% 90%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 35px 24px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(208, 0, 0, 0.05);
+            text-align: center;
+            border: 2px solid var(--gold-accent);
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            max-width: 120px;
+            height: auto;
+            mix-blend-mode: multiply;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: var(--primary-red);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+            line-height: 1.4;
+        }
+
+        .sections-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 22px 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e5e5;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(208, 0, 0, 0.08);
+            border-color: var(--gold-accent);
+        }
+
+        .card-main {
+            border: 2px solid var(--gold-accent);
+            background: rgba(212, 175, 55, 0.03);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+        }
+
+        .card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            line-height: 1.35;
+        }
+
+        /* Buttons im gleichen Stil */
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+            
+            background: linear-gradient(180deg, var(--primary-red) 0%, #b00000 100%);
+            color: #ffffff;
+            border: 3.5px solid var(--gold-accent);
+            box-shadow: 0 4px 12px rgba(208, 0, 0, 0.25);
+        }
+
+        .btn:hover {
+            background: linear-gradient(180deg, #e60000 0%, var(--primary-red-hover) 100%);
+            border-color: var(--gold-hover);
+            box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
+            color: #ffffff;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-dark);
+            border: 2px solid #ccc;
+            box-shadow: none;
+            margin-top: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0f0;
+            border-color: #999;
+            box-shadow: none;
+            color: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo-container">
+            <img src="logo.jpg" alt="VC Kuppenheim Logo">
+        </div>
+
+        <span class="admin-badge">Adminbereich</span>
+        <h1>Detailplanung & Verwaltung</h1>
+        <p class="subtitle">Verwalte hier das Angebot sowie die eventbezogenen Details.</p>
+
+        <div class="sections-wrapper">
+            
+            <!-- Zentrale Verpflegung (Getränke & Essen) -->
+            <div class="card card-main">
+                <div class="card-icon">🍔🍺</div>
+                <h2>Verpflegung & Stammdaten</h2>
+                <p>Verwalte alle verfügbaren Getränke, Speisen und Preise zentral.</p>
+                <button class="btn" onclick="todoAlert('Verpflegungsverwaltung')">Getränke & Essen verwalten</button>
+            </div>
+
+            <!-- Detailplanung Stadtfest 2026 -->
+            <div class="card">
+                <div class="card-icon">📅</div>
+                <h2>Stadtfest 2026</h2>
+                <p>Schichtpläne, Material und Detailplanung verwalten.</p>
+                <button class="btn" onclick="todoAlert('Stadtfest 2026 Detailplanung')">Zur Detailplanung</button>
+            </div>
+
+            <!-- Detailplanung Weihnachtsmarkt 2026 -->
+            <div class="card">
+                <div class="card-icon">🎄</div>
+                <h2>Weihnachtsmarkt 2026</h2>
+                <p>Angebote, Standdienst und Planung einsehen.</p>
+                <button class="btn" onclick="todoAlert('Weihnachtsmarkt 2026 Detailplanung')">Zur Detailplanung</button>
+            </div>
+
+            <!-- Detailplanung Neujahrsturnier 2027 -->
+            <div class="card">
+                <div class="card-icon">🏆</div>
+                <h2>Neujahrsturnier 2027</h2>
+                <p>Turnierorganisation, Theke und Helfer organisieren.</p>
+                <button class="btn" onclick="todoAlert('Neujahrsturnier 2027 Detailplanung')">Zur Detailplanung</button>
+            </div>
+
+        </div>
+
+        <!-- Zurück-Button zur Hauptseite -->
+        <a href="index.html" class="btn btn-secondary">← Zurück zur Hauptseite</a>
+    </div>
+
+    <script>
+        // Platzhalter-Funktion solange die Dateien noch nicht verlinkt sind
+        function todoAlert(bereich) {
+            alert("Hier geht es demnächst zur Detailseite für: " + bereich);
+        }
+    </script>
+
+</body>
+</html>
