@@ -49,7 +49,7 @@
 
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 920px;
             background: var(--card-bg);
             backdrop-filter: blur(14px);
             padding: 18px;
@@ -152,9 +152,7 @@
             font-size: 0.82rem;
         }
 
-        .table-input:focus {
-            border-color: var(--gold-accent);
-        }
+        .table-input:focus { border-color: var(--gold-accent); }
 
         .btn {
             padding: 6px 12px;
@@ -207,16 +205,13 @@
             vertical-align: middle;
         }
 
-        .calc-table tr:hover {
-            background-color: #fdfdfd;
-        }
+        .calc-table tr:hover { background-color: #fdfdfd; }
 
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .val-profit { color: var(--green-profit); font-weight: bold; }
         .val-loss { color: var(--primary-red); font-weight: bold; }
 
-        /* Gruppierungsüberschrift */
         .group-title {
             font-size: 0.85rem;
             font-weight: 800;
@@ -230,7 +225,6 @@
             gap: 6px;
         }
 
-        /* Checkbox-Kommission */
         .kommission-label {
             display: inline-flex;
             align-items: center;
@@ -270,13 +264,13 @@
         </div>
 
         <h1>Verkaufs- & Preiskalkulator</h1>
-        <p class="subtitle">Soll-Verkäufe, Wareneinsatz & Gewinne kompakt im Überblick</p>
+        <p class="subtitle">Soll-Verkäufe, Gebindebedarf, Wareneinsatz & Gewinne im Überblick</p>
 
         <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('getraenke')">🍹 Getränke Calc</button>
             <button class="tab-btn" onclick="switchTab('verpflegung')">🍕 Speisen Calc</button>
-            <button class="tab-btn" onclick="switchTab('einkauf')">🛒 Einkaufspreise & Kommission</button>
+            <button class="tab-btn" onclick="switchTab('einkauf')">🛒 Einkaufspreise & Gebinde</button>
         </div>
 
         <!-- TAB 1: GETRÄNKE KALKULATION -->
@@ -311,10 +305,10 @@
             <div id="calc-list-verpflegung">Lade Daten...</div>
         </div>
 
-        <!-- TAB 3: EINKAUFSPREISE & KOMMISSION -->
+        <!-- TAB 3: EINKAUFSPREISE & GEBINDEGRÖSSEN -->
         <div id="tab-einkauf" class="tab-content">
             <p style="font-size:0.78rem; color:#666; margin-bottom:8px;">
-                Einkaufspreise eintragen. Mit der Checkbox <strong>"Kommission"</strong> markierst du Artikel, deren Restmenge risikofrei zurückgegeben werden kann (wichtig für spätere Breakeven-Rechnungen).
+                Trage hier Gebindepreis & Gebindemenge pro Zutat ein. Die <strong>Gesamtmenge</strong> & der <strong>Gebindebedarf</strong> werden automatisch aus deinen Verkaufs-Soll-Zahlen ermittelt.
             </p>
             <div id="einkaufspreise-container">Lade Einkaufspreise...</div>
         </div>
@@ -367,12 +361,12 @@
             const drinkSelect = document.getElementById('selectDrink');
             const foodSelect = document.getElementById('selectFood');
 
-            drinkSelect.innerHTML = '<option value="">-- Getränk aus Stammdaten wählen --</option>';
+            drinkSelect.innerHTML = '<option value="">-- Getränk wählen --</option>';
             Object.keys(stammdaten.getraenke || {}).forEach(key => {
                 drinkSelect.innerHTML += `<option value="${key}">${stammdaten.getraenke[key].name}</option>`;
             });
 
-            foodSelect.innerHTML = '<option value="">-- Speise aus Stammdaten wählen --</option>';
+            foodSelect.innerHTML = '<option value="">-- Speise wählen --</option>';
             Object.keys(stammdaten.verpflegung || {}).forEach(key => {
                 foodSelect.innerHTML += `<option value="${key}">${stammdaten.verpflegung[key].name}</option>`;
             });
@@ -415,6 +409,7 @@
             });
         };
 
+        // Umrechnung auf Basiseinheit (l, kg, Stück)
         function normalizeToStandard(amount, unit) {
             const u = (unit || '').toLowerCase();
             const val = parseFloat(amount) || 0;
@@ -445,14 +440,50 @@
             return totalCost;
         }
 
-        // Schlanke Kompakt-Tabelle rendern
+        // Berechnet die kumulierte Gesamtmenge jeder Zutat aus allen gewählten Verkäufen
+        function calculateAggregatedIngredientDemands() {
+            const demands = {}; // Key -> { amountBase, unit, name }
+
+            ['getraenke', 'verpflegung'].forEach(cat => {
+                const calcItems = kalkulation[cat] || {};
+                Object.values(calcItems).forEach(calcItem => {
+                    const stammItem = (stammdaten[cat] || {})[calcItem.stammKey];
+                    if (!stammItem || !calcItem.targetQty) return;
+
+                    const addSubItems = (subObj) => {
+                        if (!subObj) return;
+                        Object.values(subObj).forEach(ing => {
+                            if (!ing.name) return;
+                            const cleanKey = ing.name.replace(/[.#$/\[\]]/g, "_");
+                            const baseAmountPerPortion = normalizeToStandard(ing.amount, ing.unit);
+                            const totalBaseDemand = baseAmountPerPortion * calcItem.targetQty;
+
+                            if (!demands[cleanKey]) {
+                                demands[cleanKey] = {
+                                    name: ing.name,
+                                    totalBaseDemand: 0,
+                                    recipeUnit: ing.unit
+                                };
+                            }
+                            demands[cleanKey].totalBaseDemand += totalBaseDemand;
+                        });
+                    };
+
+                    addSubItems(stammItem.ingredients);
+                    addSubItems(stammItem.consumables);
+                });
+            });
+
+            return demands;
+        }
+
         function renderCategory(category) {
             const container = document.getElementById(`calc-list-${category}`);
             const itemsObj = kalkulation[category] || {};
             const keys = Object.keys(itemsObj);
 
             if (keys.length === 0) {
-                container.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine Artikel zur Kalkulation hinzugefügt.</p>";
+                container.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine Artikel hinzugefügt.</p>";
                 return;
             }
 
@@ -525,10 +556,12 @@
             `;
         }
 
-        // Render für gruppierten Einkaufspreise-Tab
+        // Render für Einkaufspreise, Gebindegrößen & Mengenberechnung
         function renderEinkaufspreise() {
             const container = document.getElementById('einkaufspreise-container');
             container.innerHTML = "";
+
+            const aggregatedDemands = calculateAggregatedIngredientDemands();
 
             const categories = [
                 { id: 'getraenke', label: '🍹 Zutaten & Artikel: Getränke' },
@@ -551,26 +584,39 @@
                     catIngredients.forEach(ingName => {
                         const cleanKey = ingName.replace(/[.#$/\[\]]/g, "_");
                         const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'l', isKommission: false };
+                        const demandInfo = aggregatedDemands[cleanKey];
+
+                        const totalDemand = demandInfo ? demandInfo.totalBaseDemand : 0;
+                        const packageSize = parseFloat(einkauf.packageSize) || 0;
+
+                        // Benötigte Gebinde (aufgerundet für ganze Gebinde)
+                        const neededPackages = (packageSize > 0 && totalDemand > 0) ? Math.ceil(totalDemand / packageSize) : 0;
 
                         rows += `
                             <tr>
                                 <td><strong>${ingName}</strong></td>
-                                <td style="width: 100px;">
+                                <td style="width: 85px;">
                                     <input type="number" step="0.01" class="table-input text-right" placeholder="0.00" value="${einkauf.packagePrice || ''}"
                                            onblur="updateEinkaufspreis('${ingName}', 'packagePrice', this.value)">
                                 </td>
-                                <td style="width: 100px;">
-                                    <input type="number" step="any" class="table-input text-center" placeholder="Menge" value="${einkauf.packageSize || ''}"
+                                <td style="width: 85px;">
+                                    <input type="number" step="any" class="table-input text-center" placeholder="Größe" value="${einkauf.packageSize || ''}"
                                            onblur="updateEinkaufspreis('${ingName}', 'packageSize', this.value)">
                                 </td>
-                                <td style="width: 100px;">
+                                <td style="width: 90px;">
                                     <select class="table-input" onchange="updateEinkaufspreis('${ingName}', 'unit', this.value)">
                                         ${['l','kg','Stück','Flasche','Dose','Packung','Rolle'].map(u => 
                                             `<option value="${u}" ${einkauf.unit === u ? 'selected' : ''}>${u}</option>`
                                         ).join('')}
                                     </select>
                                 </td>
-                                <td style="width: 110px;" class="text-center">
+                                <td class="text-right" style="background:#fcfcfc;">
+                                    <strong>${totalDemand > 0 ? totalDemand.toFixed(2) : '0.00'}</strong> ${einkauf.unit || ''}
+                                </td>
+                                <td class="text-center" style="background:#f7f9fa; font-weight:bold; color:var(--primary-red);">
+                                    ${neededPackages > 0 ? neededPackages + ' Gebinde' : '-'}
+                                </td>
+                                <td style="width: 100px;" class="text-center">
                                     <label class="kommission-label">
                                         <input type="checkbox" ${einkauf.isKommission ? 'checked' : ''} 
                                                onchange="updateEinkaufspreis('${ingName}', 'isKommission', this.checked)">
@@ -588,8 +634,10 @@
                                 <tr>
                                     <th>Zutat / Material</th>
                                     <th class="text-right">Gebindepreis (€)</th>
-                                    <th class="text-center">Gebindemenge</th>
+                                    <th class="text-center">Gebindegröße</th>
                                     <th>Einheit</th>
+                                    <th class="text-right">Bedarf gesamt</th>
+                                    <th class="text-center">Bedarf Gebinde</th>
                                     <th class="text-center">Kaufart</th>
                                 </tr>
                             </thead>
