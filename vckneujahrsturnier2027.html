@@ -1,43 +1,179 @@
-function submitVote() {
-    const nameInput = document.getElementById('memberName').value.trim();
-    const submitBtn = document.querySelector('.btn-submit');
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7UmrLGoePSvE1H0nZMUFjXY6HvWSynq4",
+        authDomain: "vckuppenheim.firebaseapp.com",
+        databaseURL: "https://vckuppenheim-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "vckuppenheim",
+        storageBucket: "vckuppenheim.firebasestorage.app",
+        messagingSenderId: "83870233719",
+        appId: "1:83870233719:web:626c70cfd99d0690208272",
+        measurementId: "G-Z6PY5520H6"
+    };
 
-    if (!nameInput) {
-        alert('Bitte gib deinen Namen ein!');
-        return;
+    // Firebase initialisieren
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
     }
-    if (!selectedQ1) {
-        alert('Bitte antworte auf Frage 1 (Format des Turniers)!');
-        return;
-    }
-    if (!selectedQ2) {
-        alert('Bitte antworte auf Frage 2 (Teilnahme als Spieler)!');
-        return;
+    
+    // TRICK: WebSockets deaktivieren & HTTP-Polling erzwingen
+    // Dadurch funktioniert das Speichern auch lokal auf dem PC und trotz AdBlockern/Firewalls
+    firebase.database().INTERNAL.forceLongPolling();
+
+    const database = firebase.database();
+    const votesRef = database.ref('vck_neujahrsturnier_2027');
+
+    let selectedQ1 = null;
+    let selectedQ2 = null;
+
+    const labelsQ1 = {
+        'freitag': 'Freitag wie gewohnt',
+        'freitag_samstag_vereine': 'Freitag + Samstag (Vereine)',
+        'freitag_samstag_fest': 'Freitag + Samstag (Festbetrieb)',
+        'nein': 'Kein Turnier'
+    };
+
+    const labelsQ2 = {
+        'ja': 'Ja (Spieler)',
+        'vielleicht': 'Vielleicht',
+        'nein': 'Nein / Nur Helfer'
+    };
+
+    function selectOption(qNum, val) {
+        if (qNum === 1) {
+            selectedQ1 = val;
+            document.querySelectorAll('#q1-options .option-btn').forEach(btn => btn.classList.remove('selected'));
+            const el = document.querySelector(`input[name="vote_q1"][value="${val}"]`);
+            if(el) { el.checked = true; el.closest('.option-btn').classList.add('selected'); }
+        } else if (qNum === 2) {
+            selectedQ2 = val;
+            document.querySelectorAll('#q2-options .option-btn').forEach(btn => btn.classList.remove('selected'));
+            const el = document.querySelector(`input[name="vote_q2"][value="${val}"]`);
+            if(el) { el.checked = true; el.closest('.option-btn').classList.add('selected'); }
+        }
     }
 
-    // Button deaktivieren, um Mehrfach-Klicks zu verhindern
-    submitBtn.disabled = true;
-    submitBtn.innerText = "Wird gespeichert...";
+    function submitVote() {
+        const nameInput = document.getElementById('memberName').value.trim();
+        const submitBtn = document.querySelector('.btn-submit');
 
-    votesRef.push({
-        name: nameInput,
-        vote_q1: selectedQ1,
-        vote_q2: selectedQ2,
-        timestamp: Date.now()
-    }).then(() => {
-        alert('Vielen Dank! Deine Stimme wurde erfolgreich gespeichert.');
+        if (!nameInput) {
+            alert('Bitte gib deinen Namen ein!');
+            return;
+        }
+        if (!selectedQ1) {
+            alert('Bitte antworte auf Frage 1 (Format des Turniers)!');
+            return;
+        }
+        if (!selectedQ2) {
+            alert('Bitte antworte auf Frage 2 (Teilnahme als Spieler)!');
+            return;
+        }
+
+        // Button sperren während des Speicherns
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Wird gespeichert...";
+
+        votesRef.push({
+            name: nameInput,
+            vote_q1: selectedQ1,
+            vote_q2: selectedQ2,
+            timestamp: Date.now()
+        }).then(() => {
+            alert('Vielen Dank! Deine Stimme wurde erfolgreich gespeichert.');
+            
+            // Formular zurücksetzen
+            document.getElementById('memberName').value = '';
+            selectedQ1 = null;
+            selectedQ2 = null;
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+        }).catch(error => {
+            alert("Fehler beim Speichern in Firebase: " + error.message);
+        }).finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Abstimmen";
+        });
+    }
+
+    function deleteVote(key, name) {
+        const password = prompt(`Möchtest du den Eintrag von "${name}" wirklich löschen?\n\nBitte gib das Admin-Passwort ein:`);
+        if (password === null) return;
         
-        // Formular zurücksetzen
-        document.getElementById('memberName').value = '';
-        selectedQ1 = null;
-        selectedQ2 = null;
-        document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
-        document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
-    }).catch(error => {
-        alert("Fehler beim Speichern in Firebase: " + error.message);
-    }).finally(() => {
-        // Button wieder aktivieren
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Abstimmen";
+        if (password === "VCK") {
+            votesRef.child(key).remove()
+                .then(() => alert(`Eintrag von "${name}" gelöscht.`))
+                .catch((error) => alert("Fehler beim Löschen: " + error.message));
+        } else {
+            alert("Falsches Passwort!");
+        }
+    }
+
+    // Daten in Echtzeit auslesen
+    votesRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        renderResults(data);
+    }, (error) => {
+        console.error(error);
+        document.getElementById('voterList').innerHTML = '<div style="text-align:center; color: var(--red);">Fehler beim Laden der Daten.</div>';
     });
-}
+
+    function renderResults(data) {
+        const votes = data ? Object.keys(data).map(key => ({ key, ...data[key] })) : [];
+        const total = votes.length;
+
+        // Ergebnisse Frage 1
+        const q1Container = document.getElementById('resultsQ1');
+        if (q1Container) {
+            q1Container.innerHTML = Object.keys(labelsQ1).map(key => {
+                const count = votes.filter(v => v.vote_q1 === key).length;
+                const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+                return `
+                    <div class="bar-container">
+                        <div class="bar-label">
+                            <span>${labelsQ1[key]}</span>
+                            <span>${count} (${percent}%)</span>
+                        </div>
+                        <div class="bar-outer"><div class="bar-inner" style="width: ${percent}%;"></div></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Ergebnisse Frage 2
+        const q2Container = document.getElementById('resultsQ2');
+        if (q2Container) {
+            q2Container.innerHTML = Object.keys(labelsQ2).map(key => {
+                const count = votes.filter(v => v.vote_q2 === key).length;
+                const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+                return `
+                    <div class="bar-container">
+                        <div class="bar-label">
+                            <span>${labelsQ2[key]}</span>
+                            <span>${count} (${percent}%)</span>
+                        </div>
+                        <div class="bar-outer"><div class="bar-inner" style="width: ${percent}%;"></div></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Liste der Wähler
+        const listContainer = document.getElementById('voterList');
+        if (listContainer) {
+            if (votes.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center; color: var(--text-muted);">Noch keine Stimmen abgegeben.</div>';
+            } else {
+                listContainer.innerHTML = votes.slice().reverse().map(v => `
+                    <div class="voter-item">
+                        <div class="voter-details">
+                            <span class="voter-name">${v.name}</span>
+                            <span class="voter-sub">Format: ${labelsQ1[v.vote_q1] || v.vote_q1}</span>
+                            <span class="voter-sub">Mitspielen: ${labelsQ2[v.vote_q2] || v.vote_q2}</span>
+                        </div>
+                        <button class="btn-delete" title="Eintrag löschen" onclick="deleteVote('${v.key}', '${v.name.replace(/'/g, "\\'")}')">&times;</button>
+                    </div>
+                `).join('');
+            }
+        }
+    }
+</script>
