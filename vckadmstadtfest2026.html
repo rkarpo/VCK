@@ -14,6 +14,8 @@
             --text-dark: #111111;
             --text-muted: #555555;
             --green-profit: #2e7d32;
+            --status-open: #d00000;
+            --status-done: #2e7d32;
         }
 
         * {
@@ -30,7 +32,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px 8px;
+            padding: 20px 10px;
             margin: 0;
         }
 
@@ -49,10 +51,10 @@
 
         .container {
             width: 100%;
-            max-width: 950px;
+            max-width: 1050px;
             background: var(--card-bg);
             backdrop-filter: blur(14px);
-            padding: 18px;
+            padding: 22px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
             border: 2px solid var(--gold-accent);
@@ -65,13 +67,13 @@
         }
 
         .logo-container img {
-            max-width: 75px;
+            max-width: 80px;
             height: auto;
             mix-blend-mode: multiply;
         }
 
         h1 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: var(--text-dark);
             margin-bottom: 2px;
@@ -79,26 +81,26 @@
         }
 
         .subtitle {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             text-align: center;
         }
 
         /* Tabs */
         .tabs {
             display: flex;
-            gap: 6px;
-            margin-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 16px;
             background: rgba(0, 0, 0, 0.05);
-            padding: 3px;
+            padding: 4px;
             border-radius: 10px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 8px 6px;
-            font-size: 0.8rem;
+            padding: 10px 8px;
+            font-size: 0.85rem;
             font-weight: 700;
             border: none;
             background: transparent;
@@ -118,27 +120,27 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Schnelleingabe */
+        /* Formulare */
         .add-form {
             background: #fff;
-            padding: 10px 12px;
+            padding: 12px 14px;
             border-radius: 10px;
             border: 1px solid #e0e0e0;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .input-group {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             align-items: center;
             flex-wrap: wrap;
         }
 
         input[type="text"], input[type="number"], select {
-            padding: 6px 8px;
+            padding: 7px 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
-            font-size: 0.82rem;
+            font-size: 0.85rem;
             outline: none;
             background-color: #fff;
         }
@@ -147,16 +149,16 @@
             width: 100%;
             border: 1px solid #ddd;
             background: #fff;
-            padding: 4px 5px;
+            padding: 5px 7px;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.83rem;
         }
 
         .table-input:focus { border-color: var(--gold-accent); }
 
         .btn {
-            padding: 6px 12px;
-            font-size: 0.8rem;
+            padding: 7px 14px;
+            font-size: 0.85rem;
             font-weight: 700;
             border-radius: 6px;
             cursor: pointer;
@@ -171,7 +173,7 @@
             background: transparent;
             border: none;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             padding: 2px 4px;
             color: #666;
         }
@@ -181,60 +183,55 @@
         .calc-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.8rem;
+            font-size: 0.83rem;
             background: #fff;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid #e0e0e0;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .calc-table th {
             background: #f1f1f1;
             text-align: left;
-            padding: 6px 6px;
-            font-size: 0.7rem;
-            color: #555;
+            padding: 8px 10px;
+            font-size: 0.75rem;
+            color: #444;
             text-transform: uppercase;
             border-bottom: 1px solid #ddd;
         }
 
         .calc-table td {
-            padding: 5px 6px;
+            padding: 7px 10px;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
         }
 
-        .calc-table tr:hover { background-color: #fdfdfd; }
+        .calc-table tr:hover { background-color: #fcfcfc; }
 
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .val-profit { color: var(--green-profit); font-weight: bold; }
         .val-loss { color: var(--primary-red); font-weight: bold; }
 
-        .small-demand {
-            font-size: 0.72rem;
-            color: #666;
-        }
-
         .group-title {
-            font-size: 0.82rem;
+            font-size: 0.88rem;
             font-weight: 800;
             color: var(--primary-red);
             text-transform: uppercase;
-            margin: 10px 0 5px 0;
-            padding-bottom: 3px;
+            margin: 14px 0 6px 0;
+            padding-bottom: 4px;
             border-bottom: 1.5px solid var(--gold-accent);
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
         }
 
         .kommission-label {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            font-size: 0.75rem;
+            gap: 4px;
+            font-size: 0.78rem;
             color: #555;
             cursor: pointer;
             user-select: none;
@@ -245,20 +242,62 @@
             cursor: pointer;
         }
 
+        /* Status Badge / Checkbox im To-Do Tab */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .status-pill.open {
+            background-color: #ffebee;
+            color: var(--status-open);
+            border: 1px solid #ffcdd2;
+        }
+
+        .status-pill.done {
+            background-color: #e8f5e9;
+            color: var(--status-done);
+            border: 1px solid #c8e6c9;
+        }
+
+        .status-pill input[type="checkbox"] {
+            display: none;
+        }
+
         .btn-back {
             background: #ffffff;
             color: var(--text-dark);
             border: 1.5px solid #ccc;
-            margin-top: 14px;
+            margin-top: 16px;
             display: block;
             text-decoration: none;
             text-align: center;
-            padding: 6px 12px;
-            font-size: 0.8rem;
+            padding: 8px 14px;
+            font-size: 0.83rem;
             border-radius: 6px;
             font-weight: 700;
         }
         .btn-back:hover { background: #f0f0f0; }
+
+        .filter-bar {
+            background: #fff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -269,24 +308,43 @@
         </div>
 
         <h1>Verkaufs- & Preiskalkulator</h1>
-        <p class="subtitle">Soll-Verkäufe, Gebindekosten & Margen im kompakten Überblick</p>
+        <p class="subtitle">Besorgungen, Gebindekosten, Zuweisungen & Margen im Überblick</p>
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('getraenke')">🍹 Getränke Calc</button>
+            <button class="tab-btn active" onclick="switchTab('todo')">📋 To-Do & Besorgungen</button>
+            <button class="tab-btn" onclick="switchTab('getraenke')">🍹 Getränke Calc</button>
             <button class="tab-btn" onclick="switchTab('verpflegung')">🍕 Speisen Calc</button>
             <button class="tab-btn" onclick="switchTab('einkauf')">🛒 Einkaufspreise & Gebinde</button>
         </div>
 
+        <!-- TAB 0: TO-DO & BESORGUNGEN -->
+        <div id="tab-todo" class="tab-content active">
+            <div class="filter-bar">
+                <strong>👤 Person filtern:</strong>
+                <select id="todoFilterPerson" onchange="renderTodoTab()" style="width: 180px;">
+                    <option value="ALL">-- Alle Personen --</option>
+                    <option value="Person 1">Person 1</option>
+                    <option value="Person 2">Person 2</option>
+                    <option value="Person 3">Person 3</option>
+                    <option value="Person 4">Person 4</option>
+                    <option value="Person 5">Person 5</option>
+                    <option value="UNASSIGNED">Unzugewiesen</option>
+                </select>
+            </div>
+
+            <div id="todo-container">Lade To-Do-Liste...</div>
+        </div>
+
         <!-- TAB 1: GETRÄNKE KALKULATION -->
-        <div id="tab-getraenke" class="tab-content active">
+        <div id="tab-getraenke" class="tab-content">
             <div class="add-form">
                 <div class="input-group">
                     <select id="selectDrink" style="flex:2;">
                         <option value="">-- Getränk wählen --</option>
                     </select>
-                    <input type="number" id="drinkQty" placeholder="Soll-Stk" style="width:75px;">
-                    <input type="number" step="0.50" id="drinkPrice" placeholder="Preis €" style="width:75px;">
+                    <input type="number" id="drinkQty" placeholder="Soll-Stk" style="width:90px;">
+                    <input type="number" step="0.50" id="drinkPrice" placeholder="Preis €" style="width:90px;">
                     <button class="btn" onclick="addCalcItem('getraenke')">+ Hinzufügen</button>
                 </div>
             </div>
@@ -301,8 +359,8 @@
                     <select id="selectFood" style="flex:2;">
                         <option value="">-- Speise wählen --</option>
                     </select>
-                    <input type="number" id="foodQty" placeholder="Soll-Stk" style="width:75px;">
-                    <input type="number" step="0.50" id="foodPrice" placeholder="Preis €" style="width:75px;">
+                    <input type="number" id="foodQty" placeholder="Soll-Stk" style="width:90px;">
+                    <input type="number" step="0.50" id="foodPrice" placeholder="Preis €" style="width:90px;">
                     <button class="btn" onclick="addCalcItem('verpflegung')">+ Hinzufügen</button>
                 </div>
             </div>
@@ -312,8 +370,8 @@
 
         <!-- TAB 3: EINKAUFSPREISE & GEBINDEGRÖSSEN -->
         <div id="tab-einkauf" class="tab-content">
-            <p style="font-size:0.76rem; color:#666; margin-bottom:8px;">
-                Einkaufspreis pro Gebinde angeben. Basierend darauf werden die Wareneinsätze pro Verkaufsartikel berechnet.
+            <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">
+                Einkaufspreis pro Gebinde eingeben. Basierend darauf werden die Wareneinsätze pro Verkaufsartikel berechnet.
             </p>
             <div id="einkaufspreise-container">Lade Einkaufspreise...</div>
         </div>
@@ -340,26 +398,31 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let stammdaten = { getraenke: {}, verpflegung: {} };
+        let stammdaten = { getraenke: {}, verpflegung: {}, ausruestung: {} };
         let kalkulation = { getraenke: {}, verpflegung: {} };
         let einkaufspreise = {};
+        let todoData = {};
+
+        const persons = ["Person 1", "Person 2", "Person 3", "Person 4", "Person 5"];
 
         onValue(ref(db), (snapshot) => {
             const data = snapshot.val() || {};
-            stammdaten = data.stammdaten || { getraenke: {}, verpflegung: {} };
+            stammdaten = data.stammdaten || { getraenke: {}, verpflegung: {}, ausruestung: {} };
             kalkulation = data.kalkulation || { getraenke: {}, verpflegung: {} };
             einkaufspreise = data.einkaufspreise || {};
+            todoData = data.todoData || {};
 
             populateDropdowns();
             render();
             renderEinkaufspreise();
+            renderTodoTab();
         });
 
-        window.switchTab = function(cat) {
+        window.switchTab = function(tabKey) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             event.target.classList.add('active');
-            document.getElementById(`tab-${cat}`).classList.add('active');
+            document.getElementById(`tab-${tabKey}`).classList.add('active');
         };
 
         function populateDropdowns() {
@@ -420,14 +483,31 @@
                 packagePrice: existingData.packagePrice || 0,
                 packageSize: existingData.packageSize || 0,
                 unit: existingData.unit || 'Stück',
-                isKommission: existingData.isKommission || false,
                 [field]: valToSave
             };
 
             update(ref(db, `einkaufspreise/${cleanKey}`), updatedObj);
         };
 
-        // Umrechnung auf Basiseinheit (l, kg, Stück)
+        // To-Do Speicherung (Person, Status, Menge, Kom)
+        window.updateTodoItem = function(itemKey, field, value) {
+            const cleanKey = itemKey.replace(/[.#$/\[\]]/g, "_");
+            const existing = todoData[cleanKey] || {};
+
+            let valToSave = value;
+            if (field === 'qty') valToSave = parseFloat(value) || 0;
+
+            const updatedObj = {
+                assignedTo: existing.assignedTo || '',
+                isDone: existing.isDone || false,
+                qty: existing.qty !== undefined ? existing.qty : 0,
+                isKommission: existing.isKommission || false,
+                [field]: valToSave
+            };
+
+            update(ref(db, `todoData/${cleanKey}`), updatedObj);
+        };
+
         function normalizeToStandard(amount, unit) {
             const u = (unit || '').toLowerCase();
             const val = parseFloat(amount) || 0;
@@ -439,7 +519,6 @@
             return val;
         }
 
-        // Berechnet die Wareneinsatz-Kosten pro Portion basierend auf Gebindekosten
         function calculateCostPerPortion(stammItem) {
             let totalCost = 0;
             const calcList = (obj) => {
@@ -448,7 +527,6 @@
                     const cleanKey = (ing.name || "").replace(/[.#$/\[\]]/g, "_");
                     const einkauf = einkaufspreise[cleanKey];
                     if (einkauf && einkauf.packagePrice > 0 && einkauf.packageSize > 0) {
-                        // Gebindebasierte Kosten pro Basiseinheit
                         const pricePerBaseUnit = einkauf.packagePrice / einkauf.packageSize;
                         const ingBaseAmount = normalizeToStandard(ing.amount, ing.unit);
                         totalCost += (ingBaseAmount * pricePerBaseUnit);
@@ -460,7 +538,6 @@
             return totalCost;
         }
 
-        // Kumulierte Zutatennachfrage aus Soll-Verkäufen
         function calculateAggregatedIngredientDemands() {
             const demands = {}; 
 
@@ -479,10 +556,7 @@
                             const totalBaseDemand = baseAmountPerPortion * calcItem.targetQty;
 
                             if (!demands[cleanKey]) {
-                                demands[cleanKey] = {
-                                    name: ing.name,
-                                    totalBaseDemand: 0
-                                };
+                                demands[cleanKey] = { name: ing.name, totalBaseDemand: 0 };
                             }
                             demands[cleanKey].totalBaseDemand += totalBaseDemand;
                         });
@@ -494,6 +568,158 @@
             });
 
             return demands;
+        }
+
+        /* --- RENDER TO-DO TAB --- */
+        function renderTodoTab() {
+            const container = document.getElementById('todo-container');
+            const selectedPerson = document.getElementById('todoFilterPerson').value;
+            container.innerHTML = "";
+
+            const aggregatedDemands = calculateAggregatedIngredientDemands();
+
+            // 1. ZUTATEN & BESORGUNGEN (Aus Soll-Kalkulation & Gebinden)
+            let zutatenRows = "";
+            Object.keys(aggregatedDemands).forEach(cleanKey => {
+                const demand = aggregatedDemands[cleanKey];
+                const ingName = demand.name;
+                const einkauf = einkaufspreise[cleanKey] || {};
+                const todo = todoData[cleanKey] || { assignedTo: '', isDone: false, isKommission: false };
+
+                const packageSize = parseFloat(einkauf.packageSize) || 0;
+                const totalDemand = demand.totalBaseDemand || 0;
+                const neededPackages = (packageSize > 0 && totalDemand > 0) ? Math.ceil(totalDemand / packageSize) : 0;
+
+                // Person Filter Check
+                if (selectedPerson === 'UNASSIGNED' && todo.assignedTo) return;
+                if (selectedPerson !== 'ALL' && selectedPerson !== 'UNASSIGNED' && todo.assignedTo !== selectedPerson) return;
+
+                const currentUnit = einkauf.unit || 'Stück';
+
+                zutatenRows += `
+                    <tr>
+                        <td><strong>${ingName}</strong></td>
+                        <td class="text-center" style="font-weight:bold; color:var(--primary-red);">
+                            ${neededPackages > 0 ? neededPackages + ' Gebinde' : '0 Gebinde'}
+                        </td>
+                        <td class="text-right" style="color:#666; font-size:0.78rem;">
+                            (${totalDemand.toFixed(2)} ${currentUnit})
+                        </td>
+                        <td class="text-center">
+                            <label class="kommission-label">
+                                <input type="checkbox" ${todo.isKommission ? 'checked' : ''} 
+                                       onchange="updateTodoItem('${cleanKey}', 'isKommission', this.checked)">
+                                Kom.
+                            </label>
+                        </td>
+                        <td>
+                            <select class="table-input" onchange="updateTodoItem('${cleanKey}', 'assignedTo', this.value)">
+                                <option value="">-- Unzugewiesen --</option>
+                                ${persons.map(p => `<option value="${p}" ${todo.assignedTo === p ? 'selected' : ''}>${p}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <label class="status-pill ${todo.isDone ? 'done' : 'open'}">
+                                <input type="checkbox" ${todo.isDone ? 'checked' : ''} 
+                                       onchange="updateTodoItem('${cleanKey}', 'isDone', this.checked)">
+                                ${todo.isDone ? '✓ Erledigt' : '⭕ Offen'}
+                            </label>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // 2. AUSRÜSTUNG (Aus Stammdaten Ausrüstung)
+            let ausruestungRows = "";
+            const ausruestungStamm = stammdaten.ausruestung || {};
+            Object.keys(ausruestungStamm).forEach(key => {
+                const item = ausruestungStamm[key];
+                const cleanKey = item.name.replace(/[.#$/\[\]]/g, "_");
+                const todo = todoData[cleanKey] || { assignedTo: '', isDone: false, qty: 0, isKommission: false };
+
+                // Person Filter Check
+                if (selectedPerson === 'UNASSIGNED' && todo.assignedTo) return;
+                if (selectedPerson !== 'ALL' && selectedPerson !== 'UNASSIGNED' && todo.assignedTo !== selectedPerson) return;
+
+                ausruestungRows += `
+                    <tr>
+                        <td><strong>${item.name}</strong></td>
+                        <td style="width: 110px;">
+                            <input type="number" class="table-input text-center" placeholder="Menge" value="${todo.qty || ''}" 
+                                   onblur="updateTodoItem('${cleanKey}', 'qty', this.value)">
+                        </td>
+                        <td class="text-center" style="color:#666; font-size:0.78rem;">
+                            ${item.unit || 'Stück'}
+                        </td>
+                        <td class="text-center">
+                            <label class="kommission-label">
+                                <input type="checkbox" ${todo.isKommission ? 'checked' : ''} 
+                                       onchange="updateTodoItem('${cleanKey}', 'isKommission', this.checked)">
+                                Kom.
+                            </label>
+                        </td>
+                        <td>
+                            <select class="table-input" onchange="updateTodoItem('${cleanKey}', 'assignedTo', this.value)">
+                                <option value="">-- Unzugewiesen --</option>
+                                ${persons.map(p => `<option value="${p}" ${todo.assignedTo === p ? 'selected' : ''}>${p}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <label class="status-pill ${todo.isDone ? 'done' : 'open'}">
+                                <input type="checkbox" ${todo.isDone ? 'checked' : ''} 
+                                       onchange="updateTodoItem('${cleanKey}', 'isDone', this.checked)">
+                                ${todo.isDone ? '✓ Erledigt' : '⭕ Offen'}
+                            </label>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            let html = "";
+
+            if (zutatenRows) {
+                html += `
+                    <div class="group-title">🛒 Zutaten & Verbrauchsmaterialien (Einkauf)</div>
+                    <table class="calc-table">
+                        <thead>
+                            <tr>
+                                <th>Zutat / Artikel</th>
+                                <th class="text-center">Benötigte Gebinde</th>
+                                <th class="text-right">Gesamtbedarf</th>
+                                <th class="text-center">Kaufart</th>
+                                <th style="width:160px;">Zuständig</th>
+                                <th class="text-center" style="width:120px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>${zutatenRows}</tbody>
+                    </table>
+                `;
+            }
+
+            if (ausruestungRows) {
+                html += `
+                    <div class="group-title">🛠️ Ausrüstung & Material-Bereitstellung</div>
+                    <table class="calc-table">
+                        <thead>
+                            <tr>
+                                <th>Gegenstand</th>
+                                <th class="text-center">Anzahl / Menge</th>
+                                <th class="text-center">Einheit</th>
+                                <th class="text-center">Kaufart</th>
+                                <th style="width:160px;">Zuständig</th>
+                                <th class="text-center" style="width:120px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>${ausruestungRows}</tbody>
+                    </table>
+                `;
+            }
+
+            if (!html) {
+                html = "<p style='font-size:0.85rem; color:#999; text-align:center; padding:20px;'>Keine To-Dos für die aktuelle Auswahl gefunden.</p>";
+            }
+
+            container.innerHTML = html;
         }
 
         function renderCategory(category) {
@@ -529,11 +755,11 @@
                 rowsHtml += `
                     <tr>
                         <td><strong>${stammItem.name}</strong></td>
-                        <td style="width: 75px;">
+                        <td style="width: 85px;">
                             <input type="number" class="table-input text-center" value="${calcItem.targetQty || 0}" 
                                    onblur="updateCalcField('${category}', '${calcKey}', 'targetQty', this.value)">
                         </td>
-                        <td style="width: 80px;">
+                        <td style="width: 95px;">
                             <input type="number" step="0.10" class="table-input text-right" value="${calcItem.price || 0}" 
                                    onblur="updateCalcField('${category}', '${calcKey}', 'price', this.value)">
                         </td>
@@ -541,7 +767,7 @@
                         <td class="text-right ${profitPortion >= 0 ? 'val-profit' : 'val-loss'}">${profitPortion.toFixed(2)} €</td>
                         <td class="text-right">${totalRev.toFixed(2)} €</td>
                         <td class="text-right ${totalProfit >= 0 ? 'val-profit' : 'val-loss'}">${totalProfit.toFixed(2)} €</td>
-                        <td class="text-center" style="width: 30px;">
+                        <td class="text-center" style="width: 35px;">
                             <button class="btn-icon" onclick="removeCalcItem('${category}', '${calcKey}')" title="Löschen">❌</button>
                         </td>
                     </tr>
@@ -575,7 +801,7 @@
             `;
         }
 
-        // Render Tab 3 (Einkaufspreise, Gebinde & Gesamtkosten)
+        // Render Tab 3 (Einkaufspreise & Gebinde)
         function renderEinkaufspreise() {
             const container = document.getElementById('einkaufspreise-container');
             container.innerHTML = "";
@@ -602,7 +828,7 @@
 
                     catIngredients.forEach(ingName => {
                         const cleanKey = ingName.replace(/[.#$/\[\]]/g, "_");
-                        const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'Stück', isKommission: false };
+                        const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'Stück' };
                         const currentUnit = einkauf.unit || 'Stück';
                         const demandInfo = aggregatedDemands[cleanKey];
 
@@ -610,10 +836,7 @@
                         const packageSize = parseFloat(einkauf.packageSize) || 0;
                         const packagePrice = parseFloat(einkauf.packagePrice) || 0;
 
-                        // Gebindebedarf aufrunden
                         const neededPackages = (packageSize > 0 && totalDemand > 0) ? Math.ceil(totalDemand / packageSize) : 0;
-                        
-                        // Kosten gesamt basierend auf ganzen Gebinden
                         const totalPackageCost = neededPackages * packagePrice;
 
                         const units = ['Stück', 'l', 'kg', 'Flasche', 'Dose', 'Packung', 'Rolle'];
@@ -621,34 +844,27 @@
                         rows += `
                             <tr>
                                 <td><strong>${ingName}</strong></td>
-                                <td style="width: 80px;">
-                                    <input type="number" step="0.01" class="table-input text-right" placeholder="0.00" value="${einkauf.packagePrice !== undefined ? einkauf.packagePrice : ''}"
+                                <td style="width: 100px;">
+                                    <input type="number" step="0.01" class="table-input text-right" placeholder="0.00 €" value="${einkauf.packagePrice !== undefined ? einkauf.packagePrice : ''}"
                                            onblur="updateEinkaufspreis('${ingName}', 'packagePrice', this.value)">
                                 </td>
-                                <td style="width: 75px;">
+                                <td style="width: 90px;">
                                     <input type="number" step="any" class="table-input text-center" placeholder="Größe" value="${einkauf.packageSize !== undefined ? einkauf.packageSize : ''}"
                                            onblur="updateEinkaufspreis('${ingName}', 'packageSize', this.value)">
                                 </td>
-                                <td style="width: 85px;">
+                                <td style="width: 100px;">
                                     <select class="table-input" onchange="updateEinkaufspreis('${ingName}', 'unit', this.value)">
                                         ${units.map(u => `<option value="${u}" ${currentUnit === u ? 'selected' : ''}>${u}</option>`).join('')}
                                     </select>
                                 </td>
-                                <td class="text-right small-demand" style="background:#fcfcfc;">
+                                <td class="text-right" style="background:#fafafa; color:#555;">
                                     ${totalDemand > 0 ? totalDemand.toFixed(2) : '0.00'} ${currentUnit}
                                 </td>
                                 <td class="text-center" style="background:#f7f9fa; font-weight:bold; color:var(--primary-red);">
                                     ${neededPackages > 0 ? neededPackages + ' Geb.' : '-'}
                                 </td>
-                                <td class="text-right" style="background:#f7f9fa; font-weight:bold;">
-                                    ${totalPackageCost > 0 ? totalPackageCost.toFixed(2) + ' €' : '-'}
-                                </td>
-                                <td style="width: 65px;" class="text-center">
-                                    <label class="kommission-label">
-                                        <input type="checkbox" ${einkauf.isKommission ? 'checked' : ''} 
-                                               onchange="updateEinkaufspreis('${ingName}', 'isKommission', this.checked)">
-                                        Kom.
-                                    </label>
+                                <td class="text-right" style="background:#f7f9fa; font-weight:bold; width: 110px;">
+                                    ${totalPackageCost > 0 ? totalPackageCost.toFixed(2) + ' €' : '0.00 €'}
                                 </td>
                             </tr>
                         `;
@@ -666,7 +882,6 @@
                                     <th class="text-right">Bedarf ges.</th>
                                     <th class="text-center">Gebinde</th>
                                     <th class="text-right">Kosten (Gebinde)</th>
-                                    <th class="text-center">Kaufart</th>
                                 </tr>
                             </thead>
                             <tbody>${rows}</tbody>
