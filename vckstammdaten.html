@@ -160,8 +160,18 @@
             background-color: #fff;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+        /* Direkt editierbare Tabellen-Inputs */
+        .table-input {
+            width: 100%;
+            border: 1px solid transparent;
+            background: transparent;
+            padding: 4px 6px;
+            border-radius: 4px;
+        }
+
+        .table-input:hover, .table-input:focus {
             border-color: var(--gold-accent);
+            background: #fff;
         }
 
         .btn {
@@ -197,7 +207,6 @@
             background: #eee;
         }
 
-        /* Unterteilungen (z.B. Alkoholisch / Alkoholfrei) */
         .sub-group-title {
             font-size: 0.9rem;
             font-weight: 800;
@@ -212,7 +221,7 @@
             padding-bottom: 4px;
         }
 
-        /* Akkordeon & Karten */
+        /* Karten */
         .item-card {
             background: #ffffff;
             border-radius: 12px;
@@ -277,7 +286,7 @@
             margin-left: 6px;
         }
 
-        /* Tabellen für Zutaten & Ausrüstung */
+        /* Tabellen */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -299,16 +308,9 @@
         }
 
         .data-table td {
-            padding: 6px 10px;
+            padding: 4px 6px;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
-        }
-
-        .edit-row-inputs {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            width: 100%;
         }
 
         .btn-back {
@@ -331,7 +333,7 @@
         </div>
 
         <h1>Rezept- & Materialplanung</h1>
-        <p class="subtitle">Zutaten, Mengen & Equipment verwalten</p>
+        <p class="subtitle">Zutaten, Mengen & Ausrüstung verwalten</p>
 
         <!-- Haupt-Tabs -->
         <div class="tabs">
@@ -409,10 +411,8 @@
 
         let dataStore = { getraenke: {}, verpflegung: {}, orga: {} };
         let openCards = new Set();
-        let editingIngredients = {}; // Status Zutat-Editing
-        let editingEquipment = {};   // Status Gerät-Editing
 
-        // Live-Daten von Firebase holen
+        // Live-Daten aus Firebase abrufen
         const stammdatenRef = ref(db, 'stammdaten');
         onValue(stammdatenRef, (snapshot) => {
             const data = snapshot.val() || {};
@@ -464,12 +464,12 @@
         };
 
         window.deleteItem = function(category, key) {
-            if (confirm("Diesen Eintrag samt Zutaten & Geräten wirklich löschen?")) {
+            if (confirm("Diesen Eintrag samt Zutaten & Ausrüstung wirklich löschen?")) {
                 remove(ref(db, `stammdaten/${category}/${key}`));
             }
         };
 
-        // ZUTATEN LOGIK
+        // ZUTATEN - Hinzufügen & Auto-Update
         window.addIngredient = function(category, itemKey) {
             const name = document.getElementById(`ing-name-${itemKey}`).value.trim();
             const amount = document.getElementById(`ing-amount-${itemKey}`).value.trim();
@@ -484,58 +484,38 @@
             document.getElementById(`ing-amount-${itemKey}`).value = "";
         };
 
-        window.toggleEditIngredient = function(ingKey) {
-            editingIngredients[ingKey] = !editingIngredients[ingKey];
-            render();
-        };
-
-        window.saveIngredient = function(category, itemKey, ingKey) {
-            const name = document.getElementById(`edit-ing-name-${ingKey}`).value.trim();
-            const amount = document.getElementById(`edit-ing-amount-${ingKey}`).value.trim();
-            const unit = document.getElementById(`edit-ing-unit-${ingKey}`).value;
-
-            if (!name) return alert("Name darf nicht leer sein!");
-
+        window.updateIngredient = function(category, itemKey, ingKey, field, value) {
             update(ref(db, `stammdaten/${category}/${itemKey}/ingredients/${ingKey}`), {
-                name, amount, unit
+                [field]: value
             });
-
-            editingIngredients[ingKey] = false;
         };
 
         window.removeIngredient = function(category, itemKey, ingKey) {
             remove(ref(db, `stammdaten/${category}/${itemKey}/ingredients/${ingKey}`));
         };
 
-        // GERÄTE / EQUIPMENT LOGIK
+        // AUSRÜSTUNG - Hinzufügen & Auto-Update
         window.addEquipment = function(category, itemKey) {
             const input = document.getElementById(`eq-input-${itemKey}`);
             const name = input.value.trim();
-            if (!name) return alert("Bitte Gerätenamen eingeben!");
+            if (!name) return alert("Bitte Name der Ausrüstung eingeben!");
 
             const newEqRef = push(ref(db, `stammdaten/${category}/${itemKey}/equipment`));
             set(newEqRef, { name });
             input.value = "";
         };
 
-        window.toggleEditEquipment = function(eqKey) {
-            editingEquipment[eqKey] = !editingEquipment[eqKey];
-            render();
-        };
-
-        window.saveEquipment = function(category, itemKey, eqKey) {
-            const name = document.getElementById(`edit-eq-name-${eqKey}`).value.trim();
-            if (!name) return alert("Name darf nicht leer sein!");
-
-            update(ref(db, `stammdaten/${category}/${itemKey}/equipment/${eqKey}`), { name });
-            editingEquipment[eqKey] = false;
+        window.updateEquipment = function(category, itemKey, eqKey, value) {
+            update(ref(db, `stammdaten/${category}/${itemKey}/equipment/${eqKey}`), {
+                name: value
+            });
         };
 
         window.removeEquipment = function(category, itemKey, eqKey) {
             remove(ref(db, `stammdaten/${category}/${itemKey}/equipment/${eqKey}`));
         };
 
-        // HTML für ein einzelnes Element generieren
+        // Card HTML Render
         function renderCardHTML(category, key, item) {
             const isOpen = openCards.has(key);
             const ingredientsObj = item.ingredients || {};
@@ -543,71 +523,49 @@
             const ingKeys = Object.keys(ingredientsObj);
             const eqKeys = Object.keys(equipmentObj);
 
-            // 1. ZUTATEN TABELLE
+            // 1. ZUTATEN TABELLE (Direkt bearbeitbar)
             let ingredientsRowsHtml = "";
             ingKeys.forEach(ingKey => {
                 const ing = ingredientsObj[ingKey];
-                const isEditing = editingIngredients[ingKey];
-
-                if (isEditing) {
-                    ingredientsRowsHtml += `
-                        <tr>
-                            <td colspan="3">
-                                <div class="edit-row-inputs">
-                                    <input type="text" id="edit-ing-name-${ingKey}" value="${ing.name}" style="flex:2;">
-                                    <input type="number" id="edit-ing-amount-${ingKey}" value="${ing.amount}" style="width:60px;">
-                                    <select id="edit-ing-unit-${ingKey}">
-                                        ${['cl','dl','g','Zweige','Stück','Scheibe','Flasche','Dose','kg','l'].map(u => 
-                                            `<option value="${u}" ${ing.unit === u ? 'selected' : ''}>${u}</option>`
-                                        ).join('')}
-                                    </select>
-                                    <button class="btn btn-small" onclick="saveIngredient('${category}', '${key}', '${ingKey}')">💾 Speichern</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                } else {
-                    ingredientsRowsHtml += `
-                        <tr>
-                            <td><b>${ing.name}</b></td>
-                            <td>${ing.amount} ${ing.unit}</td>
-                            <td style="text-align:right;">
-                                <button class="btn-icon" onclick="toggleEditIngredient('${ingKey}')" title="Bearbeiten">✏️</button>
-                                <button class="btn-icon" onclick="removeIngredient('${category}', '${key}', '${ingKey}')" title="Löschen">❌</button>
-                            </td>
-                        </tr>
-                    `;
-                }
+                ingredientsRowsHtml += `
+                    <tr>
+                        <td>
+                            <input type="text" class="table-input" value="${ing.name || ''}" 
+                                   onblur="updateIngredient('${category}', '${key}', '${ingKey}', 'name', this.value)">
+                        </td>
+                        <td style="width: 70px;">
+                            <input type="number" class="table-input" value="${ing.amount || ''}" 
+                                   onblur="updateIngredient('${category}', '${key}', '${ingKey}', 'amount', this.value)">
+                        </td>
+                        <td style="width: 90px;">
+                            <select class="table-input" onchange="updateIngredient('${category}', '${key}', '${ingKey}', 'unit', this.value)">
+                                ${['cl','dl','g','Zweige','Stück','Scheibe','Flasche','Dose','kg','l'].map(u => 
+                                    `<option value="${u}" ${ing.unit === u ? 'selected' : ''}>${u}</option>`
+                                ).join('')}
+                            </select>
+                        </td>
+                        <td style="text-align:right; width: 40px;">
+                            <button class="btn-icon" onclick="removeIngredient('${category}', '${key}', '${ingKey}')" title="Löschen">❌</button>
+                        </td>
+                    </tr>
+                `;
             });
 
-            // 2. GERÄTE TABELLE (gleiches Format wie oben, ohne Menge)
+            // 2. AUSRÜSTUNG TABELLE (Direkt bearbeitbar)
             let equipmentRowsHtml = "";
             eqKeys.forEach(eqKey => {
                 const eq = equipmentObj[eqKey];
-                const isEditing = editingEquipment[eqKey];
-
-                if (isEditing) {
-                    equipmentRowsHtml += `
-                        <tr>
-                            <td colspan="2">
-                                <div class="edit-row-inputs">
-                                    <input type="text" id="edit-eq-name-${eqKey}" value="${eq.name}" style="flex:1;">
-                                    <button class="btn btn-small" onclick="saveEquipment('${category}', '${key}', '${eqKey}')">💾 Speichern</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                } else {
-                    equipmentRowsHtml += `
-                        <tr>
-                            <td><b>${eq.name}</b></td>
-                            <td style="text-align:right;">
-                                <button class="btn-icon" onclick="toggleEditEquipment('${eqKey}')" title="Bearbeiten">✏️</button>
-                                <button class="btn-icon" onclick="removeEquipment('${category}', '${key}', '${eqKey}')" title="Löschen">❌</button>
-                            </td>
-                        </tr>
-                    `;
-                }
+                equipmentRowsHtml += `
+                    <tr>
+                        <td>
+                            <input type="text" class="table-input" value="${eq.name || ''}" 
+                                   onblur="updateEquipment('${category}', '${key}', '${eqKey}', this.value)">
+                        </td>
+                        <td style="text-align:right; width: 40px;">
+                            <button class="btn-icon" onclick="removeEquipment('${category}', '${key}', '${eqKey}')" title="Löschen">❌</button>
+                        </td>
+                    </tr>
+                `;
             });
 
             return `
@@ -615,8 +573,8 @@
                     <div class="item-header" onclick="toggleCard('${key}')">
                         <div class="title-area">
                             <span>${item.name}</span>
-                            <!-- Anz. Zutaten & Ausrüstung im Titel -->
-                            <span class="count-badge">${ingKeys.length} Zutaten | ${eqKeys.length} Geräte</span>
+                            <!-- Anz. Zutaten & Ausrüstung im Titel badge -->
+                            <span class="count-badge">${ingKeys.length} Zutaten | ${eqKeys.length} Ausrüstung</span>
                         </div>
                         <div>
                             <button class="btn-icon" onclick="event.stopPropagation(); deleteItem('${category}', '${key}')" title="Löschen">🗑️</button>
@@ -633,14 +591,15 @@
                                     <tr>
                                         <th>Zutat</th>
                                         <th>Menge</th>
-                                        <th style="text-align:right; width: 80px;">Aktion</th>
+                                        <th>Einheit</th>
+                                        <th style="text-align:right;"></th>
                                     </tr>
                                 </thead>
                                 <tbody>${ingredientsRowsHtml}</tbody>
                             </table>
                         ` : '<p style="font-size:0.8rem; color:#999; margin-bottom:8px;">Noch keine Zutaten angelegt.</p>'}
 
-                        <div class="input-group" style="margin-bottom:16px;">
+                        <div class="input-group" style="margin-bottom:18px;">
                             <input type="text" id="ing-name-${key}" placeholder="Neue Zutat (z.B. Gin)" style="flex:2;">
                             <input type="number" id="ing-amount-${key}" placeholder="Menge" style="width:65px;">
                             <select id="ing-unit-${key}">
@@ -658,22 +617,22 @@
                             <button class="btn btn-small" onclick="addIngredient('${category}', '${key}')">+ Hinzufügen</button>
                         </div>
 
-                        <!-- ABSCHNITT 2: GERÄTE & AUSRÜSTUNG -->
-                        <h5 style="font-size:0.8rem; text-transform:uppercase; color:#666; margin-bottom:6px;">2. Geräte & Ausrüstung</h5>
+                        <!-- ABSCHNITT 2: AUSRÜSTUNG -->
+                        <h5 style="font-size:0.8rem; text-transform:uppercase; color:#666; margin-bottom:6px;">2. Ausrüstung</h5>
                         ${eqKeys.length > 0 ? `
                             <table class="data-table">
                                 <thead>
                                     <tr>
-                                        <th>Gerät / Gegenstand</th>
-                                        <th style="text-align:right; width: 80px;">Aktion</th>
+                                        <th>Gegenstand / Gerät</th>
+                                        <th style="text-align:right;"></th>
                                     </tr>
                                 </thead>
                                 <tbody>${equipmentRowsHtml}</tbody>
                             </table>
-                        ` : '<p style="font-size:0.8rem; color:#999; margin-bottom:8px;">Noch keine Geräte angelegt.</p>'}
+                        ` : '<p style="font-size:0.8rem; color:#999; margin-bottom:8px;">Noch keine Ausrüstung angelegt.</p>'}
 
                         <div class="input-group">
-                            <input type="text" id="eq-input-${key}" placeholder="Neues Gerät (z.B. Gläser, Messer, Mixer)" style="flex:1;">
+                            <input type="text" id="eq-input-${key}" placeholder="Neue Ausrüstung (z.B. Gläser, Mixer)" style="flex:1;">
                             <button class="btn btn-small" onclick="addEquipment('${category}', '${key}')">+ Hinzufügen</button>
                         </div>
 
@@ -682,9 +641,9 @@
             `;
         }
 
-        // Haupt-Render-Methode
+        // Haupt-Render-Funktion
         function render() {
-            // 1. Getränke (Alkoholisch & Alkoholfrei)
+            // 1. Getränke
             const alkContainer = document.getElementById('list-getraenke-alkoholisch');
             const freikContainer = document.getElementById('list-getraenke-alkoholfrei');
             alkContainer.innerHTML = "";
