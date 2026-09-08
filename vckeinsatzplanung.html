@@ -435,9 +435,16 @@
                 border-radius: 8px;
                 padding: 12px;
                 display: flex;
+                flex-direction: column;
+                gap: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            }
+
+            .summary-card-header {
+                display: flex;
                 justify-content: space-between;
                 align-items: center;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                width: 100%;
             }
 
             .summary-card-title {
@@ -449,7 +456,7 @@
             .summary-card-stats {
                 display: flex;
                 align-items: center;
-                gap: 10px;
+                gap: 8px;
             }
 
             .summary-badge {
@@ -472,6 +479,46 @@
             .summary-count {
                 font-size: 12px;
                 color: #555;
+            }
+
+            /* Details / Namen-Liste für Mobil-Kacheln */
+            .mobile-names-details {
+                font-size: 12px;
+                border-top: 1px dashed #e2e8f0;
+                padding-top: 6px;
+                margin-top: 2px;
+            }
+
+            .mobile-names-details summary {
+                cursor: pointer;
+                color: #2b5797;
+                font-weight: 600;
+                font-size: 12px;
+                outline: none;
+                user-select: none;
+            }
+
+            .mobile-names-list {
+                list-style: none;
+                padding-left: 0;
+                margin: 6px 0 0 0;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .mobile-names-list li {
+                background: #f8f9fa;
+                padding: 4px 8px;
+                border-radius: 4px;
+                display: flex;
+                justify-content: space-between;
+                color: #333;
+            }
+
+            .mobile-names-list .person-role {
+                color: #6c757d;
+                font-size: 11px;
             }
 
             .role-cards-grid {
@@ -708,17 +755,27 @@
             const mobileContainer = document.getElementById('mobileSummaryCards');
             if (mobileContainer) mobileContainer.innerHTML = "";
 
-            // 1. Schichten auswerten
+            // 1. Schichten auswerten & Namenslisten pro Schicht zusammenstellen
             for (let col = 0; col < numCols; col++) {
-                const selects = document.querySelectorAll(`.select-shift[data-col="${col}"]`);
-                let count = 0;
+                const assignedPersons = [];
+                const trs = document.querySelectorAll('#tableBody tr');
 
-                selects.forEach(select => {
-                    if (select.value.trim() !== '') {
-                        count++;
+                trs.forEach(tr => {
+                    const select = tr.querySelector(`.select-shift[data-col="${col}"]`);
+                    const nameInput = tr.querySelector('.input-name');
+                    const roleSelect = tr.querySelector('.select-role');
+
+                    if (select && select.value.trim() !== '') {
+                        const personName = nameInput ? nameInput.value.trim() : 'Unbekannt';
+                        const personRole = roleSelect ? roleSelect.value : '';
+                        assignedPersons.push({
+                            name: personName || 'Unbenannt',
+                            role: personRole
+                        });
                     }
                 });
 
+                const count = assignedPersons.length;
                 const needed = requiredCount[col];
                 const isOk = count >= needed;
 
@@ -737,18 +794,36 @@
                     }
                 }
 
-                // Mobil-Kacheln aufbauen
+                // Mobil-Kacheln mit Namensliste aufbauen
                 if (mobileContainer) {
                     const card = document.createElement('div');
                     card.className = 'summary-card';
+
+                    let namesListHtml = "";
+                    if (assignedPersons.length > 0) {
+                        namesListHtml = assignedPersons.map(p => 
+                            `<li><span>${p.name}</span> <span class="person-role">${p.role}</span></li>`
+                        ).join('');
+                    } else {
+                        namesListHtml = `<li style="color: #999; font-style: italic;">Noch niemand eingeteilt</li>`;
+                    }
+
                     card.innerHTML = `
-                        <div class="summary-card-title">${shiftLabels[col]}</div>
-                        <div class="summary-card-stats">
-                            <span class="summary-count">${count} / ${needed} eingeteilt</span>
-                            <span class="summary-badge ${isOk ? 'badge-ok' : 'badge-fehlen'}">
-                                ${isOk ? 'OK' : `Fehlen ${needed - count}`}
-                            </span>
+                        <div class="summary-card-header">
+                            <div class="summary-card-title">${shiftLabels[col]}</div>
+                            <div class="summary-card-stats">
+                                <span class="summary-count">${count} / ${needed}</span>
+                                <span class="summary-badge ${isOk ? 'badge-ok' : 'badge-fehlen'}">
+                                    ${isOk ? 'OK' : `Fehlen ${needed - count}`}
+                                </span>
+                            </div>
                         </div>
+                        <details class="mobile-names-details">
+                            <summary>Eingeteilte Personen (${count})</summary>
+                            <ul class="mobile-names-list">
+                                ${namesListHtml}
+                            </ul>
+                        </details>
                     `;
                     mobileContainer.appendChild(card);
                 }
