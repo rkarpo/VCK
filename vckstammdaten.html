@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -59,7 +58,7 @@
 
         .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
             background: var(--card-bg);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
@@ -96,7 +95,7 @@
             text-align: center;
         }
 
-        /* Navigation Tabs (Reiter) */
+        /* Navigation Tabs */
         .tabs {
             display: flex;
             gap: 6px;
@@ -155,20 +154,19 @@
             margin-bottom: 10px;
         }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 10px 12px;
+        input[type="text"], input[type="number"], select {
+            padding: 9px 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             outline: none;
+            background-color: #fff;
         }
 
-        input[type="text"]:focus {
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
             border-color: var(--gold-accent);
         }
 
-        /* Buttons im Vereinsdesign */
         .btn {
             width: 100%;
             padding: 10px 16px;
@@ -192,10 +190,11 @@
         }
 
         .btn-small {
-            padding: 6px 10px;
-            font-size: 0.78rem;
+            padding: 6px 12px;
+            font-size: 0.8rem;
             width: auto;
             border-width: 1.5px;
+            white-space: nowrap;
         }
 
         /* Cards für Artikel */
@@ -226,7 +225,6 @@
         .btn-delete-item {
             background: transparent;
             border: none;
-            color: #cc0000;
             font-size: 1.2rem;
             cursor: pointer;
             padding: 0 4px;
@@ -315,11 +313,11 @@
             <div class="add-form">
                 <h3>Neues Getränk anlegen</h3>
                 <div class="input-group">
-                    <input type="text" id="newDrinkName" placeholder="z.B. Aperol Spritz">
+                    <input type="text" id="newDrinkName" placeholder="z.B. Aperol Spritz" style="flex:1;">
                     <button class="btn btn-small" onclick="addItem('getraenke')">Anlegen</button>
                 </div>
             </div>
-            <div id="list-getraenke"></div>
+            <div id="list-getraenke">Lade Daten aus Firebase...</div>
         </div>
 
         <!-- REITER 2: VERPFLEGUNG -->
@@ -327,11 +325,11 @@
             <div class="add-form">
                 <h3>Neues Essen/Gericht anlegen</h3>
                 <div class="input-group">
-                    <input type="text" id="newFoodName" placeholder="z.B. Wurst im Weck">
+                    <input type="text" id="newFoodName" placeholder="z.B. Wurst im Weck" style="flex:1;">
                     <button class="btn btn-small" onclick="addItem('verpflegung')">Anlegen</button>
                 </div>
             </div>
-            <div id="list-verpflegung"></div>
+            <div id="list-verpflegung">Lade Daten aus Firebase...</div>
         </div>
 
         <!-- REITER 3: ORGA / ALLGEMEINES MATERIAL -->
@@ -339,158 +337,212 @@
             <div class="add-form">
                 <h3>Allgemeines Material / Orga-Punkt</h3>
                 <div class="input-group">
-                    <input type="text" id="newOrgaName" placeholder="z.B. Kassenbereich / Strom">
+                    <input type="text" id="newOrgaName" placeholder="z.B. Kassenbereich / Strom" style="flex:1;">
                     <button class="btn btn-small" onclick="addItem('orga')">Anlegen</button>
                 </div>
             </div>
-            <div id="list-orga"></div>
+            <div id="list-orga">Lade Daten aus Firebase...</div>
         </div>
 
         <!-- Zurück-Button -->
-        <a href="vckadmin.html" class="btn btn-back">← Zurück zum Admin-Bereich</a>
+        <a href="admin.html" class="btn btn-back">← Zurück zum Admin-Bereich</a>
     </div>
 
-    <script>
-        // Lokaler Speicher-Stand (Demodaten für schnellen Einstieg)
-        let dataStore = {
-            getraenke: [
-                {
-                    id: 1,
-                    name: "Aperol Spritz",
-                    ingredients: ["Prosecco (9 cl)", "Aperol (6 cl)", "Sprudelwasser (3 cl)", "Eiswürfel", "Orangenscheibe"],
-                    equipment: ["Weingläser", "Messer", "Schneidebrett", "Barlöffel", "Eisbehälter"]
-                }
-            ],
-            verpflegung: [
-                {
-                    id: 2,
-                    name: "Bratwurst im Weck",
-                    ingredients: ["Bratwurst (1 Stk)", "Brötchen (1 Stk)", "Senf / Ketchup"],
-                    equipment: ["Grill", "Grillzange", "Servietten", "Aluschalen"]
-                }
-            ],
-            orga: [
-                {
-                    id: 3,
-                    name: "Kassenbereich & Pavillon",
-                    ingredients: ["Wechselgeld (200€)", "Preislisten-Aushang"],
-                    equipment: ["Geldkassette", "Pavillon 3x3m", "Kabeltrommel", "Mehrfachstecker"]
-                }
-            ]
+    <!-- Firebase SKDs & Anwendungslogik -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getDatabase, ref, set, push, remove, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7UmrLGoePSvE1H0nZMUFjXY6HvWSynq4",
+            authDomain: "vckuppenheim.firebaseapp.com",
+            databaseURL: "https://vckuppenheim-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "vckuppenheim",
+            storageBucket: "vckuppenheim.firebasestorage.app",
+            messagingSenderId: "83870233719",
+            appId: "1:83870233719:web:1ff3c18818c1dda1208272",
+            measurementId: "G-CFWMCQSYVM"
         };
 
-        // Tab-Wechsel Logik
-        function switchTab(category) {
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let dataStore = {
+            getraenke: {},
+            verpflegung: {},
+            orga: {}
+        };
+
+        // Realtime Listener aus Firebase Datenbank
+        const stammdatenRef = ref(db, 'stammdaten');
+        onValue(stammdatenRef, (snapshot) => {
+            const data = snapshot.val();
+            dataStore = {
+                getraenke: (data && data.getraenke) ? data.getraenke : {},
+                verpflegung: (data && data.verpflegung) ? data.verpflegung : {},
+                orga: (data && data.orga) ? data.orga : {}
+            };
+            render();
+        });
+
+        // Tab Switch
+        window.switchTab = function(category) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
             event.target.classList.add('active');
             document.getElementById(`tab-${category}`).classList.add('active');
-        }
+        };
 
-        // Haupt-Item hinzufügen (Getränk/Essen/Orga)
-        function addItem(category) {
+        // Haupt-Artikel hinzufügen
+        window.addItem = function(category) {
             let inputId = category === 'getraenke' ? 'newDrinkName' : (category === 'verpflegung' ? 'newFoodName' : 'newOrgaName');
             const input = document.getElementById(inputId);
             const val = input.value.trim();
 
             if (!val) return alert("Bitte einen Namen eingeben!");
 
-            const newItem = {
-                id: Date.now(),
+            const newRef = push(ref(db, `stammdaten/${category}`));
+            set(newRef, {
                 name: val,
-                ingredients: [],
-                equipment: []
-            };
+                ingredients: {},
+                equipment: {}
+            });
 
-            dataStore[category].push(newItem);
             input.value = "";
-            render();
-        }
+        };
 
-        // Haupt-Item löschen
-        function deleteItem(category, id) {
-            if(confirm("Möchtest du diesen Eintrag wirklich löschen?")) {
-                dataStore[category] = dataStore[category].filter(item => item.id !== id);
-                render();
+        // Haupt-Artikel löschen
+        window.deleteItem = function(category, key) {
+            if (confirm("Möchtest du diesen Eintrag wirklich löschen?")) {
+                remove(ref(db, `stammdaten/${category}/${key}`));
             }
-        }
+        };
 
-        // Zutat oder Gerät/Sonstiges hinzufügen
-        function addSubEntry(category, itemId, type) {
-            const inputField = document.getElementById(`${type}-input-${itemId}`);
-            const val = inputField.value.trim();
+        // Zutat mit Menge & Einheit hinzufügen
+        window.addIngredient = function(category, itemKey) {
+            const nameInput = document.getElementById(`ing-name-${itemKey}`);
+            const amountInput = document.getElementById(`ing-amount-${itemKey}`);
+            const unitSelect = document.getElementById(`ing-unit-${itemKey}`);
+
+            const name = nameInput.value.trim();
+            const amount = amountInput.value.trim();
+            const unit = unitSelect.value;
+
+            if (!name) return alert("Bitte Zutaten-Name eingeben!");
+
+            const newIngRef = push(ref(db, `stammdaten/${category}/${itemKey}/ingredients`));
+            set(newIngRef, {
+                name: name,
+                amount: amount || "1",
+                unit: unit
+            });
+
+            nameInput.value = "";
+            amountInput.value = "";
+        };
+
+        // Zutat löschen
+        window.removeIngredient = function(category, itemKey, ingKey) {
+            remove(ref(db, `stammdaten/${category}/${itemKey}/ingredients/${ingKey}`));
+        };
+
+        // Gerät/Ausrüstung hinzufügen
+        window.addEquipment = function(category, itemKey) {
+            const eqInput = document.getElementById(`eq-input-${itemKey}`);
+            const val = eqInput.value.trim();
 
             if (!val) return;
 
-            const item = dataStore[category].find(i => i.id === itemId);
-            if (item) {
-                if (type === 'ing') item.ingredients.push(val);
-                if (type === 'eq') item.equipment.push(val);
-            }
+            const newEqRef = push(ref(db, `stammdaten/${category}/${itemKey}/equipment`));
+            set(newEqRef, { name: val });
 
-            inputField.value = "";
-            render();
-        }
+            eqInput.value = "";
+        };
 
-        // Einzelne Zutat oder Gerät löschen
-        function removeSubEntry(category, itemId, type, index) {
-            const item = dataStore[category].find(i => i.id === itemId);
-            if (item) {
-                if (type === 'ing') item.ingredients.splice(index, 1);
-                if (type === 'eq') item.equipment.splice(index, 1);
-            }
-            render();
-        }
+        // Gerät löschen
+        window.removeEquipment = function(category, itemKey, eqKey) {
+            remove(ref(db, `stammdaten/${category}/${itemKey}/equipment/${eqKey}`));
+        };
 
-        // Benutzeroberfläche rendern / aktualisieren
+        // Rendern der Oberfläche
         function render() {
             ['getraenke', 'verpflegung', 'orga'].forEach(category => {
                 const listContainer = document.getElementById(`list-${category}`);
                 listContainer.innerHTML = "";
 
-                dataStore[category].forEach(item => {
+                const itemsObj = dataStore[category];
+                const keys = Object.keys(itemsObj);
+
+                if (keys.length === 0) {
+                    listContainer.innerHTML = "<p style='font-size: 0.85rem; color: #888; padding: 10px;'>Noch keine Einträge vorhanden.</p>";
+                    return;
+                }
+
+                keys.forEach(key => {
+                    const item = itemsObj[key];
+                    const ingredientsObj = item.ingredients || {};
+                    const equipmentObj = item.equipment || {};
+
                     const label1 = category === 'orga' ? '1. Verbrauchsmaterial / Details' : '1. Zutaten & Mengen';
                     const label2 = category === 'orga' ? '2. Geräte & Ausrüstung' : '2. Geräte & Sonstiges';
+
+                    let ingredientsHtml = "";
+                    Object.keys(ingredientsObj).forEach(ingKey => {
+                        const ing = ingredientsObj[ingKey];
+                        ingredientsHtml += `
+                            <li class="tag">
+                                <b>${ing.name}</b> (${ing.amount} ${ing.unit})
+                                <span class="remove-tag" onclick="removeIngredient('${category}', '${key}', '${ingKey}')">&times;</span>
+                            </li>
+                        `;
+                    });
+
+                    let equipmentHtml = "";
+                    Object.keys(equipmentObj).forEach(eqKey => {
+                        const eq = equipmentObj[eqKey];
+                        equipmentHtml += `
+                            <li class="tag">
+                                ${eq.name}
+                                <span class="remove-tag" onclick="removeEquipment('${category}', '${key}', '${eqKey}')">&times;</span>
+                            </li>
+                        `;
+                    });
 
                     listContainer.innerHTML += `
                         <div class="item-card">
                             <div class="item-header">
                                 <h4>${item.name}</h4>
-                                <button class="btn-delete-item" onclick="deleteItem('${category}', ${item.id})" title="Löschen">🗑️</button>
+                                <button class="btn-delete-item" onclick="deleteItem('${category}', '${key}')" title="Löschen">🗑️</button>
                             </div>
 
-                            <!-- 1. Zutaten/Mengen -->
+                            <!-- 1. Zutaten mit Menge & Dropdown -->
                             <div class="detail-section">
                                 <h5>${label1}</h5>
-                                <ul class="tag-list">
-                                    ${item.ingredients.map((ing, idx) => `
-                                        <li class="tag">
-                                            ${ing} 
-                                            <span class="remove-tag" onclick="removeSubEntry('${category}', ${item.id}, 'ing', ${idx})">&times;</span>
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                                <div class="input-group">
-                                    <input type="text" id="ing-input-${item.id}" placeholder="z. B. Prosecco 9 cl">
-                                    <button class="btn btn-small" onclick="addSubEntry('${category}', ${item.id}, 'ing')">+</button>
+                                <ul class="tag-list">${ingredientsHtml}</ul>
+                                
+                                <div class="input-group" style="flex-wrap: wrap;">
+                                    <input type="text" id="ing-name-${key}" placeholder="Zutat (z.B. Prosecco)" style="flex:2; min-width: 120px;">
+                                    <input type="number" id="ing-amount-${key}" placeholder="Menge" style="width: 70px;">
+                                    <select id="ing-unit-${key}">
+                                        <option value="cl">cl</option>
+                                        <option value="dl">dl</option>
+                                        <option value="g">g</option>
+                                        <option value="Zweige">Zweige</option>
+                                        <option value="Stück">Stück</option>
+                                        <option value="Scheibe">Scheibe</option>
+                                    </select>
+                                    <button class="btn btn-small" onclick="addIngredient('${category}', '${key}')">+</button>
                                 </div>
                             </div>
 
                             <!-- 2. Geräte/Sonstiges -->
                             <div class="detail-section">
                                 <h5>${label2}</h5>
-                                <ul class="tag-list">
-                                    ${item.equipment.map((eq, idx) => `
-                                        <li class="tag">
-                                            ${eq} 
-                                            <span class="remove-tag" onclick="removeSubEntry('${category}', ${item.id}, 'eq', ${idx})">&times;</span>
-                                        </li>
-                                    `).join('')}
-                                </ul>
+                                <ul class="tag-list">${equipmentHtml}</ul>
                                 <div class="input-group">
-                                    <input type="text" id="eq-input-${item.id}" placeholder="z. B. Weingläser, Messer">
-                                    <button class="btn btn-small" onclick="addSubEntry('${category}', ${item.id}, 'eq')">+</button>
+                                    <input type="text" id="eq-input-${key}" placeholder="z. B. Weingläser, Messer" style="flex:1;">
+                                    <button class="btn btn-small" onclick="addEquipment('${category}', '${key}')">+</button>
                                 </div>
                             </div>
                         </div>
@@ -498,10 +550,6 @@
                 });
             });
         }
-
-        // Erstes Laden der Ansicht
-        render();
     </script>
-
 </body>
 </html>
