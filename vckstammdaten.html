@@ -54,7 +54,7 @@
 
         .container {
             width: 100%;
-            max-width: 650px;
+            max-width: 680px;
             background: var(--card-bg);
             backdrop-filter: blur(14px);
             padding: 24px;
@@ -190,7 +190,7 @@
             border: none;
             cursor: pointer;
             font-size: 0.95rem;
-            padding: 2px 5px;
+            padding: 3px 6px;
             border-radius: 4px;
         }
         .btn-icon:hover {
@@ -239,18 +239,20 @@
         .item-header .title-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             font-weight: 700;
             font-size: 0.98rem;
+            flex-wrap: wrap;
         }
 
         .item-header .count-badge {
             font-size: 0.75rem;
             font-weight: normal;
-            background: #eee;
-            padding: 2px 8px;
+            background: #eef2f5;
+            padding: 3px 8px;
             border-radius: 10px;
             color: var(--text-muted);
+            border: 1px solid #dcdcdc;
         }
 
         .item-body {
@@ -272,10 +274,11 @@
             transition: transform 0.2s ease;
             font-size: 0.8rem;
             color: #888;
+            margin-left: 6px;
         }
 
-        /* Tabellen für Zutaten */
-        .ingredient-table {
+        /* Tabellen für Zutaten & Ausrüstung */
+        .data-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 10px;
@@ -286,7 +289,7 @@
             border: 1px solid #e5e5e5;
         }
 
-        .ingredient-table th {
+        .data-table th {
             background: #f0f0f0;
             text-align: left;
             padding: 6px 10px;
@@ -295,7 +298,7 @@
             text-transform: uppercase;
         }
 
-        .ingredient-table td {
+        .data-table td {
             padding: 6px 10px;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
@@ -303,26 +306,9 @@
 
         .edit-row-inputs {
             display: flex;
-            gap: 4px;
-        }
-
-        .tag-list {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
             gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .tag {
-            background: #fff;
-            font-size: 0.8rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            display: flex;
             align-items: center;
-            gap: 6px;
-            border: 1px solid #ccc;
+            width: 100%;
         }
 
         .btn-back {
@@ -368,7 +354,6 @@
                 </div>
             </div>
 
-            <!-- Unterteilung in Alkoholisch / Alkoholfrei -->
             <div class="sub-group-title">🍹 Alkoholische Getränke</div>
             <div id="list-getraenke-alkoholisch">Lade Daten...</div>
 
@@ -403,7 +388,7 @@
         <a href="admin.html" class="btn btn-back">← Zurück zum Admin-Bereich</a>
     </div>
 
-    <!-- Firebase SKDs & JS-Logik -->
+    <!-- Firebase SDKs & Anwendungscode -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, set, push, remove, update, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
@@ -423,10 +408,11 @@
         const db = getDatabase(app);
 
         let dataStore = { getraenke: {}, verpflegung: {}, orga: {} };
-        let openCards = new Set(); // Merkt sich offene Klappkarten beim Neuladen
-        let editingIngredients = {}; // Speichert Status für Inline-Editing: { ingKey: true }
+        let openCards = new Set();
+        let editingIngredients = {}; // Status Zutat-Editing
+        let editingEquipment = {};   // Status Gerät-Editing
 
-        // Live-Daten aus Firebase abrufen
+        // Live-Daten von Firebase holen
         const stammdatenRef = ref(db, 'stammdaten');
         onValue(stammdatenRef, (snapshot) => {
             const data = snapshot.val() || {};
@@ -438,7 +424,7 @@
             render();
         });
 
-        // Tabs wechseln
+        // Tab-Umschaltung
         window.switchTab = function(cat) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -446,7 +432,7 @@
             document.getElementById(`tab-${cat}`).classList.add('active');
         };
 
-        // Akkordeon Umschalten
+        // Auf- / Zuklappen
         window.toggleCard = function(key) {
             if (openCards.has(key)) {
                 openCards.delete(key);
@@ -477,14 +463,13 @@
             }
         };
 
-        // Haupt-Eintrag löschen
         window.deleteItem = function(category, key) {
-            if (confirm("Diesen Eintrag samt Zutaten wirklich löschen?")) {
+            if (confirm("Diesen Eintrag samt Zutaten & Geräten wirklich löschen?")) {
                 remove(ref(db, `stammdaten/${category}/${key}`));
             }
         };
 
-        // Zutat hinzufügen
+        // ZUTATEN LOGIK
         window.addIngredient = function(category, itemKey) {
             const name = document.getElementById(`ing-name-${itemKey}`).value.trim();
             const amount = document.getElementById(`ing-amount-${itemKey}`).value.trim();
@@ -499,13 +484,11 @@
             document.getElementById(`ing-amount-${itemKey}`).value = "";
         };
 
-        // Inline-Editing aktivieren/deaktivieren
         window.toggleEditIngredient = function(ingKey) {
             editingIngredients[ingKey] = !editingIngredients[ingKey];
             render();
         };
 
-        // Zutat speichern
         window.saveIngredient = function(category, itemKey, ingKey) {
             const name = document.getElementById(`edit-ing-name-${ingKey}`).value.trim();
             const amount = document.getElementById(`edit-ing-amount-${ingKey}`).value.trim();
@@ -520,27 +503,39 @@
             editingIngredients[ingKey] = false;
         };
 
-        // Zutat löschen
         window.removeIngredient = function(category, itemKey, ingKey) {
             remove(ref(db, `stammdaten/${category}/${itemKey}/ingredients/${ingKey}`));
         };
 
-        // Equipment hinzufügen / löschen
+        // GERÄTE / EQUIPMENT LOGIK
         window.addEquipment = function(category, itemKey) {
             const input = document.getElementById(`eq-input-${itemKey}`);
             const name = input.value.trim();
-            if (!name) return;
+            if (!name) return alert("Bitte Gerätenamen eingeben!");
 
             const newEqRef = push(ref(db, `stammdaten/${category}/${itemKey}/equipment`));
             set(newEqRef, { name });
             input.value = "";
         };
 
+        window.toggleEditEquipment = function(eqKey) {
+            editingEquipment[eqKey] = !editingEquipment[eqKey];
+            render();
+        };
+
+        window.saveEquipment = function(category, itemKey, eqKey) {
+            const name = document.getElementById(`edit-eq-name-${eqKey}`).value.trim();
+            if (!name) return alert("Name darf nicht leer sein!");
+
+            update(ref(db, `stammdaten/${category}/${itemKey}/equipment/${eqKey}`), { name });
+            editingEquipment[eqKey] = false;
+        };
+
         window.removeEquipment = function(category, itemKey, eqKey) {
             remove(ref(db, `stammdaten/${category}/${itemKey}/equipment/${eqKey}`));
         };
 
-        // HTML-Renderer für einzelne Karte
+        // HTML für ein einzelnes Element generieren
         function renderCardHTML(category, key, item) {
             const isOpen = openCards.has(key);
             const ingredientsObj = item.ingredients || {};
@@ -548,7 +543,7 @@
             const ingKeys = Object.keys(ingredientsObj);
             const eqKeys = Object.keys(equipmentObj);
 
-            // Tabellenzeilen für Zutaten generieren
+            // 1. ZUTATEN TABELLE
             let ingredientsRowsHtml = "";
             ingKeys.forEach(ingKey => {
                 const ing = ingredientsObj[ingKey];
@@ -560,13 +555,13 @@
                             <td colspan="3">
                                 <div class="edit-row-inputs">
                                     <input type="text" id="edit-ing-name-${ingKey}" value="${ing.name}" style="flex:2;">
-                                    <input type="number" id="edit-ing-amount-${ingKey}" value="${ing.amount}" style="width:65px;">
+                                    <input type="number" id="edit-ing-amount-${ingKey}" value="${ing.amount}" style="width:60px;">
                                     <select id="edit-ing-unit-${ingKey}">
                                         ${['cl','dl','g','Zweige','Stück','Scheibe','Flasche','Dose','kg','l'].map(u => 
                                             `<option value="${u}" ${ing.unit === u ? 'selected' : ''}>${u}</option>`
                                         ).join('')}
                                     </select>
-                                    <button class="btn btn-small" onclick="saveIngredient('${category}', '${key}', '${ingKey}')">💾</button>
+                                    <button class="btn btn-small" onclick="saveIngredient('${category}', '${key}', '${ingKey}')">💾 Speichern</button>
                                 </div>
                             </td>
                         </tr>
@@ -585,16 +580,34 @@
                 }
             });
 
-            // Geräteleiste HTML
-            let equipmentHtml = "";
+            // 2. GERÄTE TABELLE (gleiches Format wie oben, ohne Menge)
+            let equipmentRowsHtml = "";
             eqKeys.forEach(eqKey => {
                 const eq = equipmentObj[eqKey];
-                equipmentHtml += `
-                    <li class="tag">
-                        ${eq.name}
-                        <span style="cursor:pointer; color:#888; font-weight:bold;" onclick="removeEquipment('${category}', '${key}', '${eqKey}')">&times;</span>
-                    </li>
-                `;
+                const isEditing = editingEquipment[eqKey];
+
+                if (isEditing) {
+                    equipmentRowsHtml += `
+                        <tr>
+                            <td colspan="2">
+                                <div class="edit-row-inputs">
+                                    <input type="text" id="edit-eq-name-${eqKey}" value="${eq.name}" style="flex:1;">
+                                    <button class="btn btn-small" onclick="saveEquipment('${category}', '${key}', '${eqKey}')">💾 Speichern</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    equipmentRowsHtml += `
+                        <tr>
+                            <td><b>${eq.name}</b></td>
+                            <td style="text-align:right;">
+                                <button class="btn-icon" onclick="toggleEditEquipment('${eqKey}')" title="Bearbeiten">✏️</button>
+                                <button class="btn-icon" onclick="removeEquipment('${category}', '${key}', '${eqKey}')" title="Löschen">❌</button>
+                            </td>
+                        </tr>
+                    `;
+                }
             });
 
             return `
@@ -602,32 +615,33 @@
                     <div class="item-header" onclick="toggleCard('${key}')">
                         <div class="title-area">
                             <span>${item.name}</span>
-                            <span class="count-badge">${ingKeys.length} Zutaten</span>
+                            <!-- Anz. Zutaten & Ausrüstung im Titel -->
+                            <span class="count-badge">${ingKeys.length} Zutaten | ${eqKeys.length} Geräte</span>
                         </div>
                         <div>
-                            <button class="btn-icon" onclick="event.stopPropagation(); deleteItem('${category}', '${key}')" title="Ganzes Rezept löschen">🗑️</button>
+                            <button class="btn-icon" onclick="event.stopPropagation(); deleteItem('${category}', '${key}')" title="Löschen">🗑️</button>
                             <span class="chevron">▼</span>
                         </div>
                     </div>
                     <div class="item-body">
-                        <!-- Zutaten-Tabelle -->
-                        <h5 style="font-size:0.8rem; text-transform:uppercase; color:#666; margin-bottom:6px;">Zutaten & Mengen</h5>
+                        
+                        <!-- ABSCHNITT 1: ZUTATEN -->
+                        <h5 style="font-size:0.8rem; text-transform:uppercase; color:#666; margin-bottom:6px;">1. Zutaten & Mengen</h5>
                         ${ingKeys.length > 0 ? `
-                            <table class="ingredient-table">
+                            <table class="data-table">
                                 <thead>
                                     <tr>
                                         <th>Zutat</th>
                                         <th>Menge</th>
-                                        <th style="text-align:right;">Aktion</th>
+                                        <th style="text-align:right; width: 80px;">Aktion</th>
                                     </tr>
                                 </thead>
                                 <tbody>${ingredientsRowsHtml}</tbody>
                             </table>
                         ` : '<p style="font-size:0.8rem; color:#999; margin-bottom:8px;">Noch keine Zutaten angelegt.</p>'}
 
-                        <!-- Formular für neue Zutat -->
-                        <div class="input-group" style="margin-bottom:14px;">
-                            <input type="text" id="ing-name-${key}" placeholder="Zutat z.B. Gin" style="flex:2;">
+                        <div class="input-group" style="margin-bottom:16px;">
+                            <input type="text" id="ing-name-${key}" placeholder="Neue Zutat (z.B. Gin)" style="flex:2;">
                             <input type="number" id="ing-amount-${key}" placeholder="Menge" style="width:65px;">
                             <select id="ing-unit-${key}">
                                 <option value="cl">cl</option>
@@ -644,21 +658,33 @@
                             <button class="btn btn-small" onclick="addIngredient('${category}', '${key}')">+ Hinzufügen</button>
                         </div>
 
-                        <!-- Geräte / Equipment -->
-                        <h5 style="font-size:0.8rem; text-transform:uppercase; color:#666; margin-bottom:6px;">Geräte & Ausrüstung</h5>
-                        <ul class="tag-list">${equipmentHtml}</ul>
+                        <!-- ABSCHNITT 2: GERÄTE & AUSRÜSTUNG -->
+                        <h5 style="font-size:0.8rem; text-transform:uppercase; color:#666; margin-bottom:6px;">2. Geräte & Ausrüstung</h5>
+                        ${eqKeys.length > 0 ? `
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Gerät / Gegenstand</th>
+                                        <th style="text-align:right; width: 80px;">Aktion</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${equipmentRowsHtml}</tbody>
+                            </table>
+                        ` : '<p style="font-size:0.8rem; color:#999; margin-bottom:8px;">Noch keine Geräte angelegt.</p>'}
+
                         <div class="input-group">
-                            <input type="text" id="eq-input-${key}" placeholder="z.B. Gläser, Barlöffel, Eiswürfel" style="flex:1;">
-                            <button class="btn btn-small" onclick="addEquipment('${category}', '${key}')">+</button>
+                            <input type="text" id="eq-input-${key}" placeholder="Neues Gerät (z.B. Gläser, Messer, Mixer)" style="flex:1;">
+                            <button class="btn btn-small" onclick="addEquipment('${category}', '${key}')">+ Hinzufügen</button>
                         </div>
+
                     </div>
                 </div>
             `;
         }
 
-        // Haupt-Render-Schleife
+        // Haupt-Render-Methode
         function render() {
-            // 1. Getränke Rendern (Getrennt nach Alkoholisch / Alkoholfrei)
+            // 1. Getränke (Alkoholisch & Alkoholfrei)
             const alkContainer = document.getElementById('list-getraenke-alkoholisch');
             const freikContainer = document.getElementById('list-getraenke-alkoholfrei');
             alkContainer.innerHTML = "";
@@ -682,7 +708,7 @@
             if (alkCount === 0) alkContainer.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine alkoholischen Getränke vorhanden.</p>";
             if (freiCount === 0) freikContainer.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine alkoholfreien Getränke vorhanden.</p>";
 
-            // 2. Verpflegung Rendern
+            // 2. Verpflegung
             const foodContainer = document.getElementById('list-verpflegung');
             foodContainer.innerHTML = "";
             const foods = dataStore.verpflegung;
@@ -695,7 +721,7 @@
                 });
             }
 
-            // 3. Orga / Material Rendern
+            // 3. Orga & Material
             const orgaContainer = document.getElementById('list-orga');
             orgaContainer.innerHTML = "";
             const orgas = dataStore.orga;
