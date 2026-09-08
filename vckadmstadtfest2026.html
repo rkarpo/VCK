@@ -49,7 +49,7 @@
 
         .container {
             width: 100%;
-            max-width: 920px;
+            max-width: 950px;
             background: var(--card-bg);
             backdrop-filter: blur(14px);
             padding: 18px;
@@ -147,9 +147,9 @@
             width: 100%;
             border: 1px solid #ddd;
             background: #fff;
-            padding: 4px 6px;
+            padding: 4px 5px;
             border-radius: 4px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
         }
 
         .table-input:focus { border-color: var(--gold-accent); }
@@ -181,7 +181,7 @@
         .calc-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             background: #fff;
             border-radius: 8px;
             overflow: hidden;
@@ -192,15 +192,15 @@
         .calc-table th {
             background: #f1f1f1;
             text-align: left;
-            padding: 6px 8px;
-            font-size: 0.72rem;
+            padding: 6px 6px;
+            font-size: 0.7rem;
             color: #555;
             text-transform: uppercase;
             border-bottom: 1px solid #ddd;
         }
 
         .calc-table td {
-            padding: 6px 8px;
+            padding: 5px 6px;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
         }
@@ -212,12 +212,17 @@
         .val-profit { color: var(--green-profit); font-weight: bold; }
         .val-loss { color: var(--primary-red); font-weight: bold; }
 
+        .small-demand {
+            font-size: 0.72rem;
+            color: #666;
+        }
+
         .group-title {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 800;
             color: var(--primary-red);
             text-transform: uppercase;
-            margin: 12px 0 6px 0;
+            margin: 10px 0 5px 0;
             padding-bottom: 3px;
             border-bottom: 1.5px solid var(--gold-accent);
             display: flex;
@@ -228,7 +233,7 @@
         .kommission-label {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             font-size: 0.75rem;
             color: #555;
             cursor: pointer;
@@ -264,7 +269,7 @@
         </div>
 
         <h1>Verkaufs- & Preiskalkulator</h1>
-        <p class="subtitle">Soll-Verkäufe, Gebindebedarf, Wareneinsatz & Gewinne im Überblick</p>
+        <p class="subtitle">Soll-Verkäufe, Gebindekosten & Margen im kompakten Überblick</p>
 
         <!-- Tabs -->
         <div class="tabs">
@@ -307,8 +312,8 @@
 
         <!-- TAB 3: EINKAUFSPREISE & GEBINDEGRÖSSEN -->
         <div id="tab-einkauf" class="tab-content">
-            <p style="font-size:0.78rem; color:#666; margin-bottom:8px;">
-                Trage hier Gebindepreis & Gebindemenge pro Zutat ein. Die <strong>Gesamtmenge</strong> & der <strong>Gebindebedarf</strong> werden automatisch aus deinen Verkaufs-Soll-Zahlen ermittelt.
+            <p style="font-size:0.76rem; color:#666; margin-bottom:8px;">
+                Einkaufspreis pro Gebinde angeben. Basierend darauf werden die Wareneinsätze pro Verkaufsartikel berechnet.
             </p>
             <div id="einkaufspreise-container">Lade Einkaufspreise...</div>
         </div>
@@ -403,10 +408,23 @@
 
         window.updateEinkaufspreis = function(ingredientName, field, value) {
             const cleanKey = ingredientName.replace(/[.#$/\[\]]/g, "_");
-            update(ref(db, `einkaufspreise/${cleanKey}`), {
+            const existingData = einkaufspreise[cleanKey] || {};
+
+            let valToSave = value;
+            if (field === 'packagePrice' || field === 'packageSize') {
+                valToSave = parseFloat(value) || 0;
+            }
+
+            const updatedObj = {
                 name: ingredientName,
-                [field]: field === 'isKommission' ? value : (parseFloat(value) || 0)
-            });
+                packagePrice: existingData.packagePrice || 0,
+                packageSize: existingData.packageSize || 0,
+                unit: existingData.unit || 'Stück',
+                isKommission: existingData.isKommission || false,
+                [field]: valToSave
+            };
+
+            update(ref(db, `einkaufspreise/${cleanKey}`), updatedObj);
         };
 
         // Umrechnung auf Basiseinheit (l, kg, Stück)
@@ -421,6 +439,7 @@
             return val;
         }
 
+        // Berechnet die Wareneinsatz-Kosten pro Portion basierend auf Gebindekosten
         function calculateCostPerPortion(stammItem) {
             let totalCost = 0;
             const calcList = (obj) => {
@@ -429,6 +448,7 @@
                     const cleanKey = (ing.name || "").replace(/[.#$/\[\]]/g, "_");
                     const einkauf = einkaufspreise[cleanKey];
                     if (einkauf && einkauf.packagePrice > 0 && einkauf.packageSize > 0) {
+                        // Gebindebasierte Kosten pro Basiseinheit
                         const pricePerBaseUnit = einkauf.packagePrice / einkauf.packageSize;
                         const ingBaseAmount = normalizeToStandard(ing.amount, ing.unit);
                         totalCost += (ingBaseAmount * pricePerBaseUnit);
@@ -440,9 +460,9 @@
             return totalCost;
         }
 
-        // Berechnet die kumulierte Gesamtmenge jeder Zutat aus allen gewählten Verkäufen
+        // Kumulierte Zutatennachfrage aus Soll-Verkäufen
         function calculateAggregatedIngredientDemands() {
-            const demands = {}; // Key -> { amountBase, unit, name }
+            const demands = {}; 
 
             ['getraenke', 'verpflegung'].forEach(cat => {
                 const calcItems = kalkulation[cat] || {};
@@ -461,8 +481,7 @@
                             if (!demands[cleanKey]) {
                                 demands[cleanKey] = {
                                     name: ing.name,
-                                    totalBaseDemand: 0,
-                                    recipeUnit: ing.unit
+                                    totalBaseDemand: 0
                                 };
                             }
                             demands[cleanKey].totalBaseDemand += totalBaseDemand;
@@ -556,7 +575,7 @@
             `;
         }
 
-        // Render für Einkaufspreise, Gebindegrößen & Mengenberechnung
+        // Render Tab 3 (Einkaufspreise, Gebinde & Gesamtkosten)
         function renderEinkaufspreise() {
             const container = document.getElementById('einkaufspreise-container');
             container.innerHTML = "";
@@ -583,44 +602,52 @@
 
                     catIngredients.forEach(ingName => {
                         const cleanKey = ingName.replace(/[.#$/\[\]]/g, "_");
-                        const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'l', isKommission: false };
+                        const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'Stück', isKommission: false };
+                        const currentUnit = einkauf.unit || 'Stück';
                         const demandInfo = aggregatedDemands[cleanKey];
 
                         const totalDemand = demandInfo ? demandInfo.totalBaseDemand : 0;
                         const packageSize = parseFloat(einkauf.packageSize) || 0;
+                        const packagePrice = parseFloat(einkauf.packagePrice) || 0;
 
-                        // Benötigte Gebinde (aufgerundet für ganze Gebinde)
+                        // Gebindebedarf aufrunden
                         const neededPackages = (packageSize > 0 && totalDemand > 0) ? Math.ceil(totalDemand / packageSize) : 0;
+                        
+                        // Kosten gesamt basierend auf ganzen Gebinden
+                        const totalPackageCost = neededPackages * packagePrice;
+
+                        const units = ['Stück', 'l', 'kg', 'Flasche', 'Dose', 'Packung', 'Rolle'];
 
                         rows += `
                             <tr>
                                 <td><strong>${ingName}</strong></td>
-                                <td style="width: 85px;">
-                                    <input type="number" step="0.01" class="table-input text-right" placeholder="0.00" value="${einkauf.packagePrice || ''}"
+                                <td style="width: 80px;">
+                                    <input type="number" step="0.01" class="table-input text-right" placeholder="0.00" value="${einkauf.packagePrice !== undefined ? einkauf.packagePrice : ''}"
                                            onblur="updateEinkaufspreis('${ingName}', 'packagePrice', this.value)">
                                 </td>
-                                <td style="width: 85px;">
-                                    <input type="number" step="any" class="table-input text-center" placeholder="Größe" value="${einkauf.packageSize || ''}"
+                                <td style="width: 75px;">
+                                    <input type="number" step="any" class="table-input text-center" placeholder="Größe" value="${einkauf.packageSize !== undefined ? einkauf.packageSize : ''}"
                                            onblur="updateEinkaufspreis('${ingName}', 'packageSize', this.value)">
                                 </td>
-                                <td style="width: 90px;">
+                                <td style="width: 85px;">
                                     <select class="table-input" onchange="updateEinkaufspreis('${ingName}', 'unit', this.value)">
-                                        ${['l','kg','Stück','Flasche','Dose','Packung','Rolle'].map(u => 
-                                            `<option value="${u}" ${einkauf.unit === u ? 'selected' : ''}>${u}</option>`
-                                        ).join('')}
+                                        ${units.map(u => `<option value="${u}" ${currentUnit === u ? 'selected' : ''}>${u}</option>`).join('')}
                                     </select>
                                 </td>
-                                <td class="text-right" style="background:#fcfcfc;">
-                                    <strong>${totalDemand > 0 ? totalDemand.toFixed(2) : '0.00'}</strong> ${einkauf.unit || ''}
+                                <td class="text-right small-demand" style="background:#fcfcfc;">
+                                    ${totalDemand > 0 ? totalDemand.toFixed(2) : '0.00'} ${currentUnit}
                                 </td>
                                 <td class="text-center" style="background:#f7f9fa; font-weight:bold; color:var(--primary-red);">
-                                    ${neededPackages > 0 ? neededPackages + ' Gebinde' : '-'}
+                                    ${neededPackages > 0 ? neededPackages + ' Geb.' : '-'}
                                 </td>
-                                <td style="width: 100px;" class="text-center">
+                                <td class="text-right" style="background:#f7f9fa; font-weight:bold;">
+                                    ${totalPackageCost > 0 ? totalPackageCost.toFixed(2) + ' €' : '-'}
+                                </td>
+                                <td style="width: 65px;" class="text-center">
                                     <label class="kommission-label">
                                         <input type="checkbox" ${einkauf.isKommission ? 'checked' : ''} 
                                                onchange="updateEinkaufspreis('${ingName}', 'isKommission', this.checked)">
-                                        Kommission
+                                        Kom.
                                     </label>
                                 </td>
                             </tr>
@@ -633,11 +660,12 @@
                             <thead>
                                 <tr>
                                     <th>Zutat / Material</th>
-                                    <th class="text-right">Gebindepreis (€)</th>
-                                    <th class="text-center">Gebindegröße</th>
+                                    <th class="text-right">Geb-Preis (€)</th>
+                                    <th class="text-center">Geb-Größe</th>
                                     <th>Einheit</th>
-                                    <th class="text-right">Bedarf gesamt</th>
-                                    <th class="text-center">Bedarf Gebinde</th>
+                                    <th class="text-right">Bedarf ges.</th>
+                                    <th class="text-center">Gebinde</th>
+                                    <th class="text-right">Kosten (Gebinde)</th>
                                     <th class="text-center">Kaufart</th>
                                 </tr>
                             </thead>
