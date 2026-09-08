@@ -294,6 +294,15 @@
             border-radius: 10px;
             color: var(--text-muted);
             border: 1px solid #dcdcdc;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* Roter Badge, falls noch keine Daten angelegt wurden */
+        .item-header .count-badge.empty-badge {
+            background-color: #ffe6e6;
+            border-color: #ffb3b3;
+            color: #b30000;
+            font-weight: 600;
         }
 
         .item-header-actions {
@@ -649,6 +658,10 @@
             const conKeys = Object.keys(consumablesObj);
             const eqKeys = Object.keys(equipmentObj);
 
+            // Prüfen ob gänzlich noch keine Einträge angelegt wurden
+            const totalItemsCount = ingKeys.length + conKeys.length + eqKeys.length;
+            const isEmpty = (totalItemsCount === 0);
+
             // AUSRÜSTUNG TABELLE
             let equipmentRowsHtml = "";
             eqKeys.forEach(eqKey => {
@@ -680,7 +693,9 @@
                 titleAreaHtml = `
                     <span class="drag-handle">::</span>
                     <span>${item.name}</span>
-                    <span class="count-badge">${ingKeys.length} Zutaten | ${conKeys.length} Verbrauchsartikel | ${eqKeys.length} Ausrüstung</span>
+                    <span class="count-badge ${isEmpty ? 'empty-badge' : ''}">
+                        ${ingKeys.length} Zutaten | ${conKeys.length} Verbrauchsartikel | ${eqKeys.length} Ausrüstung
+                    </span>
                 `;
             }
 
