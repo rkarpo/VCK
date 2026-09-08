@@ -224,7 +224,7 @@
             padding-bottom: 4px;
         }
 
-        /* Karten */
+        /* Karten & Drag and Drop Styles */
         .item-card {
             background: #ffffff;
             border-radius: 12px;
@@ -232,6 +232,35 @@
             border: 1px solid #e0e0e0;
             overflow: hidden;
             box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        /* Drag & Drop Indikator nur auf Desktop (Desktop >= 769px) */
+        @media (min-width: 769px) {
+            .item-card[draggable="true"] {
+                cursor: grab;
+            }
+            .item-card[draggable="true"]:active {
+                cursor: grabbing;
+            }
+            .item-card.dragging {
+                opacity: 0.4;
+                border: 2px dashed var(--gold-accent);
+            }
+            .drag-handle {
+                display: inline-block;
+                color: #aaa;
+                margin-right: 6px;
+                cursor: grab;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Auf Mobilgeräten kein Drag-Handle anzeigen */
+        @media (max-width: 768px) {
+            .drag-handle {
+                display: none;
+            }
         }
 
         .item-header {
@@ -372,10 +401,10 @@
             </div>
 
             <div class="sub-group-title">🍹 Alkoholische Getränke</div>
-            <div id="list-getraenke-alkoholisch">Lade Daten...</div>
+            <div id="list-getraenke-alkoholisch" class="drag-container">Lade Daten...</div>
 
             <div class="sub-group-title">🥤 Alkoholfreie Getränke</div>
-            <div id="list-getraenke-alkoholfrei">Lade Daten...</div>
+            <div id="list-getraenke-alkoholfrei" class="drag-container">Lade Daten...</div>
         </div>
 
         <!-- REITER 2: VERPFLEGUNG -->
@@ -387,7 +416,7 @@
                     <button class="btn btn-small" onclick="addItem('verpflegung')">Anlegen</button>
                 </div>
             </div>
-            <div id="list-verpflegung">Lade Daten...</div>
+            <div id="list-verpflegung" class="drag-container">Lade Daten...</div>
         </div>
 
         <!-- REITER 3: ORGA / MATERIAL -->
@@ -399,7 +428,7 @@
                     <button class="btn btn-small" onclick="addItem('orga')">Anlegen</button>
                 </div>
             </div>
-            <div id="list-orga">Lade Daten...</div>
+            <div id="list-orga" class="drag-container">Lade Daten...</div>
         </div>
 
         <a href="admin.html" class="btn btn-back">← Zurück zum Admin-Bereich</a>
@@ -426,7 +455,10 @@
 
         let dataStore = { getraenke: {}, verpflegung: {}, orga: {} };
         let openCards = new Set();
-        let editingTitleKey = null; // Speichert den Schlüssel des gerade bearbeiteten Eintrags
+        let editingTitleKey = null;
+
+        // Prüfen ob wir auf Desktop sind (für Drag and Drop)
+        const isDesktop = window.innerWidth > 768;
 
         // Live-Daten aus Firebase abrufen
         const stammdatenRef = ref(db, 'stammdaten');
@@ -460,13 +492,14 @@
 
         // Haupt-Eintrag anlegen
         window.addItem = function(category) {
+            const now = Date.now();
             if (category === 'getraenke') {
                 const name = document.getElementById('newDrinkName').value.trim();
                 const drinkType = document.getElementById('newDrinkType').value;
                 if (!name) return alert("Bitte Namen eingeben!");
 
                 const newRef = push(ref(db, `stammdaten/getraenke`));
-                set(newRef, { name: name, type: drinkType, ingredients: {}, consumables: {}, equipment: {} });
+                set(newRef, { name: name, type: drinkType, order: now, ingredients: {}, consumables: {}, equipment: {} });
                 document.getElementById('newDrinkName').value = "";
             } else {
                 const inputId = category === 'verpflegung' ? 'newFoodName' : 'newOrgaName';
@@ -474,7 +507,7 @@
                 if (!name) return alert("Bitte Namen eingeben!");
 
                 const newRef = push(ref(db, `stammdaten/${category}`));
-                set(newRef, { name: name, ingredients: {}, consumables: {}, equipment: {} });
+                set(newRef, { name: name, order: now, ingredients: {}, consumables: {}, equipment: {} });
                 document.getElementById(inputId).value = "";
             }
         };
@@ -490,10 +523,13 @@
             if (input) {
                 const newName = input.value.trim();
                 if (newName) {
+                    // Update in Firebase
                     update(ref(db, `stammdaten/${category}/${key}`), { name: newName });
                 }
             }
+            // Edit-Modus direkt nach dem Speichern beenden
             editingTitleKey = null;
+            render();
         };
 
         window.cancelEditTitle = function() {
@@ -507,7 +543,7 @@
             }
         };
 
-        // GENERISCHE GENUTZTE LOGIK FÜR LISTENEINTRÄGE (Zutaten & Verbrauchsgegenstände)
+        // SUB-ITEMS (Zutaten & Verbrauchsgegenstände)
         window.addListSubItem = function(category, itemKey, subType) {
             const name = document.getElementById(`${subType}-name-${itemKey}`).value.trim();
             const amount = document.getElementById(`${subType}-amount-${itemKey}`).value.trim();
@@ -532,7 +568,7 @@
             remove(ref(db, `stammdaten/${category}/${itemKey}/${subType}/${subKey}`));
         };
 
-        // AUSRÜSTUNG - Hinzufügen & Auto-Update
+        // AUSRÜSTUNG
         window.addEquipment = function(category, itemKey) {
             const input = document.getElementById(`eq-input-${itemKey}`);
             const name = input.value.trim();
@@ -553,7 +589,7 @@
             remove(ref(db, `stammdaten/${category}/${itemKey}/equipment/${eqKey}`));
         };
 
-        // Hilfsfunktion zur Erstellung von Mengentabellen (Zutaten / Verbrauchsgegenstände)
+        // Hilfsfunktion zur Erstellung von Mengentabellen
         function renderQuantityTable(category, itemKey, subType, subObj) {
             const keys = Object.keys(subObj || {});
             if (keys.length === 0) return `<p style="font-size:0.8rem; color:#999; margin-bottom:8px;">Noch keine Einträge vorhanden.</p>`;
@@ -613,7 +649,7 @@
             const conKeys = Object.keys(consumablesObj);
             const eqKeys = Object.keys(equipmentObj);
 
-            // AUSRÜSTUNG TABELLE (Ohne Mengen)
+            // AUSRÜSTUNG TABELLE
             let equipmentRowsHtml = "";
             eqKeys.forEach(eqKey => {
                 const eq = equipmentObj[eqKey];
@@ -642,13 +678,17 @@
                 `;
             } else {
                 titleAreaHtml = `
+                    <span class="drag-handle">::</span>
                     <span>${item.name}</span>
                     <span class="count-badge">${ingKeys.length} Zutaten | ${conKeys.length} Verbrauchsartikel | ${eqKeys.length} Ausrüstung</span>
                 `;
             }
 
+            // Draggable Attribut nur für Desktop vergeben
+            const draggableAttr = isDesktop ? 'draggable="true"' : '';
+
             return `
-                <div class="item-card ${isOpen ? 'open' : ''}">
+                <div class="item-card ${isOpen ? 'open' : ''}" data-key="${key}" data-category="${category}" ${draggableAttr}>
                     <div class="item-header" onclick="toggleCard('${key}')">
                         <div class="title-area">
                             ${titleAreaHtml}
@@ -726,6 +766,79 @@
             `;
         }
 
+        // DRAG AND DROP HANDLER (Nur Desktop)
+        function initDragAndDrop() {
+            if (!isDesktop) return;
+
+            const containers = document.querySelectorAll('.drag-container');
+
+            containers.forEach(container => {
+                let draggedItem = null;
+
+                container.addEventListener('dragstart', (e) => {
+                    const card = e.target.closest('.item-card');
+                    if (!card) return;
+                    draggedItem = card;
+                    card.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                container.addEventListener('dragend', (e) => {
+                    const card = e.target.closest('.item-card');
+                    if (card) card.classList.remove('dragging');
+                    
+                    // Neue Sortierung in Firebase speichern
+                    saveOrder(container);
+                });
+
+                container.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    if (!draggedItem) return;
+                    
+                    if (afterElement == null) {
+                        container.appendChild(draggedItem);
+                    } else {
+                        container.insertBefore(draggedItem, afterElement);
+                    }
+                });
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.item-card:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Reihenfolge-Reindexierung in Firebase
+        function saveOrder(container) {
+            const cards = container.querySelectorAll('.item-card');
+            cards.forEach((card, index) => {
+                const key = card.dataset.key;
+                const category = card.dataset.category;
+                if (key && category) {
+                    update(ref(db, `stammdaten/${category}/${key}`), { order: index });
+                }
+            });
+        }
+
+        // Sortierhilfe für Daten
+        function sortItemsByOrder(itemsObj) {
+            return Object.keys(itemsObj).map(key => ({
+                key,
+                ...itemsObj[key]
+            })).sort((a, b) => (a.order || 0) - (b.order || 0));
+        }
+
         // Haupt-Render-Funktion
         function render() {
             // 1. Getränke
@@ -734,12 +847,11 @@
             alkContainer.innerHTML = "";
             freikContainer.innerHTML = "";
 
-            const drinks = dataStore.getraenke;
+            const sortedDrinks = sortItemsByOrder(dataStore.getraenke);
             let alkCount = 0, freiCount = 0;
 
-            Object.keys(drinks).forEach(key => {
-                const item = drinks[key];
-                const html = renderCardHTML('getraenke', key, item);
+            sortedDrinks.forEach(item => {
+                const html = renderCardHTML('getraenke', item.key, item);
                 if (item.type === 'alkoholfrei') {
                     freikContainer.innerHTML += html;
                     freiCount++;
@@ -755,28 +867,29 @@
             // 2. Verpflegung
             const foodContainer = document.getElementById('list-verpflegung');
             foodContainer.innerHTML = "";
-            const foods = dataStore.verpflegung;
-            const foodKeys = Object.keys(foods);
-            if (foodKeys.length === 0) {
+            const sortedFoods = sortItemsByOrder(dataStore.verpflegung);
+            if (sortedFoods.length === 0) {
                 foodContainer.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine Speisen vorhanden.</p>";
             } else {
-                foodKeys.forEach(key => {
-                    foodContainer.innerHTML += renderCardHTML('verpflegung', key, foods[key]);
+                sortedFoods.forEach(item => {
+                    foodContainer.innerHTML += renderCardHTML('verpflegung', item.key, item);
                 });
             }
 
             // 3. Orga & Material
             const orgaContainer = document.getElementById('list-orga');
             orgaContainer.innerHTML = "";
-            const orgas = dataStore.orga;
-            const orgaKeys = Object.keys(orgas);
-            if (orgaKeys.length === 0) {
+            const sortedOrgas = sortItemsByOrder(dataStore.orga);
+            if (sortedOrgas.length === 0) {
                 orgaContainer.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine Orga-Punkte vorhanden.</p>";
             } else {
-                orgaKeys.forEach(key => {
-                    orgaContainer.innerHTML += renderCardHTML('orga', key, orgas[key]);
+                sortedOrgas.forEach(item => {
+                    orgaContainer.innerHTML += renderCardHTML('orga', item.key, item);
                 });
             }
+
+            // Drag & Drop neu initialisieren
+            initDragAndDrop();
         }
     </script>
 </body>
