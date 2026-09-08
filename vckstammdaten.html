@@ -1,1 +1,507 @@
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verpflegungs- & Detailplanung | VC Kuppenheim</title>
+    <style>
+        :root {
+            --primary-red: #d00000;
+            --primary-red-hover: #9e0000;
+            --gold-accent: #d4af37;
+            --gold-hover: #f3ce5a;
+            --bg-color: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #111111;
+            --text-muted: #444444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Mikasa-Volleybälle im Hintergrund */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.12"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23111111" stroke-width="1.2" opacity="0.08"><circle cx="50" cy="50" r="42"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.1"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>'),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d4af37" stroke-width="1.2" opacity="0.15"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>');
+
+            background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+            background-size: 180px 180px, 240px 240px, 280px 280px, 140px 140px;
+            background-position: 5% 8%, 92% 40%, 8% 88%, 85% 90%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 30px 20px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(208, 0, 0, 0.05);
+            border: 2px solid var(--gold-accent);
+        }
+
+        .logo-container {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            max-width: 100px;
+            height: auto;
+            mix-blend-mode: multiply;
+        }
+
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Navigation Tabs (Reiter) */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 4px;
+            border-radius: 14px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: var(--primary-red);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--gold-accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Formular Styling */
+        .add-form {
+            background: #fff;
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .add-form h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--gold-accent);
+        }
+
+        /* Buttons im Vereinsdesign */
+        .btn {
+            width: 100%;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.2s ease;
+            background: linear-gradient(180deg, var(--primary-red) 0%, #b00000 100%);
+            color: #ffffff;
+            border: 2px solid var(--gold-accent);
+            box-shadow: 0 3px 8px rgba(208, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background: linear-gradient(180deg, #e60000 0%, var(--primary-red-hover) 100%);
+            border-color: var(--gold-hover);
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            width: auto;
+            border-width: 1.5px;
+        }
+
+        /* Cards für Artikel */
+        .item-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e5e5;
+            text-align: left;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .item-header h4 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+        }
+
+        .btn-delete-item {
+            background: transparent;
+            border: none;
+            color: #cc0000;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        /* Detailbereiche (Zutaten & Geräte) */
+        .detail-section {
+            background: #fdfdfd;
+            border: 1px dashed #ddd;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .detail-section h5 {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        .tag-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .tag {
+            background: #f0f0f0;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .tag .remove-tag {
+            color: #888;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tag .remove-tag:hover {
+            color: var(--primary-red);
+        }
+
+        .btn-back {
+            background: #ffffff;
+            color: var(--text-dark);
+            border: 2px solid #ccc;
+            box-shadow: none;
+            margin-top: 20px;
+        }
+
+        .btn-back:hover {
+            background: #f0f0f0;
+            color: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo-container">
+            <img src="logo.jpg" alt="VC Kuppenheim Logo">
+        </div>
+
+        <h1>Rezept- & Materialplanung</h1>
+        <p class="subtitle">Zutaten, Mengen und Equipment zentral erfassen</p>
+
+        <!-- 3 Reiter / Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('getraenke')">🍹 Getränke</button>
+            <button class="tab-btn" onclick="switchTab('verpflegung')">🍕 Verpflegung</button>
+            <button class="tab-btn" onclick="switchTab('orga')">📦 Orga / Material</button>
+        </div>
+
+        <!-- REITER 1: GETRÄNKE -->
+        <div id="tab-getraenke" class="tab-content active">
+            <div class="add-form">
+                <h3>Neues Getränk anlegen</h3>
+                <div class="input-group">
+                    <input type="text" id="newDrinkName" placeholder="z.B. Aperol Spritz">
+                    <button class="btn btn-small" onclick="addItem('getraenke')">Anlegen</button>
+                </div>
+            </div>
+            <div id="list-getraenke"></div>
+        </div>
+
+        <!-- REITER 2: VERPFLEGUNG -->
+        <div id="tab-verpflegung" class="tab-content">
+            <div class="add-form">
+                <h3>Neues Essen/Gericht anlegen</h3>
+                <div class="input-group">
+                    <input type="text" id="newFoodName" placeholder="z.B. Wurst im Weck">
+                    <button class="btn btn-small" onclick="addItem('verpflegung')">Anlegen</button>
+                </div>
+            </div>
+            <div id="list-verpflegung"></div>
+        </div>
+
+        <!-- REITER 3: ORGA / ALLGEMEINES MATERIAL -->
+        <div id="tab-orga" class="tab-content">
+            <div class="add-form">
+                <h3>Allgemeines Material / Orga-Punkt</h3>
+                <div class="input-group">
+                    <input type="text" id="newOrgaName" placeholder="z.B. Kassenbereich / Strom">
+                    <button class="btn btn-small" onclick="addItem('orga')">Anlegen</button>
+                </div>
+            </div>
+            <div id="list-orga"></div>
+        </div>
+
+        <!-- Zurück-Button -->
+        <a href="admin.html" class="btn btn-back">← Zurück zum Admin-Bereich</a>
+    </div>
+
+    <script>
+        // Lokaler Speicher-Stand (Demodaten für schnellen Einstieg)
+        let dataStore = {
+            getraenke: [
+                {
+                    id: 1,
+                    name: "Aperol Spritz",
+                    ingredients: ["Prosecco (9 cl)", "Aperol (6 cl)", "Sprudelwasser (3 cl)", "Eiswürfel", "Orangenscheibe"],
+                    equipment: ["Weingläser", "Messer", "Schneidebrett", "Barlöffel", "Eisbehälter"]
+                }
+            ],
+            verpflegung: [
+                {
+                    id: 2,
+                    name: "Bratwurst im Weck",
+                    ingredients: ["Bratwurst (1 Stk)", "Brötchen (1 Stk)", "Senf / Ketchup"],
+                    equipment: ["Grill", "Grillzange", "Servietten", "Aluschalen"]
+                }
+            ],
+            orga: [
+                {
+                    id: 3,
+                    name: "Kassenbereich & Pavillon",
+                    ingredients: ["Wechselgeld (200€)", "Preislisten-Aushang"],
+                    equipment: ["Geldkassette", "Pavillon 3x3m", "Kabeltrommel", "Mehrfachstecker"]
+                }
+            ]
+        };
+
+        // Tab-Wechsel Logik
+        function switchTab(category) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`tab-${category}`).classList.add('active');
+        }
+
+        // Haupt-Item hinzufügen (Getränk/Essen/Orga)
+        function addItem(category) {
+            let inputId = category === 'getraenke' ? 'newDrinkName' : (category === 'verpflegung' ? 'newFoodName' : 'newOrgaName');
+            const input = document.getElementById(inputId);
+            const val = input.value.trim();
+
+            if (!val) return alert("Bitte einen Namen eingeben!");
+
+            const newItem = {
+                id: Date.now(),
+                name: val,
+                ingredients: [],
+                equipment: []
+            };
+
+            dataStore[category].push(newItem);
+            input.value = "";
+            render();
+        }
+
+        // Haupt-Item löschen
+        function deleteItem(category, id) {
+            if(confirm("Möchtest du diesen Eintrag wirklich löschen?")) {
+                dataStore[category] = dataStore[category].filter(item => item.id !== id);
+                render();
+            }
+        }
+
+        // Zutat oder Gerät/Sonstiges hinzufügen
+        function addSubEntry(category, itemId, type) {
+            const inputField = document.getElementById(`${type}-input-${itemId}`);
+            const val = inputField.value.trim();
+
+            if (!val) return;
+
+            const item = dataStore[category].find(i => i.id === itemId);
+            if (item) {
+                if (type === 'ing') item.ingredients.push(val);
+                if (type === 'eq') item.equipment.push(val);
+            }
+
+            inputField.value = "";
+            render();
+        }
+
+        // Einzelne Zutat oder Gerät löschen
+        function removeSubEntry(category, itemId, type, index) {
+            const item = dataStore[category].find(i => i.id === itemId);
+            if (item) {
+                if (type === 'ing') item.ingredients.splice(index, 1);
+                if (type === 'eq') item.equipment.splice(index, 1);
+            }
+            render();
+        }
+
+        // Benutzeroberfläche rendern / aktualisieren
+        function render() {
+            ['getraenke', 'verpflegung', 'orga'].forEach(category => {
+                const listContainer = document.getElementById(`list-${category}`);
+                listContainer.innerHTML = "";
+
+                dataStore[category].forEach(item => {
+                    const label1 = category === 'orga' ? '1. Verbrauchsmaterial / Details' : '1. Zutaten & Mengen';
+                    const label2 = category === 'orga' ? '2. Geräte & Ausrüstung' : '2. Geräte & Sonstiges';
+
+                    listContainer.innerHTML += `
+                        <div class="item-card">
+                            <div class="item-header">
+                                <h4>${item.name}</h4>
+                                <button class="btn-delete-item" onclick="deleteItem('${category}', ${item.id})" title="Löschen">🗑️</button>
+                            </div>
+
+                            <!-- 1. Zutaten/Mengen -->
+                            <div class="detail-section">
+                                <h5>${label1}</h5>
+                                <ul class="tag-list">
+                                    ${item.ingredients.map((ing, idx) => `
+                                        <li class="tag">
+                                            ${ing} 
+                                            <span class="remove-tag" onclick="removeSubEntry('${category}', ${item.id}, 'ing', ${idx})">&times;</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                                <div class="input-group">
+                                    <input type="text" id="ing-input-${item.id}" placeholder="z. B. Prosecco 9 cl">
+                                    <button class="btn btn-small" onclick="addSubEntry('${category}', ${item.id}, 'ing')">+</button>
+                                </div>
+                            </div>
+
+                            <!-- 2. Geräte/Sonstiges -->
+                            <div class="detail-section">
+                                <h5>${label2}</h5>
+                                <ul class="tag-list">
+                                    ${item.equipment.map((eq, idx) => `
+                                        <li class="tag">
+                                            ${eq} 
+                                            <span class="remove-tag" onclick="removeSubEntry('${category}', ${item.id}, 'eq', ${idx})">&times;</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                                <div class="input-group">
+                                    <input type="text" id="eq-input-${item.id}" placeholder="z. B. Weingläser, Messer">
+                                    <button class="btn btn-small" onclick="addSubEntry('${category}', ${item.id}, 'eq')">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // Erstes Laden der Ansicht
+        render();
+    </script>
+
+</body>
+</html>
