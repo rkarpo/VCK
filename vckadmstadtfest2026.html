@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -10,7 +9,6 @@
             --primary-red: #d00000;
             --primary-red-hover: #9e0000;
             --gold-accent: #d4af37;
-            --gold-hover: #f3ce5a;
             --bg-color: #f8f9fa;
             --card-bg: rgba(255, 255, 255, 0.95);
             --text-dark: #111111;
@@ -32,19 +30,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 24px 16px;
+            padding: 16px 8px;
             margin: 0;
-            position: relative;
-            overflow-x: hidden;
         }
 
         body::before {
             content: "";
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
             background-image: 
                 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.12"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/></g></svg>'),
@@ -56,40 +49,39 @@
 
         .container {
             width: 100%;
-            max-width: 750px;
+            max-width: 850px;
             background: var(--card-bg);
             backdrop-filter: blur(14px);
-            padding: 24px;
-            border-radius: 24px;
+            padding: 18px;
+            border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
             border: 2px solid var(--gold-accent);
-            position: relative;
         }
 
         .logo-container {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: center;
         }
 
         .logo-container img {
-            max-width: 90px;
+            max-width: 75px;
             height: auto;
             mix-blend-mode: multiply;
         }
 
         h1 {
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             font-weight: 800;
             color: var(--text-dark);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             text-align: center;
         }
 
         .subtitle {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 18px;
+            margin-bottom: 14px;
             text-align: center;
         }
 
@@ -97,21 +89,21 @@
         .tabs {
             display: flex;
             gap: 6px;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
             background: rgba(0, 0, 0, 0.05);
-            padding: 4px;
-            border-radius: 12px;
+            padding: 3px;
+            border-radius: 10px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 10px 8px;
-            font-size: 0.82rem;
+            padding: 8px 6px;
+            font-size: 0.8rem;
             font-weight: 700;
             border: none;
             background: transparent;
             color: var(--text-muted);
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -123,179 +115,149 @@
             border: 1px solid var(--gold-accent);
         }
 
-        .tab-content {
-            display: none;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Formulare */
+        /* Schnelleingabe */
         .add-form {
             background: #fff;
-            padding: 14px;
-            border-radius: 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
             border: 1px solid #e0e0e0;
-            margin-bottom: 18px;
-        }
-
-        .add-form h3 {
-            font-size: 0.95rem;
-            margin-bottom: 10px;
-            color: var(--text-dark);
+            margin-bottom: 12px;
         }
 
         .input-group {
             display: flex;
             gap: 6px;
-            margin-bottom: 8px;
             align-items: center;
             flex-wrap: wrap;
         }
 
         input[type="text"], input[type="number"], select {
-            padding: 8px 10px;
+            padding: 6px 8px;
             border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
             outline: none;
             background-color: #fff;
         }
 
         .table-input {
             width: 100%;
-            border: 1px solid transparent;
-            background: transparent;
+            border: 1px solid #ddd;
+            background: #fff;
             padding: 4px 6px;
             border-radius: 4px;
+            font-size: 0.82rem;
         }
 
-        .table-input:hover, .table-input:focus {
+        .table-input:focus {
             border-color: var(--gold-accent);
-            background: #fff;
         }
 
         .btn {
-            padding: 8px 14px;
-            font-size: 0.85rem;
+            padding: 6px 12px;
+            font-size: 0.8rem;
             font-weight: 700;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
             background: linear-gradient(180deg, var(--primary-red) 0%, #b00000 100%);
             color: #ffffff;
-            border: 1.5px solid var(--gold-accent);
+            border: 1px solid var(--gold-accent);
         }
 
-        .btn:hover {
-            background: linear-gradient(180deg, #e60000 0%, var(--primary-red-hover) 100%);
-        }
-
-        .btn-small {
-            padding: 6px 10px;
-            font-size: 0.78rem;
-        }
+        .btn:hover { background: linear-gradient(180deg, #e60000 0%, var(--primary-red-hover) 100%); }
 
         .btn-icon {
             background: transparent;
             border: none;
             cursor: pointer;
-            font-size: 0.95rem;
-            padding: 3px 6px;
-            border-radius: 4px;
+            font-size: 0.85rem;
+            padding: 2px 4px;
             color: #666;
         }
-        .btn-icon:hover { background: #eee; color: #111; }
+        .btn-icon:hover { color: #111; }
 
-        /* Karten */
-        .calc-card {
-            background: #ffffff;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #e0e0e0;
-            padding: 14px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-        }
-
-        .calc-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-
-        /* Dashboard & Kennzahlen */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-            background: #fdfdfd;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #f0f0f0;
-        }
-
-        .metric-box {
-            text-align: center;
-        }
-
-        .metric-box .label {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .metric-box .val {
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--text-dark);
-        }
-
-        .metric-box .val.profit {
-            color: var(--green-profit);
-        }
-
-        /* Tabellen */
-        .data-table {
+        /* Kompakt-Tabelle */
+        .calc-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             background: #fff;
             border-radius: 8px;
             overflow: hidden;
-            border: 1px solid #e5e5e5;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 12px;
         }
 
-        .data-table th {
-            background: #f0f0f0;
+        .calc-table th {
+            background: #f1f1f1;
             text-align: left;
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            color: #666;
+            padding: 6px 8px;
+            font-size: 0.72rem;
+            color: #555;
             text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
         }
 
-        .data-table td {
+        .calc-table td {
             padding: 6px 8px;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
         }
 
+        .calc-table tr:hover {
+            background-color: #fdfdfd;
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .val-profit { color: var(--green-profit); font-weight: bold; }
+        .val-loss { color: var(--primary-red); font-weight: bold; }
+
+        /* Gruppierungsüberschrift */
+        .group-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--primary-red);
+            text-transform: uppercase;
+            margin: 12px 0 6px 0;
+            padding-bottom: 3px;
+            border-bottom: 1.5px solid var(--gold-accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Checkbox-Kommission */
+        .kommission-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            color: #555;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .kommission-label input[type="checkbox"] {
+            accent-color: var(--primary-red);
+            cursor: pointer;
+        }
+
         .btn-back {
             background: #ffffff;
             color: var(--text-dark);
-            border: 2px solid #ccc;
-            margin-top: 20px;
+            border: 1.5px solid #ccc;
+            margin-top: 14px;
             display: block;
             text-decoration: none;
             text-align: center;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            font-weight: 700;
         }
         .btn-back:hover { background: #f0f0f0; }
     </style>
@@ -308,26 +270,25 @@
         </div>
 
         <h1>Verkaufs- & Preiskalkulator</h1>
-        <p class="subtitle">Kalkulation von Verkaufsmengen, Preisen & Wareneinsatz</p>
+        <p class="subtitle">Soll-Verkäufe, Wareneinsatz & Gewinne kompakt im Überblick</p>
 
-        <!-- Haupt-Tabs -->
+        <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('getraenke')">🍹 Getränke Calc</button>
             <button class="tab-btn" onclick="switchTab('verpflegung')">🍕 Speisen Calc</button>
-            <button class="tab-btn" onclick="switchTab('einkauf')">🛒 Einkaufspreise</button>
+            <button class="tab-btn" onclick="switchTab('einkauf')">🛒 Einkaufspreise & Kommission</button>
         </div>
 
         <!-- TAB 1: GETRÄNKE KALKULATION -->
         <div id="tab-getraenke" class="tab-content active">
             <div class="add-form">
-                <h3>Getränk zur Kalkulation hinzufügen</h3>
                 <div class="input-group">
                     <select id="selectDrink" style="flex:2;">
-                        <option value="">-- Getränk aus Stammdaten wählen --</option>
+                        <option value="">-- Getränk wählen --</option>
                     </select>
-                    <input type="number" id="drinkQty" placeholder="Soll-Menge" style="width:100px;">
-                    <input type="number" step="0.50" id="drinkPrice" placeholder="Preis (€)" style="width:100px;">
-                    <button class="btn btn-small" onclick="addCalcItem('getraenke')">+ Hinzufügen</button>
+                    <input type="number" id="drinkQty" placeholder="Soll-Stk" style="width:75px;">
+                    <input type="number" step="0.50" id="drinkPrice" placeholder="Preis €" style="width:75px;">
+                    <button class="btn" onclick="addCalcItem('getraenke')">+ Hinzufügen</button>
                 </div>
             </div>
 
@@ -337,29 +298,28 @@
         <!-- TAB 2: SPEISEN KALKULATION -->
         <div id="tab-verpflegung" class="tab-content">
             <div class="add-form">
-                <h3>Speise zur Kalkulation hinzufügen</h3>
                 <div class="input-group">
                     <select id="selectFood" style="flex:2;">
-                        <option value="">-- Speise aus Stammdaten wählen --</option>
+                        <option value="">-- Speise wählen --</option>
                     </select>
-                    <input type="number" id="foodQty" placeholder="Soll-Menge" style="width:100px;">
-                    <input type="number" step="0.50" id="foodPrice" placeholder="Preis (€)" style="width:100px;">
-                    <button class="btn btn-small" onclick="addCalcItem('verpflegung')">+ Hinzufügen</button>
+                    <input type="number" id="foodQty" placeholder="Soll-Stk" style="width:75px;">
+                    <input type="number" step="0.50" id="foodPrice" placeholder="Preis €" style="width:75px;">
+                    <button class="btn" onclick="addCalcItem('verpflegung')">+ Hinzufügen</button>
                 </div>
             </div>
 
             <div id="calc-list-verpflegung">Lade Daten...</div>
         </div>
 
-        <!-- TAB 3: EINKAUFSPREISE / ZUTATEN -->
+        <!-- TAB 3: EINKAUFSPREISE & KOMMISSION -->
         <div id="tab-einkauf" class="tab-content">
-            <p style="font-size:0.85rem; color:#666; margin-bottom:12px;">
-                Hinterlege hier die Gebinde-Einkaufspreise deiner Zutaten/Artikel aus den Stammdaten. Der Kalkulator errechnet automatisch den exakten Wareneinsatz pro Portion.
+            <p style="font-size:0.78rem; color:#666; margin-bottom:8px;">
+                Einkaufspreise eintragen. Mit der Checkbox <strong>"Kommission"</strong> markierst du Artikel, deren Restmenge risikofrei zurückgegeben werden kann (wichtig für spätere Breakeven-Rechnungen).
             </p>
             <div id="einkaufspreise-container">Lade Einkaufspreise...</div>
         </div>
 
-        <a href="vckstammdaten.html" class="btn btn-back">← Zurück zu den Stammdaten (vckstammdaten.html)</a>
+        <a href="vckstammdaten.html" class="btn-back">← Zurück zu den Stammdaten</a>
     </div>
 
     <!-- Firebase SDKs -->
@@ -385,7 +345,6 @@
         let kalkulation = { getraenke: {}, verpflegung: {} };
         let einkaufspreise = {};
 
-        // Daten aus Firebase abrufen
         onValue(ref(db), (snapshot) => {
             const data = snapshot.val() || {};
             stammdaten = data.stammdaten || { getraenke: {}, verpflegung: {} };
@@ -397,7 +356,6 @@
             renderEinkaufspreise();
         });
 
-        // Tab-Umschaltung
         window.switchTab = function(cat) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -405,25 +363,21 @@
             document.getElementById(`tab-${cat}`).classList.add('active');
         };
 
-        // Dropdowns mit Daten aus vckstammdaten.html füllen
         function populateDropdowns() {
             const drinkSelect = document.getElementById('selectDrink');
             const foodSelect = document.getElementById('selectFood');
 
             drinkSelect.innerHTML = '<option value="">-- Getränk aus Stammdaten wählen --</option>';
             Object.keys(stammdaten.getraenke || {}).forEach(key => {
-                const item = stammdaten.getraenke[key];
-                drinkSelect.innerHTML += `<option value="${key}">${item.name}</option>`;
+                drinkSelect.innerHTML += `<option value="${key}">${stammdaten.getraenke[key].name}</option>`;
             });
 
             foodSelect.innerHTML = '<option value="">-- Speise aus Stammdaten wählen --</option>';
             Object.keys(stammdaten.verpflegung || {}).forEach(key => {
-                const item = stammdaten.verpflegung[key];
-                foodSelect.innerHTML += `<option value="${key}">${item.name}</option>`;
+                foodSelect.innerHTML += `<option value="${key}">${stammdaten.verpflegung[key].name}</option>`;
             });
         }
 
-        // Artikel zur Kalkulation hinzufügen
         window.addCalcItem = function(category) {
             const isDrink = category === 'getraenke';
             const selectId = isDrink ? 'selectDrink' : 'selectFood';
@@ -434,14 +388,10 @@
             const targetQty = parseFloat(document.getElementById(qtyId).value) || 0;
             const price = parseFloat(document.getElementById(priceId).value) || 0;
 
-            if (!itemKey) return alert("Bitte wähle ein Element aus den Stammdaten aus!");
+            if (!itemKey) return alert("Bitte wähle ein Element aus!");
 
             const newRef = push(ref(db, `kalkulation/${category}`));
-            set(newRef, {
-                stammKey: itemKey,
-                targetQty: targetQty,
-                price: price
-            });
+            set(newRef, { stammKey: itemKey, targetQty, price });
 
             document.getElementById(qtyId).value = "";
             document.getElementById(priceId).value = "";
@@ -457,41 +407,27 @@
             remove(ref(db, `kalkulation/${category}/${calcKey}`));
         };
 
-        // Einkaufspreis-Abrechnung speichern
         window.updateEinkaufspreis = function(ingredientName, field, value) {
-            // Speichern unter sanitisiertem Key
             const cleanKey = ingredientName.replace(/[.#$/\[\]]/g, "_");
             update(ref(db, `einkaufspreise/${cleanKey}`), {
                 name: ingredientName,
-                [field]: parseFloat(value) || 0,
-                unit: document.getElementById(`unit-einkauf-${cleanKey}`)?.value || 'Stück'
+                [field]: field === 'isKommission' ? value : (parseFloat(value) || 0)
             });
         };
 
-        window.updateEinkaufUnit = function(ingredientName, unitValue) {
-            const cleanKey = ingredientName.replace(/[.#$/\[\]]/g, "_");
-            update(ref(db, `einkaufspreise/${cleanKey}`), {
-                name: ingredientName,
-                unit: unitValue
-            });
-        };
-
-        // Umrechnungs-Hilfe für Mengeneinheiten auf Basis-Einheit
         function normalizeToStandard(amount, unit) {
             const u = (unit || '').toLowerCase();
             const val = parseFloat(amount) || 0;
-            if (u === 'cl') return val / 100; // in Liter
+            if (u === 'cl') return val / 100;
             if (u === 'dl') return val / 10;
             if (u === 'l') return val;
-            if (u === 'g') return val / 1000; // in kg
+            if (u === 'g') return val / 1000;
             if (u === 'kg') return val;
-            return val; // Stück, Flasche, etc.
+            return val;
         }
 
-        // Berechnet die Materialkosten (Wareneinsatz) pro Portion
         function calculateCostPerPortion(stammItem) {
             let totalCost = 0;
-
             const calcList = (obj) => {
                 if (!obj) return;
                 Object.values(obj).forEach(ing => {
@@ -504,140 +440,168 @@
                     }
                 });
             };
-
             calcList(stammItem.ingredients);
             calcList(stammItem.consumables);
-
             return totalCost;
         }
 
-        // Haupt-Render für Getränke & Speisen
+        // Schlanke Kompakt-Tabelle rendern
         function renderCategory(category) {
             const container = document.getElementById(`calc-list-${category}`);
-            container.innerHTML = "";
-
             const itemsObj = kalkulation[category] || {};
             const keys = Object.keys(itemsObj);
 
             if (keys.length === 0) {
-                container.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Noch keine Kalkulationen angelegt.</p>";
+                container.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine Artikel zur Kalkulation hinzugefügt.</p>";
                 return;
             }
+
+            let rowsHtml = "";
+            let sumUmsatz = 0;
+            let sumGewinn = 0;
 
             keys.forEach(calcKey => {
                 const calcItem = itemsObj[calcKey];
                 const stammItem = (stammdaten[category] || {})[calcItem.stammKey];
 
-                if (!stammItem) return; // Falls in Stammdaten gelöscht
+                if (!stammItem) return;
 
-                const costPerPortion = calculateCostPerPortion(stammItem);
-                const revenuePerPortion = calcItem.price || 0;
-                const profitPerPortion = revenuePerPortion - costPerPortion;
+                const costPortion = calculateCostPerPortion(stammItem);
+                const revenuePortion = calcItem.price || 0;
+                const profitPortion = revenuePortion - costPortion;
 
-                const totalRevenue = revenuePerPortion * calcItem.targetQty;
-                const totalCost = costPerPortion * calcItem.targetQty;
-                const totalProfit = profitPerPortion * calcItem.targetQty;
+                const totalRev = revenuePortion * calcItem.targetQty;
+                const totalProfit = profitPortion * calcItem.targetQty;
 
-                container.innerHTML += `
-                    <div class="calc-card">
-                        <div class="calc-card-header">
-                            <span>${stammItem.name}</span>
-                            <button class="btn-icon" onclick="removeCalcItem('${category}', '${calcKey}')" title="Entfernen">❌</button>
-                        </div>
+                sumUmsatz += totalRev;
+                sumGewinn += totalProfit;
 
-                        <div class="input-group">
-                            <label style="font-size:0.8rem; width:100%;"><strong>Planung:</strong></label>
-                            <span style="font-size:0.85rem;">Soll-Verkauf (Stk):</span>
-                            <input type="number" class="table-input" style="width:80px; border:1px solid #ccc;" value="${calcItem.targetQty || 0}"
-                                   onblur="updateCalcField('${category}', '${calcKey}', 'targetQty', this.value)">
-
-                            <span style="font-size:0.85rem; margin-left:10px;">Verkaufspreis (€):</span>
-                            <input type="number" step="0.10" class="table-input" style="width:80px; border:1px solid #ccc;" value="${calcItem.price || 0}"
-                                   onblur="updateCalcField('${category}', '${calcKey}', 'price', this.value)">
-                        </div>
-
-                        <div class="metrics-grid">
-                            <div class="metric-box">
-                                <div class="label">Wareneinsatz/Port.</div>
-                                <div class="val">${costPerPortion.toFixed(2)} €</div>
-                            </div>
-                            <div class="metric-box">
-                                <div class="label">Gewinn/Port.</div>
-                                <div class="val profit">${profitPerPortion.toFixed(2)} €</div>
-                            </div>
-                            <div class="metric-box">
-                                <div class="label">Umsatz ges.</div>
-                                <div class="val">${totalRevenue.toFixed(2)} €</div>
-                            </div>
-                            <div class="metric-box">
-                                <div class="label">Gewinn ges.</div>
-                                <div class="val profit">${totalProfit.toFixed(2)} €</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // Render für Einkaufspreise-Tab
-        function renderEinkaufspreise() {
-            const container = document.getElementById('einkaufspreise-container');
-            
-            // Sammle alle eindeutigen Zutaten und Verbrauchsartikel aus den Stammdaten
-            const allIngredients = new Set();
-            
-            ['getraenke', 'verpflegung'].forEach(cat => {
-                Object.values(stammdaten[cat] || {}).forEach(item => {
-                    Object.values(item.ingredients || {}).forEach(ing => ing.name && allIngredients.add(ing.name));
-                    Object.values(item.consumables || {}).forEach(con => con.name && allIngredients.add(con.name));
-                });
-            });
-
-            if (allIngredients.size === 0) {
-                container.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine Zutaten in den Stammdaten vorhanden. Lege zuerst welche in vckstammdaten.html an.</p>";
-                return;
-            }
-
-            let rows = "";
-            allIngredients.forEach(ingName => {
-                const cleanKey = ingName.replace(/[.#$/\[\]]/g, "_");
-                const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'l' };
-
-                rows += `
+                rowsHtml += `
                     <tr>
-                        <td><strong>${ingName}</strong></td>
-                        <td>
-                            <input type="number" step="0.01" class="table-input" placeholder="0.00" value="${einkauf.packagePrice || ''}"
-                                   onblur="updateEinkaufspreis('${ingName}', 'packagePrice', this.value)"> €
+                        <td><strong>${stammItem.name}</strong></td>
+                        <td style="width: 75px;">
+                            <input type="number" class="table-input text-center" value="${calcItem.targetQty || 0}" 
+                                   onblur="updateCalcField('${category}', '${calcKey}', 'targetQty', this.value)">
                         </td>
-                        <td>
-                            <input type="number" step="any" class="table-input" placeholder="Gebindegröße" value="${einkauf.packageSize || ''}"
-                                   onblur="updateEinkaufspreis('${ingName}', 'packageSize', this.value)">
+                        <td style="width: 80px;">
+                            <input type="number" step="0.10" class="table-input text-right" value="${calcItem.price || 0}" 
+                                   onblur="updateCalcField('${category}', '${calcKey}', 'price', this.value)">
                         </td>
-                        <td>
-                            <select id="unit-einkauf-${cleanKey}" class="table-input" onchange="updateEinkaufUnit('${ingName}', this.value)">
-                                ${['l','kg','Stück','Flasche','Dose','Packung','Rolle'].map(u => 
-                                    `<option value="${u}" ${einkauf.unit === u ? 'selected' : ''}>${u}</option>`
-                                ).join('')}
-                            </select>
+                        <td class="text-right">${costPortion.toFixed(2)} €</td>
+                        <td class="text-right ${profitPortion >= 0 ? 'val-profit' : 'val-loss'}">${profitPortion.toFixed(2)} €</td>
+                        <td class="text-right">${totalRev.toFixed(2)} €</td>
+                        <td class="text-right ${totalProfit >= 0 ? 'val-profit' : 'val-loss'}">${totalProfit.toFixed(2)} €</td>
+                        <td class="text-center" style="width: 30px;">
+                            <button class="btn-icon" onclick="removeCalcItem('${category}', '${calcKey}')" title="Löschen">❌</button>
                         </td>
                     </tr>
                 `;
             });
 
             container.innerHTML = `
-                <table class="data-table">
+                <table class="calc-table">
                     <thead>
                         <tr>
-                            <th>Zutat / Material</th>
-                            <th>Einkaufspreis (€)</th>
-                            <th>Gebindemenge</th>
-                            <th>Einheit</th>
+                            <th>Artikel</th>
+                            <th class="text-center">Soll-Stk</th>
+                            <th class="text-right">Preis (€)</th>
+                            <th class="text-right">Einsatz/Stk</th>
+                            <th class="text-right">Gewinn/Stk</th>
+                            <th class="text-right">Umsatz ges.</th>
+                            <th class="text-right">Gewinn ges.</th>
+                            <th></th>
                         </tr>
                     </thead>
-                    <tbody>${rows}</tbody>
+                    <tbody>${rowsHtml}</tbody>
+                    <tfoot>
+                        <tr style="background:#f9f9f9; font-weight:bold;">
+                            <td colspan="5">GESAMT:</td>
+                            <td class="text-right">${sumUmsatz.toFixed(2)} €</td>
+                            <td class="text-right ${sumGewinn >= 0 ? 'val-profit' : 'val-loss'}">${sumGewinn.toFixed(2)} €</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             `;
+        }
+
+        // Render für gruppierten Einkaufspreise-Tab
+        function renderEinkaufspreise() {
+            const container = document.getElementById('einkaufspreise-container');
+            container.innerHTML = "";
+
+            const categories = [
+                { id: 'getraenke', label: '🍹 Zutaten & Artikel: Getränke' },
+                { id: 'verpflegung', label: '🍕 Zutaten & Artikel: Speisen' }
+            ];
+
+            let hasAnyItems = false;
+
+            categories.forEach(cat => {
+                const catIngredients = new Set();
+                Object.values(stammdaten[cat.id] || {}).forEach(item => {
+                    Object.values(item.ingredients || {}).forEach(ing => ing.name && catIngredients.add(ing.name));
+                    Object.values(item.consumables || {}).forEach(con => con.name && catIngredients.add(con.name));
+                });
+
+                if (catIngredients.size > 0) {
+                    hasAnyItems = true;
+                    let rows = "";
+
+                    catIngredients.forEach(ingName => {
+                        const cleanKey = ingName.replace(/[.#$/\[\]]/g, "_");
+                        const einkauf = einkaufspreise[cleanKey] || { packagePrice: '', packageSize: '', unit: 'l', isKommission: false };
+
+                        rows += `
+                            <tr>
+                                <td><strong>${ingName}</strong></td>
+                                <td style="width: 100px;">
+                                    <input type="number" step="0.01" class="table-input text-right" placeholder="0.00" value="${einkauf.packagePrice || ''}"
+                                           onblur="updateEinkaufspreis('${ingName}', 'packagePrice', this.value)">
+                                </td>
+                                <td style="width: 100px;">
+                                    <input type="number" step="any" class="table-input text-center" placeholder="Menge" value="${einkauf.packageSize || ''}"
+                                           onblur="updateEinkaufspreis('${ingName}', 'packageSize', this.value)">
+                                </td>
+                                <td style="width: 100px;">
+                                    <select class="table-input" onchange="updateEinkaufspreis('${ingName}', 'unit', this.value)">
+                                        ${['l','kg','Stück','Flasche','Dose','Packung','Rolle'].map(u => 
+                                            `<option value="${u}" ${einkauf.unit === u ? 'selected' : ''}>${u}</option>`
+                                        ).join('')}
+                                    </select>
+                                </td>
+                                <td style="width: 110px;" class="text-center">
+                                    <label class="kommission-label">
+                                        <input type="checkbox" ${einkauf.isKommission ? 'checked' : ''} 
+                                               onchange="updateEinkaufspreis('${ingName}', 'isKommission', this.checked)">
+                                        Kommission
+                                    </label>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    container.innerHTML += `
+                        <div class="group-title">${cat.label}</div>
+                        <table class="calc-table">
+                            <thead>
+                                <tr>
+                                    <th>Zutat / Material</th>
+                                    <th class="text-right">Gebindepreis (€)</th>
+                                    <th class="text-center">Gebindemenge</th>
+                                    <th>Einheit</th>
+                                    <th class="text-center">Kaufart</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    `;
+                }
+            });
+
+            if (!hasAnyItems) {
+                container.innerHTML = "<p style='font-size:0.8rem; color:#999;'>Keine Zutaten vorhanden. Lege zuerst welche in vckstammdaten.html an.</p>";
+            }
         }
 
         function render() {
