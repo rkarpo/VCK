@@ -3,422 +3,687 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schicht- & Helferplanung</title>
+    <title>Einsatzplanung VCK 2026</title>
+
     <style>
         * {
             box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f6f9;
-            color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 12px;
+            color: #333;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
 
-        h2 {
-            margin-top: 0;
-            color: #2b5797;
-            font-size: 22px;
-            margin-bottom: 15px;
+        .btn {
+            background-color: #2b5797;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
         }
 
+        .btn:hover { background-color: #1e3d6b; }
+
+        .btn-back {
+            background-color: #6c757d;
+            margin-bottom: 24px;
+        }
+
+        .btn-back:hover { background-color: #5a6268; }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .btn-add {
+            background-color: #2b5797;
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(43, 87, 151, 0.2);
+        }
+
+        .btn-add:hover { background-color: #1e3d6b; }
+
+        .btn-del {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-del:hover { color: #dc3545; background: #ffebe9; }
+
+        .scroll-hint {
+            font-size: 11px;
+            color: #6c757d;
+        }
+
+        /* TABELLEN STYLES DESKTOP */
         .table-container {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #ffffff;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: center;
+            font-size: 13px;
+            min-width: 900px;
         }
 
         th, td {
-            border: 1px solid #dcdcdc;
-            padding: 8px 10px;
-            text-align: center;
+            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 8px;
+            white-space: nowrap;
+            background-color: #ffffff;
         }
 
         th {
-            background-color: #2b5797;
-            color: #ffffff;
+            background-color: #f8f9fa;
             font-weight: 600;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9fbfd;
-        }
-
-        select, input[type="text"] {
-            width: 100%;
-            padding: 6px;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
-            font-size: 13px;
-            background-color: #fff;
-        }
-
-        select:focus, input[type="text"]:focus {
-            outline: none;
-            border-color: #2b5797;
-        }
-
-        /* Status-Farben */
-        .status-ok {
-            background-color: #d4edda !important;
-            color: #155724;
-            font-weight: bold;
-        }
-
-        .status-warning {
-            background-color: #fff3cd !important;
-            color: #856404;
-            font-weight: bold;
-        }
-
-        .status-danger {
-            background-color: #f8d7da !important;
-            color: #721c24;
-            font-weight: bold;
-        }
-
-        .btn-add {
-            margin-top: 15px;
-            padding: 8px 16px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-add:hover {
-            background-color: #218838;
-        }
-
-        /* Auswertungs-Bereich */
-        .stats-container {
-            margin-top: 30px;
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 16px;
-        }
-
-        .stats-container h3 {
-            margin-top: 0;
-            color: #2b5797;
-            font-size: 16px;
-            margin-bottom: 12px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-        }
-
-        .stat-card {
-            background: #ffffff;
-            border: 1px solid #dcdcdc;
-            border-radius: 6px;
-            padding: 14px;
-        }
-
-        .stat-card h4 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
             color: #495057;
         }
 
-        .stat-value {
-            font-size: 28px;
+        .header-title {
+            font-size: 15px;
             font-weight: bold;
             color: #2b5797;
+            text-align: left;
         }
 
-        .role-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-            font-size: 13px;
+        /* FIXIEREN DER NAME-SPALTE (DESKTOP) */
+        th:first-child, td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background-color: #ffffff !important;
+            min-width: 140px;
+            max-width: 140px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
         }
 
-        .role-bar-bg {
-            background: #e9ecef;
-            border-radius: 4px;
-            height: 6px;
+        thead tr th:first-child {
+            z-index: 6;
+            background-color: #f8f9fa !important;
+        }
+
+        tfoot tr td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background-color: #ffffff !important;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+
+        td input, td select {
             width: 100%;
-            margin-top: 2px;
-            overflow: hidden;
+            border: 1px solid #dcdcdc;
+            border-radius: 4px;
+            background: #ffffff;
+            font-size: 13px;
+            color: #333;
+            padding: 5px;
+            text-align: center;
         }
 
-        .role-bar-fill {
-            background: #2b5797;
-            height: 100%;
-            transition: width 0.3s ease;
+        td input { text-align: left; }
+        td select { text-align-last: center; }
+
+        td input:focus, td select:focus {
+            outline: none;
+            border-color: #2b5797;
+            box-shadow: 0 0 0 2px rgba(43, 87, 151, 0.15);
+        }
+
+        .calc-row-title {
+            text-align: right;
+            padding-right: 12px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .calc-row-separator td {
+            border-top: 2px solid #333;
+        }
+
+        .status-ok {
+            background-color: #d1e7dd !important;
+            color: #0f5132;
+            font-weight: bold;
+        }
+
+        .status-fehlen {
+            background-color: #f8d7da !important;
+            color: #842029;
+            font-weight: bold;
+        }
+
+        .col-action {
+            width: 35px;
+            border-right: none;
+        }
+
+        /* Container für Mobil-Zusammenfassung (Auf Desktop versteckt) */
+        .mobile-summary {
+            display: none;
+        }
+
+        /* MOBIL-ANSICHT */
+        @media (max-width: 768px) {
+            .scroll-hint { display: none; }
+            .table-container { border: none; }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-add {
+                width: 100%;
+                text-align: center;
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            table, thead, tbody, tr {
+                display: block;
+                min-width: 100% !important;
+            }
+
+            /* Verstecke Standard-Footer auf Mobilgeräten */
+            tfoot {
+                display: none !important;
+            }
+
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tbody tr {
+                background: #ffffff;
+                border: 1px solid #dcdcdc;
+                border-radius: 10px;
+                padding: 12px;
+                margin-bottom: 14px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+                scroll-margin-top: 20px;
+            }
+
+            tbody td {
+                border: none;
+                padding: 5px 0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: static !important;
+                box-shadow: none !important;
+            }
+
+            tbody td:first-child {
+                min-width: 100% !important;
+                max-width: 100% !important;
+                margin-bottom: 4px;
+            }
+
+            tbody td input {
+                font-size: 15px;
+                font-weight: bold;
+            }
+
+            tbody td[data-label]::before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 12px;
+                color: #555;
+                text-align: left;
+                flex: 1;
+            }
+
+            tbody td select {
+                width: 150px;
+            }
+
+            .col-action {
+                margin-top: 8px;
+                border-top: 1px dashed #eee !important;
+                padding-top: 8px !important;
+                justify-content: flex-end;
+            }
+
+            .btn-del {
+                color: #dc3545;
+                font-size: 13px;
+            }
+
+            /* NEUE MOBIL-ZUSAMMENFASSUNG (Kacheln pro Schicht - Jetzt oben platziert) */
+            .mobile-summary {
+                display: block;
+                margin-bottom: 25px;
+                margin-top: 10px;
+            }
+
+            .mobile-summary h3 {
+                font-size: 16px;
+                color: #2b5797;
+                margin-bottom: 12px;
+                border-bottom: 2px solid #2b5797;
+                padding-bottom: 6px;
+            }
+
+            .summary-cards {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .summary-card {
+                background: #ffffff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 12px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            }
+
+            .summary-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .summary-card-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .summary-card-stats {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .summary-badge {
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+
+            .badge-ok {
+                background-color: #d1e7dd;
+                color: #0f5132;
+            }
+
+            .badge-fehlen {
+                background-color: #f8d7da;
+                color: #842029;
+            }
+
+            .summary-count {
+                font-size: 12px;
+                color: #555;
+            }
+
+            /* Ausklappbare Personenliste in Mobilkacheln */
+            .summary-card details {
+                margin-top: 8px;
+                border-top: 1px solid #f0f0f0;
+                padding-top: 6px;
+            }
+
+            .summary-card summary {
+                font-size: 12px;
+                color: #2b5797;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            .summary-people-list {
+                margin-top: 6px;
+                padding-left: 18px;
+                font-size: 12px;
+                color: #495057;
+            }
+
+            .summary-people-list li {
+                margin-bottom: 2px;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Schicht- & Helferübersicht</h2>
+    <div class="container">
+        <a href="index.html" class="btn btn-back">← Zurück zur Startseite</a>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 180px;">Name</th>
-                    <th style="width: 150px;">Rolle / Gruppe</th>
-                    <th>Frühschicht</th>
-                    <th>Spätschicht</th>
-                    <th>Nachtschicht</th>
-                    <th>Aufbau</th>
-                    <th>Abbau</th>
-                    <th>Springer</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <!-- Beispieldaten -->
-                <tr>
-                    <td><input type="text" value="Max Mustermann"></td>
-                    <td>
-                        <select class="select-role">
-                            <option value="Helfer" selected>Helfer</option>
-                            <option value="Leitung">Leitung</option>
-                            <option value="Sicherheit">Sicherheit</option>
-                            <option value="Technik">Technik</option>
-                            <option value="Freizeit">Freizeit</option>
-                        </select>
-                    </td>
-                    <td><select class="select-shift"><option value=""></option><option value="verfügbar" selected>verfügbar</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="verfügbar">verfügbar</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="verfügbar">verfügbar</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="Aufbau">Aufbau</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="Abbau">Abbau</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="Springer">Springer</option></select></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="Erika Musterfrau"></td>
-                    <td>
-                        <select class="select-role">
-                            <option value="Helfer">Helfer</option>
-                            <option value="Leitung" selected>Leitung</option>
-                            <option value="Sicherheit">Sicherheit</option>
-                            <option value="Technik">Technik</option>
-                            <option value="Freizeit">Freizeit</option>
-                        </select>
-                    </td>
-                    <td><select class="select-shift"><option value=""></option><option value="verfügbar" selected>verfügbar</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="verfügbar" selected>verfügbar</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="verfügbar">verfügbar</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="Aufbau">Aufbau</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="Abbau">Abbau</option></select></td>
-                    <td><select class="select-shift"><option value=""></option><option value="Springer">Springer</option></select></td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <!-- Summenzeile: Eingetragen -->
-                <tr style="background-color: #f1f3f5; font-weight: bold;">
-                    <td colspan="2" style="text-align: right;">Aktuell eingetragen:</td>
-                    <td id="count-0">0</td>
-                    <td id="count-1">0</td>
-                    <td id="count-2">0</td>
-                    <td id="count-3">0</td>
-                    <td id="count-4">0</td>
-                    <td id="count-5">0</td>
-                </tr>
-                <!-- Sollzeile -->
-                <tr style="background-color: #e9ecef; font-weight: bold;">
-                    <td colspan="2" style="text-align: right;">Soll (Benötigt):</td>
-                    <td>6</td>
-                    <td>7</td>
-                    <td>8</td>
-                    <td>6</td>
-                    <td>7</td>
-                    <td>6</td>
-                </tr>
-                <!-- Statuszeile -->
-                <tr style="font-weight: bold;">
-                    <td colspan="2" style="text-align: right;">Status:</td>
-                    <td id="status-0">0%</td>
-                    <td id="status-1">0%</td>
-                    <td id="status-2">0%</td>
-                    <td id="status-3">0%</td>
-                    <td id="status-4">0%</td>
-                    <td id="status-5">0%</td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+        <div class="top-bar">
+            <button class="btn-add" onclick="window.addNewPerson()">+ Person hinzufügen</button>
+            <span class="scroll-hint">↔ Nach rechts wischen für alle Schichten</span>
+        </div>
 
-    <button class="btn-add" onclick="addRow()">+ Person hinzufügen</button>
-
-    <!-- Gesamt- & Rollen-Auswertung -->
-    <div class="stats-container">
-        <h3>Gesamtauswertung & Gruppen-Beteiligung</h3>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h4>Schichten Abdeckung Gesamt</h4>
-                <div class="stat-value" id="overall-percent">0%</div>
-                <p id="overall-counts" style="margin: 5px 0 0 0; color: #6c757d; font-size: 13px;">0 / 0 Schichten besetzt</p>
-            </div>
-            <div class="stat-card">
-                <h4>Beteiligung nach Rollen</h4>
-                <div id="role-stats-list">
-                    <!-- Dynamisch erzeugt -->
-                </div>
+        <!-- Mobile Zusammenfassung (Jetzt oben platziert) -->
+        <div class="mobile-summary">
+            <h3>Auswertung nach Schichten</h3>
+            <div class="summary-cards" id="mobileSummaryCards">
+                <!-- Dynamisch generierte Kacheln -->
             </div>
         </div>
+
+        <div class="table-container">
+            <table id="planTable">
+                <thead>
+                    <tr>
+                        <th class="header-title">Name</th>
+                        <th>Rolle</th>
+                        <th>18.09. Fr<br><small>Aufbau (10:00)</small></th>
+                        <th>19.09. Sa 1<br><small>16:00-20:30</small></th>
+                        <th>19.09. Sa 2<br><small>20:30-01:00</small></th>
+                        <th>20.09. So 1<br><small>11:00-16:00</small></th>
+                        <th>20.09. So 2<br><small>16:00-21:00</small></th>
+                        <th>20.09. So<br><small>Abbau (21:00)</small></th>
+                        <th class="col-action"></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Zeilen werden dynamisch aus Firebase geladen -->
+                </tbody>
+
+                <!-- Desktop Footer -->
+                <tfoot>
+                    <tr class="calc-row-separator">
+                        <td class="calc-row-title">Benötigt</td>
+                        <td style="background-color: #f8f9fa;">--</td>
+                        <td id="req-0">6</td>
+                        <td id="req-1">7</td>
+                        <td id="req-2">8</td>
+                        <td id="req-3">6</td>
+                        <td id="req-4">7</td>
+                        <td id="req-5">6</td>
+                        <td class="col-action"></td>
+                    </tr>
+                    <tr>
+                        <td class="calc-row-title">Gesamt eingeteilt</td>
+                        <td style="background-color: #f8f9fa;">--</td>
+                        <td id="total-0">0</td>
+                        <td id="total-1">0</td>
+                        <td id="total-2">0</td>
+                        <td id="total-3">0</td>
+                        <td id="total-4">0</td>
+                        <td id="total-5">0</td>
+                        <td class="col-action"></td>
+                    </tr>
+                    <tr>
+                        <td class="calc-row-title">Status</td>
+                        <td style="background-color: #f8f9fa;">--</td>
+                        <td id="status-0">--</td>
+                        <td id="status-1">--</td>
+                        <td id="status-2">--</td>
+                        <td id="status-3">--</td>
+                        <td id="status-4">--</td>
+                        <td id="status-5">--</td>
+                        <td class="col-action"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
-</div>
 
-<script>
-    const requiredCount = [6, 7, 8, 6, 7, 6];
-    const roleOptions = ["Helfer", "Leitung", "Sicherheit", "Technik", "Freizeit"];
-    const shiftOptions = ["", "verfügbar", "Aufbau", "Abbau", "Springer"];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    function calculateTotals() {
-        const columnsCount = 6;
-        const currentCounts = new Array(columnsCount).fill(0);
-        const rows = document.querySelectorAll('#tableBody tr');
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7UmrLGoePSvE1H0nZMUFjXY6HvWSynq4",
+            authDomain: "vckuppenheim.firebaseapp.com",
+            databaseURL: "https://vckuppenheim-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "vckuppenheim",
+            storageBucket: "vckuppenheim.firebasestorage.app",
+            messagingSenderId: "83870233719",
+            appId: "1:83870233719:web:c0d012932ca73990208272",
+            measurementId: "G-J2PTXVD404"
+        };
 
-        // 1. Spaltensummen für Schichten
-        rows.forEach(row => {
-            const shiftSelects = row.querySelectorAll('.select-shift');
-            shiftSelects.forEach((select, index) => {
-                if (select.value.trim() !== '') {
-                    currentCounts[index]++;
-                }
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const planRef = ref(database, 'vck_einsatzplan_2026');
+
+        const roleOptions = ["Freizeit", "Damen 1", "Damen 2", "Jugend", "Trainer/Vorstand"];
+        const shiftLabels = [
+            "Fr 18.09. Aufbau",
+            "Sa 19.09. Schicht 1",
+            "Sa 19.09. Schicht 2",
+            "So 20.09. Schicht 1",
+            "So 20.09. Schicht 2",
+            "So 20.09. Abbau"
+        ];
+
+        let isUserAdding = false;
+
+        window.addNewPerson = function() {
+            isUserAdding = true;
+            const newPerson = {
+                name: "",
+                role: "Freizeit",
+                shifts: ["", "", "", "", "", ""]
+            };
+            push(planRef, newPerson);
+        };
+
+        window.updateRow = function(key) {
+            const tr = document.querySelector(`tr[data-key="${key}"]`);
+            if (!tr) return;
+
+            const nameInput = tr.querySelector('.input-name');
+            const roleSelect = tr.querySelector('.select-role');
+            const shiftSelects = tr.querySelectorAll('.select-shift');
+
+            const name = nameInput.value;
+            const role = roleSelect.value;
+            const shifts = Array.from(shiftSelects).map(select => select.value);
+
+            set(ref(database, `vck_einsatzplan_2026/${key}`), {
+                name: name,
+                role: role,
+                shifts: shifts
             });
-        });
+        };
 
-        // 2. Tabellenfuß aktualisieren
-        currentCounts.forEach((count, index) => {
-            const countEl = document.getElementById(`count-${index}`);
-            const statusEl = document.getElementById(`status-${index}`);
-            const req = requiredCount[index];
+        window.deleteRow = function(key) {
+            if (confirm("Möchtest du diese Person wirklich entfernen?")) {
+                remove(ref(database, `vck_einsatzplan_2026/${key}`));
+            }
+        };
 
-            if (countEl) countEl.innerText = count;
-
-            if (statusEl && req > 0) {
-                const percent = Math.round((count / req) * 100);
-                statusEl.innerText = `${percent}%`;
-
-                statusEl.className = '';
-                if (percent >= 100) {
-                    statusEl.classList.add('status-ok');
-                } else if (percent >= 50) {
-                    statusEl.classList.add('status-warning');
-                } else {
-                    statusEl.classList.add('status-danger');
-                }
+        onValue(planRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                renderTable(data);
+            } else {
+                document.getElementById('tableBody').innerHTML = "";
+                calculateTotals();
             }
         });
 
-        // 3. Gesamt- und Rollen-Statistiken
-        const totalRequired = requiredCount.reduce((a, b) => a + b, 0);
-        let totalAssigned = 0;
-        const roleCounts = {};
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = "";
 
-        roleOptions.forEach(r => roleCounts[r] = 0);
+            let lastTr = null;
 
-        rows.forEach(row => {
-            const roleSelect = row.querySelector('.select-role');
-            const role = roleSelect ? roleSelect.value : "Freizeit";
-            const shiftSelects = row.querySelectorAll('.select-shift');
+            Object.keys(data).forEach(key => {
+                const person = data[key];
+                const tr = document.createElement('tr');
+                tr.dataset.key = key;
 
-            shiftSelects.forEach(select => {
-                if (select.value.trim() !== '') {
-                    totalAssigned++;
-                    if (roleCounts[role] !== undefined) {
-                        roleCounts[role]++;
+                const roleOptionsHtml = roleOptions.map(r => 
+                    `<option value="${r}" ${person.role === r ? 'selected' : ''}>${r}</option>`
+                ).join('');
+
+                const shiftsHtml = (person.shifts || ["","","","","",""]).map((s, col) => {
+                    let extraOption = "";
+                    if (col === 0) extraOption = `<option value="Aufbau" ${s === 'Aufbau' ? 'selected' : ''}>Aufbau</option>`;
+                    if (col === 5) extraOption = `<option value="Abbau" ${s === 'Abbau' ? 'selected' : ''}>Abbau</option>`;
+
+                    return `
+                        <td data-label="${shiftLabels[col]}">
+                            <select class="select-shift" data-col="${col}" onchange="window.updateRow('${key}'); window.calculateTotals();">
+                                <option value="" ${!s ? 'selected' : ''}>---</option>
+                                <option value="verfügbar" ${s === 'verfügbar' ? 'selected' : ''}>verfügbar</option>
+                                ${extraOption}
+                            </select>
+                        </td>
+                    `;
+                }).join('');
+
+                tr.innerHTML = `
+                    <td><input type="text" class="input-name" value="${person.name || ''}" placeholder="Name..." onchange="window.updateRow('${key}')"></td>
+                    <td data-label="Rolle">
+                        <select class="select-role" onchange="window.updateRow('${key}')">
+                            ${roleOptionsHtml}
+                        </select>
+                    </td>
+                    ${shiftsHtml}
+                    <td class="col-action"><button class="btn-del" onclick="window.deleteRow('${key}')" title="Löschen">✕</button></td>
+                `;
+
+                tbody.appendChild(tr);
+                lastTr = tr;
+            });
+
+            calculateTotals();
+
+            if (isUserAdding && lastTr) {
+                isUserAdding = false;
+                setTimeout(() => {
+                    lastTr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const input = lastTr.querySelector('.input-name');
+                    if (input) input.focus();
+                }, 100);
+            }
+        }
+
+        window.calculateTotals = function() {
+            const numCols = 6;
+            const requiredCount = [6, 7, 8, 6, 7, 6];
+            const mobileContainer = document.getElementById('mobileSummaryCards');
+            if (mobileContainer) mobileContainer.innerHTML = "";
+
+            for (let col = 0; col < numCols; col++) {
+                const rows = document.querySelectorAll('#tableBody tr');
+                let count = 0;
+                let assignedPeople = [];
+
+                rows.forEach(row => {
+                    const nameInput = row.querySelector('.input-name');
+                    const select = row.querySelector(`.select-shift[data-col="${col}"]`);
+                    
+                    if (select && select.value.trim() !== '') {
+                        count++;
+                        const name = nameInput && nameInput.value.trim() ? nameInput.value.trim() : "Unbenannt";
+                        assignedPeople.push(name);
+                    }
+                });
+
+                const needed = requiredCount[col];
+                const isOk = count >= needed;
+
+                // 1. Desktop Footer aktualisieren
+                const totalCell = document.getElementById(`total-${col}`);
+                if (totalCell) totalCell.innerText = count;
+                
+                const statusCell = document.getElementById(`status-${col}`);
+                if (statusCell) {
+                    if (isOk) {
+                        statusCell.innerText = "OK";
+                        statusCell.className = "status-ok";
                     } else {
-                        roleCounts[role] = 1;
+                        statusCell.innerText = "Fehlen";
+                        statusCell.className = "status-fehlen";
                     }
                 }
-            });
-        });
 
-        const overallPercent = totalRequired > 0 ? Math.round((totalAssigned / totalRequired) * 100) : 0;
-        const overallPercentEl = document.getElementById('overall-percent');
-        const overallCountsEl = document.getElementById('overall-counts');
+                // 2. Mobil-Kacheln dynamisch aufbauen (inkl. Personenliste)
+                if (mobileContainer) {
+                    const card = document.createElement('div');
+                    card.className = 'summary-card';
 
-        if (overallPercentEl) overallPercentEl.innerText = `${overallPercent}%`;
-        if (overallCountsEl) overallCountsEl.innerText = `${totalAssigned} / ${totalRequired} Schichten besetzt`;
+                    let peopleListHtml = "";
+                    if (assignedPeople.length > 0) {
+                        const items = assignedPeople.map(p => `<li>${p}</li>`).join('');
+                        peopleListHtml = `
+                            <details>
+                                <summary>Eingeteilt (${assignedPeople.length}):</summary>
+                                <ul class="summary-people-list">
+                                    ${items}
+                                </ul>
+                            </details>
+                        `;
+                    } else {
+                        peopleListHtml = `
+                            <details>
+                                <summary>Keine Personen eingetragen</summary>
+                            </details>
+                        `;
+                    }
 
-        const roleListEl = document.getElementById('role-stats-list');
-        if (roleListEl) {
-            roleListEl.innerHTML = "";
-            Object.keys(roleCounts).forEach(role => {
-                const count = roleCounts[role];
-                const percentOfAssigned = totalAssigned > 0 ? Math.round((count / totalAssigned) * 100) : 0;
-                
-                const item = document.createElement('div');
-                item.style.marginBottom = "8px";
-                item.innerHTML = `
-                    <div class="role-item">
-                        <span><strong>${role}</strong></span>
-                        <span>${count} Schicht(en) (${percentOfAssigned}%)</span>
-                    </div>
-                    <div class="role-bar-bg">
-                        <div class="role-bar-fill" style="width: ${percentOfAssigned}%"></div>
-                    </div>
-                `;
-                roleListEl.appendChild(item);
-            });
-        }
-    }
-
-    function addRow() {
-        const tbody = document.getElementById('tableBody');
-        const tr = document.createElement('tr');
-
-        let roleOptionsHTML = roleOptions.map(r => `<option value="${r}">${r}</option>`).join('');
-        let shiftOptionsHTML = shiftOptions.map(s => `<option value="${s}">${s}</option>`).join('');
-
-        tr.innerHTML = `
-            <td><input type="text" placeholder="Name eintragen"></td>
-            <td><select class="select-role">${roleOptionsHTML}</select></td>
-            <td><select class="select-shift">${shiftOptionsHTML}</select></td>
-            <td><select class="select-shift">${shiftOptionsHTML}</select></td>
-            <td><select class="select-shift">${shiftOptionsHTML}</select></td>
-            <td><select class="select-shift">${shiftOptionsHTML}</select></td>
-            <td><select class="select-shift">${shiftOptionsHTML}</select></td>
-            <td><select class="select-shift">${shiftOptionsHTML}</select></td>
-        `;
-
-        tbody.appendChild(tr);
-        attachEventListeners();
-        calculateTotals();
-    }
-
-    function attachEventListeners() {
-        document.querySelectorAll('.select-shift, .select-role').forEach(element => {
-            element.removeEventListener('change', calculateTotals);
-            element.addEventListener('change', calculateTotals);
-        });
-    }
-
-    // Initialisierung beim Laden
-    document.addEventListener('DOMContentLoaded', () => {
-        attachEventListeners();
-        calculateTotals();
-    });
-</script>
-
+                    card.innerHTML = `
+                        <div class="summary-card-header">
+                            <div class="summary-card-title">${shiftLabels[col]}</div>
+                            <div class="summary-card-stats">
+                                <span class="summary-count">${count} / ${needed} eingeteilt</span>
+                                <span class="summary-badge ${isOk ? 'badge-ok' : 'badge-fehlen'}">
+                                    ${isOk ? 'OK' : `Fehlen ${needed - count}`}
+                                </span>
+                            </div>
+                        </div>
+                        ${peopleListHtml}
+                    `;
+                    mobileContainer.appendChild(card);
+                }
+            }
+        };
+    </script>
 </body>
 </html>
