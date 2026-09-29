@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Einsatzplanung VCK 2026</title>
+    <title>Einsatzplanung VCK 2026 (Read-Only)</title>
 
     <style>
         * {
@@ -59,33 +59,14 @@
             margin-bottom: 18px;
         }
 
-        .btn-add {
-            background-color: #2b5797;
-            color: #ffffff;
-            border: none;
-            padding: 12px 20px;
-            font-size: 14px;
+        .readonly-badge {
+            background-color: #e2e8f0;
+            color: #475569;
             font-weight: 600;
+            padding: 6px 12px;
             border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(43, 87, 151, 0.2);
+            font-size: 13px;
         }
-
-        .btn-add:hover { background-color: #1e3d6b; }
-
-        .btn-del {
-            background: transparent;
-            border: none;
-            color: #aaa;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .btn-del:hover { color: #dc3545; background: #ffebe9; }
 
         .scroll-hint {
             font-size: 11px;
@@ -107,13 +88,13 @@
             border-spacing: 0;
             text-align: center;
             font-size: 13px;
-            min-width: 900px;
+            min-width: 850px;
         }
 
         th, td {
             border-right: 1px solid #e0e0e0;
             border-bottom: 1px solid #e0e0e0;
-            padding: 8px;
+            padding: 10px 8px;
             white-space: nowrap;
             background-color: #ffffff;
         }
@@ -140,6 +121,8 @@
             min-width: 140px;
             max-width: 140px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            text-align: left;
+            font-weight: 600;
         }
 
         thead tr th:first-child {
@@ -155,24 +138,19 @@
             box-shadow: 2px 0 5px rgba(0,0,0,0.05);
         }
 
-        td input, td select {
-            width: 100%;
-            border: 1px solid #dcdcdc;
+        /* READONLY SHIFT BADGES */
+        .shift-assigned {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            font-weight: 600;
+            padding: 4px 8px;
             border-radius: 4px;
-            background: #ffffff;
-            font-size: 13px;
-            color: #333;
-            padding: 5px;
-            text-align: center;
+            display: inline-block;
+            font-size: 12px;
         }
 
-        td input { text-align: left; }
-        td select { text-align-last: center; }
-
-        td input:focus, td select:focus {
-            outline: none;
-            border-color: #2b5797;
-            box-shadow: 0 0 0 2px rgba(43, 87, 151, 0.15);
+        .shift-empty {
+            color: #ccc;
         }
 
         .calc-row-title {
@@ -198,17 +176,12 @@
             font-weight: bold;
         }
 
-        .col-action {
-            width: 35px;
-            border-right: none;
-        }
-
-        /* MOBIL-ZUSAMMENFASSUNG SCHICHTEN (Auf Desktop versteckt) */
+        /* MOBIL-ZUSAMMENFASSUNG SCHICHTEN */
         .mobile-summary {
             display: none;
         }
 
-        /* OPTIMIERTE ROLLEN-ZUSAMMENFASSUNG (DASHBOARD-LOOK) */
+        /* OPTIMIERTE ROLLEN-ZUSAMMENFASSUNG */
         .role-summary-section {
             margin-top: 36px;
             border-top: 1px solid #e2e8f0;
@@ -250,16 +223,9 @@
             border-radius: 10px;
             padding: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
             display: flex;
             flex-direction: column;
             gap: 10px;
-        }
-
-        .role-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            border-color: #cbd5e1;
         }
 
         .role-card-top {
@@ -304,7 +270,6 @@
             font-weight: 600;
         }
 
-        /* Fortschrittsbalken */
         .progress-bar-bg {
             height: 6px;
             width: 100%;
@@ -326,15 +291,8 @@
             .table-container { border: none; }
 
             .top-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .btn-add {
-                width: 100%;
-                text-align: center;
-                padding: 14px;
-                font-size: 15px;
+                flex-direction: row;
+                justify-content: space-between;
             }
 
             table, thead, tbody, tr {
@@ -342,7 +300,6 @@
                 min-width: 100% !important;
             }
 
-            /* Verstecke Standard-Footer auf Mobilgeräten */
             tfoot {
                 display: none !important;
             }
@@ -360,12 +317,11 @@
                 padding: 12px;
                 margin-bottom: 14px;
                 box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-                scroll-margin-top: 20px;
             }
 
             tbody td {
                 border: none;
-                padding: 5px 0;
+                padding: 6px 0;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -376,12 +332,10 @@
             tbody td:first-child {
                 min-width: 100% !important;
                 max-width: 100% !important;
-                margin-bottom: 4px;
-            }
-
-            tbody td input {
+                margin-bottom: 6px;
                 font-size: 15px;
-                font-weight: bold;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 8px;
             }
 
             tbody td[data-label]::before {
@@ -393,23 +347,6 @@
                 flex: 1;
             }
 
-            tbody td select {
-                width: 150px;
-            }
-
-            .col-action {
-                margin-top: 8px;
-                border-top: 1px dashed #eee !important;
-                padding-top: 8px !important;
-                justify-content: flex-end;
-            }
-
-            .btn-del {
-                color: #dc3545;
-                font-size: 13px;
-            }
-
-            /* MOBIL-ZUSAMMENFASSUNG SCHICHTEN */
             .mobile-summary {
                 display: block;
                 margin-top: 25px;
@@ -481,7 +418,6 @@
                 color: #555;
             }
 
-            /* Details / Namen-Liste für Mobil-Kacheln */
             .mobile-names-details {
                 font-size: 12px;
                 border-top: 1px dashed #e2e8f0;
@@ -533,7 +469,7 @@
         <a href="index.html" class="btn btn-back">← Zurück zur Startseite</a>
 
         <div class="top-bar">
-            <button class="btn-add" onclick="window.addNewPerson()">+ Person hinzufügen</button>
+            <span class="readonly-badge">🔒 Nur-Lese-Modus</span>
             <span class="scroll-hint">↔ Nach rechts wischen für alle Schichten</span>
         </div>
 
@@ -549,7 +485,6 @@
                         <th>20.09. So 1<br><small>11:00-16:00</small></th>
                         <th>20.09. So 2<br><small>16:00-21:00</small></th>
                         <th>20.09. So<br><small>Abbau (21:00)</small></th>
-                        <th class="col-action"></th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -567,7 +502,6 @@
                         <td id="req-3">6</td>
                         <td id="req-4">7</td>
                         <td id="req-5">6</td>
-                        <td class="col-action"></td>
                     </tr>
                     <tr>
                         <td class="calc-row-title">Gesamt eingeteilt</td>
@@ -578,7 +512,6 @@
                         <td id="total-3">0</td>
                         <td id="total-4">0</td>
                         <td id="total-5">0</td>
-                        <td class="col-action"></td>
                     </tr>
                     <tr>
                         <td class="calc-row-title">Status</td>
@@ -589,7 +522,6 @@
                         <td id="status-3">--</td>
                         <td id="status-4">--</td>
                         <td id="status-5">--</td>
-                        <td class="col-action"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -617,7 +549,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC7UmrLGoePSvE1H0nZMUFjXY6HvWSynq4",
@@ -644,43 +576,6 @@
             "So 20.09. Abbau"
         ];
 
-        let isUserAdding = false;
-
-        window.addNewPerson = function() {
-            isUserAdding = true;
-            const newPerson = {
-                name: "",
-                role: "Freizeit",
-                shifts: ["", "", "", "", "", ""]
-            };
-            push(planRef, newPerson);
-        };
-
-        window.updateRow = function(key) {
-            const tr = document.querySelector(`tr[data-key="${key}"]`);
-            if (!tr) return;
-
-            const nameInput = tr.querySelector('.input-name');
-            const roleSelect = tr.querySelector('.select-role');
-            const shiftSelects = tr.querySelectorAll('.select-shift');
-
-            const name = nameInput.value;
-            const role = roleSelect.value;
-            const shifts = Array.from(shiftSelects).map(select => select.value);
-
-            set(ref(database, `vck_einsatzplan_2026/${key}`), {
-                name: name,
-                role: role,
-                shifts: shifts
-            });
-        };
-
-        window.deleteRow = function(key) {
-            if (confirm("Möchtest du diese Person wirklich entfernen?")) {
-                remove(ref(database, `vck_einsatzplan_2026/${key}`));
-            }
-        };
-
         onValue(planRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -695,85 +590,57 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = "";
 
-            let lastTr = null;
-
             Object.keys(data).forEach(key => {
                 const person = data[key];
                 const tr = document.createElement('tr');
                 tr.dataset.key = key;
 
-                const roleOptionsHtml = roleOptions.map(r => 
-                    `<option value="${r}" ${person.role === r ? 'selected' : ''}>${r}</option>`
-                ).join('');
-
                 const shiftsHtml = (person.shifts || ["","","","","",""]).map((s, col) => {
-                    let extraOption = "";
-                    if (col === 0) extraOption = `<option value="Aufbau" ${s === 'Aufbau' ? 'selected' : ''}>Aufbau</option>`;
-                    if (col === 5) extraOption = `<option value="Abbau" ${s === 'Abbau' ? 'selected' : ''}>Abbau</option>`;
-
+                    const shiftVal = s ? s.trim() : '';
+                    const hasValue = shiftVal !== '';
                     return `
                         <td data-label="${shiftLabels[col]}">
-                            <select class="select-shift" data-col="${col}" onchange="window.updateRow('${key}'); window.calculateTotals();">
-                                <option value="" ${!s ? 'selected' : ''}>---</option>
-                                <option value="verfügbar" ${s === 'verfügbar' ? 'selected' : ''}>verfügbar</option>
-                                ${extraOption}
-                            </select>
+                            ${hasValue 
+                                ? `<span class="shift-assigned" data-col="${col}">${shiftVal}</span>` 
+                                : `<span class="shift-empty">—</span>`}
                         </td>
                     `;
                 }).join('');
 
                 tr.innerHTML = `
-                    <td><input type="text" class="input-name" value="${person.name || ''}" placeholder="Name..." onchange="window.updateRow('${key}')"></td>
-                    <td data-label="Rolle">
-                        <select class="select-role" onchange="window.updateRow('${key}'); window.calculateTotals();">
-                            ${roleOptionsHtml}
-                        </select>
-                    </td>
+                    <td class="person-name-cell">${person.name || 'Unbenannt'}</td>
+                    <td data-label="Rolle" class="person-role-cell">${person.role || '—'}</td>
                     ${shiftsHtml}
-                    <td class="col-action"><button class="btn-del" onclick="window.deleteRow('${key}')" title="Löschen">✕</button></td>
                 `;
 
                 tbody.appendChild(tr);
-                lastTr = tr;
             });
 
-            calculateTotals();
-
-            if (isUserAdding && lastTr) {
-                isUserAdding = false;
-                setTimeout(() => {
-                    lastTr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    const input = lastTr.querySelector('.input-name');
-                    if (input) input.focus();
-                }, 100);
-            }
+            calculateTotals(data);
         }
 
-        window.calculateTotals = function() {
+        function calculateTotals(data) {
             const numCols = 6;
             const requiredCount = [6, 7, 8, 6, 7, 6];
             const mobileContainer = document.getElementById('mobileSummaryCards');
             if (mobileContainer) mobileContainer.innerHTML = "";
 
-            // 1. Schichten auswerten & Namenslisten pro Schicht zusammenstellen
+            // 1. Schichten auswerten
             for (let col = 0; col < numCols; col++) {
                 const assignedPersons = [];
-                const trs = document.querySelectorAll('#tableBody tr');
 
-                trs.forEach(tr => {
-                    const select = tr.querySelector(`.select-shift[data-col="${col}"]`);
-                    const nameInput = tr.querySelector('.input-name');
-                    const roleSelect = tr.querySelector('.select-role');
-
-                    if (select && select.value.trim() !== '') {
-                        const personName = nameInput ? nameInput.value.trim() : 'Unbekannt';
-                        const personRole = roleSelect ? roleSelect.value : '';
-                        assignedPersons.push({
-                            name: personName || 'Unbenannt',
-                            role: personRole
-                        });
-                    }
-                });
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const person = data[key];
+                        const shiftVal = person.shifts && person.shifts[col] ? person.shifts[col].trim() : '';
+                        if (shiftVal !== '') {
+                            assignedPersons.push({
+                                name: person.name ? person.name.trim() : 'Unbenannt',
+                                role: person.role || '—'
+                            });
+                        }
+                    });
+                }
 
                 const count = assignedPersons.length;
                 const needed = requiredCount[col];
@@ -839,23 +706,23 @@
                 rolePersons[role] = 0;
             });
 
-            // Alle Tabellenzeilen durchgehen
-            const trs = document.querySelectorAll('#tableBody tr');
-            trs.forEach(tr => {
-                const roleSelect = tr.querySelector('.select-role');
-                if (!roleSelect) return;
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    const person = data[key];
+                    const role = person.role || "Freizeit";
+                    
+                    rolePersons[role] = (rolePersons[role] || 0) + 1;
 
-                const role = roleSelect.value;
-                rolePersons[role] = (rolePersons[role] || 0) + 1;
-
-                const shiftSelects = tr.querySelectorAll('.select-shift');
-                shiftSelects.forEach(select => {
-                    if (select.value.trim() !== '') {
-                        roleShifts[role] = (roleShifts[role] || 0) + 1;
-                        totalAssignedShifts++;
+                    if (person.shifts) {
+                        person.shifts.forEach(s => {
+                            if (s && s.trim() !== '') {
+                                roleShifts[role] = (roleShifts[role] || 0) + 1;
+                                totalAssignedShifts++;
+                            }
+                        });
                     }
                 });
-            });
+            }
 
             // Gesamt-Badge oben aktualisieren
             const totalShiftsBadge = document.getElementById('totalShiftsBadge');
@@ -893,7 +760,7 @@
                     roleContainer.appendChild(card);
                 });
             }
-        };
+        }
     </script>
 </body>
 </html>
