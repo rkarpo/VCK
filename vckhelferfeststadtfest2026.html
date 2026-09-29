@@ -243,24 +243,20 @@
                 </select>
             </div>
 
-            <!-- Frage 1: Terminwahl -->
+            <!-- Frage 1: Terminwahl (Mehrfachauswahl) -->
             <div class="form-group">
-                <span class="field-label">1. Terminwahl für das Grillfest</span>
+                <span class="field-label">1. Terminwahl für das Grillfest (Mehrfachauswahl möglich)</span>
                 <div class="options" id="q1-options">
-                    <div class="option-btn" onclick="selectOption(1, 'fr_30_okt')">
-                        <input type="radio" name="vote_q1" id="q1-opt1" value="fr_30_okt">
-                        <span>Nur Freitag, 30. Oktober</span>
+                    <div class="option-btn" onclick="toggleOption('fr_30_okt')">
+                        <input type="checkbox" name="vote_q1" id="q1-opt1" value="fr_30_okt" onclick="event.stopPropagation(); handleCheckboxChange('fr_30_okt')">
+                        <span>Freitag, 30. Oktober</span>
                     </div>
-                    <div class="option-btn" onclick="selectOption(1, 'sa_07_nov')">
-                        <input type="radio" name="vote_q1" id="q1-opt2" value="sa_07_nov">
-                        <span>Nur Samstag, 07. November</span>
+                    <div class="option-btn" onclick="toggleOption('sa_07_nov')">
+                        <input type="checkbox" name="vote_q1" id="q1-opt2" value="sa_07_nov" onclick="event.stopPropagation(); handleCheckboxChange('sa_07_nov')">
+                        <span>Samstag, 07. November</span>
                     </div>
-                    <div class="option-btn" onclick="selectOption(1, 'beide')">
-                        <input type="radio" name="vote_q1" id="q1-opt3" value="beide">
-                        <span>Egal / Kann an beiden Terminen! 🎉</span>
-                    </div>
-                    <div class="option-btn" onclick="selectOption(1, 'keiner')">
-                        <input type="radio" name="vote_q1" id="q1-opt4" value="keiner">
+                    <div class="option-btn" onclick="toggleOption('keiner')">
+                        <input type="checkbox" name="vote_q1" id="q1-opt3" value="keiner" onclick="event.stopPropagation(); handleCheckboxChange('keiner')">
                         <span>Kann leider an beiden Terminen nicht ❌</span>
                     </div>
                 </div>
@@ -307,25 +303,42 @@
         } catch(e) {}
 
         const database = firebase.database();
-        // Separater Datenbank-Pfad für das Helferfest
         const votesRef = database.ref('vck_helferfest_2026');
-
-        let selectedQ1 = null;
 
         const labelsQ1 = {
             'fr_30_okt': 'Freitag, 30. Oktober',
             'sa_07_nov': 'Samstag, 07. November',
-            'beide': 'An beiden Terminen zeit',
             'keiner': 'Kann leider nicht'
         };
 
-        function selectOption(qNum, val) {
-            if (qNum === 1) {
-                selectedQ1 = val;
-                document.querySelectorAll('#q1-options .option-btn').forEach(btn => btn.classList.remove('selected'));
-                const el = document.querySelector(`input[name="vote_q1"][value="${val}"]`);
-                if(el) { el.checked = true; el.closest('.option-btn').classList.add('selected'); }
+        function toggleOption(val) {
+            const cb = document.querySelector(`input[name="vote_q1"][value="${val}"]`);
+            if (cb) {
+                cb.checked = !cb.checked;
+                handleCheckboxChange(val);
             }
+        }
+
+        function handleCheckboxChange(val) {
+            const cbKeiner = document.querySelector('input[name="vote_q1"][value="keiner"]');
+            const cbFr = document.querySelector('input[name="vote_q1"][value="fr_30_okt"]');
+            const cbSa = document.querySelector('input[name="vote_q1"][value="sa_07_nov"]');
+
+            if (val === 'keiner' && cbKeiner.checked) {
+                cbFr.checked = false;
+                cbSa.checked = false;
+            } else if ((val === 'fr_30_okt' || val === 'sa_07_nov') && (cbFr.checked || cbSa.checked)) {
+                cbKeiner.checked = false;
+            }
+
+            document.querySelectorAll('#q1-options .option-btn').forEach(btn => {
+                const input = btn.querySelector('input');
+                if (input && input.checked) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
         }
 
         function submitVote() {
@@ -333,16 +346,17 @@
             const nameInput = nameSelect.value;
             const submitBtn = document.querySelector('.btn-submit');
 
+            const selectedQ1 = Array.from(document.querySelectorAll('input[name="vote_q1"]:checked')).map(cb => cb.value);
+
             if (!nameInput) {
                 alert('Bitte wähle deinen Namen aus der Liste aus!');
                 return;
             }
-            if (!selectedQ1) {
-                alert('Bitte wähle eine Option bezüglich deiner Verfügbarkeit!');
+            if (selectedQ1.length === 0) {
+                alert('Bitte wähle mindestens eine Option bezüglich deiner Verfügbarkeit aus!');
                 return;
             }
 
-            // Button sperren gegen Doppelklicks
             submitBtn.disabled = true;
             submitBtn.innerText = "Wird gespeichert...";
 
@@ -353,11 +367,9 @@
             }).then(() => {
                 alert('Vielen Dank! Deine Rückmeldung wurde erfolgreich gespeichert.');
                 
-                // Formular zurücksetzen
                 nameSelect.selectedIndex = 0;
-                selectedQ1 = null;
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
                 document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
-                document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
             }).catch(error => {
                 alert("Fehler beim Speichern in Firebase: " + error.message);
             }).finally(() => {
@@ -379,7 +391,6 @@
             }
         }
 
-        // Live-Daten von Firebase empfangen
         votesRef.on('value', (snapshot) => {
             const data = snapshot.val();
             renderResults(data);
@@ -392,11 +403,16 @@
             const votes = data ? Object.keys(data).map(key => ({ key, ...data[key] })) : [];
             const total = votes.length;
 
-            // Grafik Frage 1
             const q1Container = document.getElementById('resultsQ1');
             if (q1Container) {
                 q1Container.innerHTML = Object.keys(labelsQ1).map(key => {
-                    const count = votes.filter(v => v.vote_q1 === key).length;
+                    const count = votes.filter(v => {
+                        if (Array.isArray(v.vote_q1)) {
+                            return v.vote_q1.includes(key);
+                        }
+                        return v.vote_q1 === key;
+                    }).length;
+
                     const percent = total > 0 ? Math.round((count / total) * 100) : 0;
                     return `
                         <div class="bar-container">
@@ -410,21 +426,29 @@
                 }).join('');
             }
 
-            // Liste der Wähler
             const listContainer = document.getElementById('voterList');
             if (listContainer) {
                 if (votes.length === 0) {
                     listContainer.innerHTML = '<div style="text-align:center; color: var(--text-muted);">Noch keine Rückmeldungen vorhanden.</div>';
                 } else {
-                    listContainer.innerHTML = votes.slice().reverse().map(v => `
-                        <div class="voter-item">
-                            <div class="voter-details">
-                                <span class="voter-name">${v.name}</span>
-                                <span class="voter-sub">Termin: ${labelsQ1[v.vote_q1] || v.vote_q1}</span>
+                    listContainer.innerHTML = votes.slice().reverse().map(v => {
+                        let selectedText = '';
+                        if (Array.isArray(v.vote_q1)) {
+                            selectedText = v.vote_q1.map(val => labelsQ1[val] || val).join(' & ');
+                        } else {
+                            selectedText = labelsQ1[v.vote_q1] || v.vote_q1;
+                        }
+
+                        return `
+                            <div class="voter-item">
+                                <div class="voter-details">
+                                    <span class="voter-name">${v.name}</span>
+                                    <span class="voter-sub">Termin: ${selectedText}</span>
+                                </div>
+                                <button class="btn-delete" title="Eintrag löschen" onclick="deleteVote('${v.key}', '${v.name.replace(/'/g, "\\'")}')">&times;</button>
                             </div>
-                            <button class="btn-delete" title="Eintrag löschen" onclick="deleteVote('${v.key}', '${v.name.replace(/'/g, "\\'")}')">&times;</button>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
             }
         }
