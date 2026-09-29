@@ -27,6 +27,13 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
 
+        .main-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 16px 0;
+        }
+
         .btn {
             background-color: #2b5797;
             color: white;
@@ -164,6 +171,7 @@
             color: #333;
             padding: 5px;
             text-align: center;
+            transition: background-color 0.2s, border-color 0.2s;
         }
 
         td input { text-align: left; }
@@ -173,6 +181,14 @@
             outline: none;
             border-color: #2b5797;
             box-shadow: 0 0 0 2px rgba(43, 87, 151, 0.15);
+        }
+
+        /* HELLGRÜNE HERVORHEBUNG FÜR EINGEPLANT */
+        td select.select-eingeplant {
+            background-color: #d1e7dd !important;
+            color: #0f5132 !important;
+            border-color: #a3cfbb !important;
+            font-weight: 600;
         }
 
         .calc-row-title {
@@ -532,6 +548,8 @@
     <div class="container">
         <a href="index.html" class="btn btn-back">← Zurück zur Startseite</a>
 
+        <h1 class="main-title">Einsatzplanung Weihnachtsmarkt 2026</h1>
+
         <div class="top-bar">
             <button class="btn-add" onclick="window.addNewPerson()">+ Person hinzufügen</button>
             <span class="scroll-hint">↔ Nach rechts wischen für alle Schichten</span>
@@ -707,16 +725,13 @@
                 ).join('');
 
                 const shiftsHtml = (person.shifts || ["","","","","",""]).map((s, col) => {
-                    let extraOption = "";
-                    if (col === 0) extraOption = `<option value="Aufbau" ${s === 'Aufbau' ? 'selected' : ''}>Aufbau</option>`;
-                    if (col === 5) extraOption = `<option value="Abbau" ${s === 'Abbau' ? 'selected' : ''}>Abbau</option>`;
-
+                    const isEingeplant = s === 'eingeplant';
                     return `
                         <td data-label="${shiftLabels[col]}">
-                            <select class="select-shift" data-col="${col}" onchange="window.updateRow('${key}'); window.calculateTotals();">
+                            <select class="select-shift ${isEingeplant ? 'select-eingeplant' : ''}" data-col="${col}" onchange="window.updateRow('${key}'); window.calculateTotals();">
                                 <option value="" ${!s ? 'selected' : ''}>---</option>
                                 <option value="verfügbar" ${s === 'verfügbar' ? 'selected' : ''}>verfügbar</option>
-                                ${extraOption}
+                                <option value="eingeplant" ${s === 'eingeplant' ? 'selected' : ''}>eingeplant</option>
                             </select>
                         </td>
                     `;
@@ -765,13 +780,24 @@
                     const nameInput = tr.querySelector('.input-name');
                     const roleSelect = tr.querySelector('.select-role');
 
-                    if (select && select.value.trim() !== '') {
-                        const personName = nameInput ? nameInput.value.trim() : 'Unbekannt';
-                        const personRole = roleSelect ? roleSelect.value : '';
-                        assignedPersons.push({
-                            name: personName || 'Unbenannt',
-                            role: personRole
-                        });
+                    if (select) {
+                        const val = select.value.trim();
+                        // Färbung dynamisch aktualisieren
+                        if (val === 'eingeplant') {
+                            select.classList.add('select-eingeplant');
+                        } else {
+                            select.classList.remove('select-eingeplant');
+                        }
+
+                        if (val !== '') {
+                            const personName = nameInput ? nameInput.value.trim() : 'Unbekannt';
+                            const personRole = roleSelect ? roleSelect.value : '';
+                            assignedPersons.push({
+                                name: personName || 'Unbenannt',
+                                role: personRole,
+                                status: val
+                            });
+                        }
                     }
                 });
 
@@ -802,7 +828,7 @@
                     let namesListHtml = "";
                     if (assignedPersons.length > 0) {
                         namesListHtml = assignedPersons.map(p => 
-                            `<li><span>${p.name}</span> <span class="person-role">${p.role}</span></li>`
+                            `<li><span>${p.name} <small>(${p.status})</small></span> <span class="person-role">${p.role}</span></li>`
                         ).join('');
                     } else {
                         namesListHtml = `<li style="color: #999; font-style: italic;">Noch niemand eingeteilt</li>`;
