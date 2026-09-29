@@ -173,6 +173,32 @@
         .card-lock {
             border-left: 4px solid var(--primary-red);
         }
+
+        /* Styles für archivierte Karten */
+        .card.archived {
+            opacity: 0.55;
+            filter: grayscale(100%);
+            background-color: #f0f0f0;
+            border-color: #d1d1d1;
+        }
+
+        .card.archived:hover {
+            transform: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border-color: #d1d1d1;
+        }
+
+        .card.archived .btn {
+            background: #888888;
+            border-color: #aaaaaa;
+            box-shadow: none;
+        }
+
+        .card.archived .btn:hover {
+            background: #777777;
+            border-color: #999999;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -187,6 +213,7 @@
         <h1>Planung Volleyball Club Kuppenheim</h1>
         <p class="subtitle">Herzlich Willkommen!<br>Bitte wähle den gewünschten Bereich aus:</p>
 
+        <div class="sections-wrapper">
             <!-- Weihnachtsmarkt 2026 -->
             <div class="card">
                 <div class="card-icon">🎄</div>
@@ -208,9 +235,9 @@
                 <p>Passwortgeschützter Bereich.</p>
                 <button class="btn" onclick="openDetailplanung()">Zur Detailplanung</button>
             </div>
-                <div class="sections-wrapper">
+
             <!-- [Archived] Stadtfest 2026 -->
-            <div class="card">
+            <div class="card archived">
                 <div class="card-icon">📅</div>
                 <h2>[Archived] Stadtfest 2026</h2>
                 <a href="vckeinsatzplanung.html" class="btn">Zur Einsatzplanung</a>
