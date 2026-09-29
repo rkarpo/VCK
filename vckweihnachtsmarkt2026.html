@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Einsatzplanung VCK 2026</title>
+    <title>Einsatzplanung Weihnachtsmarkt 2026</title>
 
     <style>
         * {
@@ -650,7 +650,9 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const planRef = ref(database, 'vck_einsatzplan_2026');
+        
+        // EIGNER PFAD FÜR WEIHNACHTSMARKT SEPARAT VOM STADTFEEST
+        const planRef = ref(database, 'vck_weihnachtsmarkt_2026');
 
         const roleOptions = ["Freizeit", "Damen 1", "Damen 2", "Jugend", "Trainer/Vorstand"];
         const shiftLabels = [
@@ -686,7 +688,7 @@
             const role = roleSelect.value;
             const shifts = Array.from(shiftSelects).map(select => select.value);
 
-            set(ref(database, `vck_einsatzplan_2026/${key}`), {
+            set(ref(database, `vck_weihnachtsmarkt_2026/${key}`), {
                 name: name,
                 role: role,
                 shifts: shifts
@@ -695,7 +697,7 @@
 
         window.deleteRow = function(key) {
             if (confirm("Möchtest du diese Person wirklich entfernen?")) {
-                remove(ref(database, `vck_einsatzplan_2026/${key}`));
+                remove(ref(database, `vck_weihnachtsmarkt_2026/${key}`));
             }
         };
 
