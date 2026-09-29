@@ -251,13 +251,17 @@
                         <input type="checkbox" name="vote_q1" id="q1-opt1" value="fr_30_okt" onclick="event.stopPropagation(); handleCheckboxChange('fr_30_okt')">
                         <span>Freitag, 30. Oktober</span>
                     </div>
+                    <div class="option-btn" onclick="toggleOption('fr_06_nov')">
+                        <input type="checkbox" name="vote_q1" id="q1-opt2" value="fr_06_nov" onclick="event.stopPropagation(); handleCheckboxChange('fr_06_nov')">
+                        <span>Freitag, 06. November</span>
+                    </div>
                     <div class="option-btn" onclick="toggleOption('sa_07_nov')">
-                        <input type="checkbox" name="vote_q1" id="q1-opt2" value="sa_07_nov" onclick="event.stopPropagation(); handleCheckboxChange('sa_07_nov')">
+                        <input type="checkbox" name="vote_q1" id="q1-opt3" value="sa_07_nov" onclick="event.stopPropagation(); handleCheckboxChange('sa_07_nov')">
                         <span>Samstag, 07. November</span>
                     </div>
                     <div class="option-btn" onclick="toggleOption('keiner')">
-                        <input type="checkbox" name="vote_q1" id="q1-opt3" value="keiner" onclick="event.stopPropagation(); handleCheckboxChange('keiner')">
-                        <span>Kann leider an beiden Terminen nicht ❌</span>
+                        <input type="checkbox" name="vote_q1" id="q1-opt4" value="keiner" onclick="event.stopPropagation(); handleCheckboxChange('keiner')">
+                        <span>Kann leider an allen Terminen nicht ❌</span>
                     </div>
                 </div>
             </div>
@@ -308,6 +312,7 @@
 
         const labelsQ1 = {
             'fr_30_okt': 'Freitag, 30. Oktober',
+            'fr_06_nov': 'Freitag, 06. November',
             'sa_07_nov': 'Samstag, 07. November',
             'keiner': 'Kann leider nicht'
         };
@@ -322,13 +327,15 @@
 
         function handleCheckboxChange(val) {
             const cbKeiner = document.querySelector('input[name="vote_q1"][value="keiner"]');
-            const cbFr = document.querySelector('input[name="vote_q1"][value="fr_30_okt"]');
-            const cbSa = document.querySelector('input[name="vote_q1"][value="sa_07_nov"]');
+            const cbFr30 = document.querySelector('input[name="vote_q1"][value="fr_30_okt"]');
+            const cbFr06 = document.querySelector('input[name="vote_q1"][value="fr_06_nov"]');
+            const cbSa07 = document.querySelector('input[name="vote_q1"][value="sa_07_nov"]');
 
             if (val === 'keiner' && cbKeiner.checked) {
-                cbFr.checked = false;
-                cbSa.checked = false;
-            } else if ((val === 'fr_30_okt' || val === 'sa_07_nov') && (cbFr.checked || cbSa.checked)) {
+                cbFr30.checked = false;
+                cbFr06.checked = false;
+                cbSa07.checked = false;
+            } else if ((val === 'fr_30_okt' || val === 'fr_06_nov' || val === 'sa_07_nov') && (cbFr30.checked || cbFr06.checked || cbSa07.checked)) {
                 cbKeiner.checked = false;
             }
 
