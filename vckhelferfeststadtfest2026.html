@@ -210,7 +210,7 @@
 
         <!-- Formular -->
         <div id="pollFormSection">
-            <!-- Namen-Dropdown mit allen Helfern -->
+            <!-- Namen-Dropdown -->
             <div class="form-group">
                 <span class="field-label">Dein Name</span>
                 <select id="memberName">
@@ -243,7 +243,7 @@
                 </select>
             </div>
 
-            <!-- Frage 1: Terminwahl (Mehrfachauswahl) -->
+            <!-- Frage 1: Terminwahl -->
             <div class="form-group">
                 <span class="field-label">1. Terminwahl für das Grillfest (Mehrfachauswahl möglich)</span>
                 <div class="options" id="q1-options">
@@ -293,7 +293,6 @@
             measurementId: "G-7BZXED3HK8"
         };
 
-        // Firebase Initialisieren
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -304,6 +303,8 @@
 
         const database = firebase.database();
         const votesRef = database.ref('vck_helferfest_2026');
+
+        let currentVotes = [];
 
         const labelsQ1 = {
             'fr_30_okt': 'Freitag, 30. Oktober',
@@ -341,6 +342,27 @@
             });
         }
 
+        // Blendet bereits abgegebene Namen komplett aus der Liste aus
+        function updateNameDropdown() {
+            const select = document.getElementById('memberName');
+            const votedNames = currentVotes.map(v => v.name);
+
+            Array.from(select.options).forEach(option => {
+                if (!option.value) return; // Platzhalter überspringen
+
+                if (votedNames.includes(option.value)) {
+                    option.style.display = 'none'; // Name unsichtbar machen
+                } else {
+                    option.style.display = 'block'; // Name wieder sichtbar machen
+                }
+            });
+
+            // Falls der aktuell gewählte Name ausgeblendet wird, Auswahl zurücksetzen
+            if (select.selectedOptions[0] && select.selectedOptions[0].style.display === 'none') {
+                select.selectedIndex = 0;
+            }
+        }
+
         function submitVote() {
             const nameSelect = document.getElementById('memberName');
             const nameInput = nameSelect.value;
@@ -352,6 +374,12 @@
                 alert('Bitte wähle deinen Namen aus der Liste aus!');
                 return;
             }
+
+            if (currentVotes.some(v => v.name === nameInput)) {
+                alert('Für diesen Namen wurde bereits eine Rückmeldung abgegeben!');
+                return;
+            }
+
             if (selectedQ1.length === 0) {
                 alert('Bitte wähle mindestens eine Option bezüglich deiner Verfügbarkeit aus!');
                 return;
@@ -393,14 +421,16 @@
 
         votesRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            renderResults(data);
+            currentVotes = data ? Object.keys(data).map(key => ({ key, ...data[key] })) : [];
+            
+            renderResults(currentVotes);
+            updateNameDropdown();
         }, (error) => {
             console.error(error);
             document.getElementById('voterList').innerHTML = '<div style="text-align:center; color: var(--red);">Fehler beim Laden der Daten aus Firebase.</div>';
         });
 
-        function renderResults(data) {
-            const votes = data ? Object.keys(data).map(key => ({ key, ...data[key] })) : [];
+        function renderResults(votes) {
             const total = votes.length;
 
             const q1Container = document.getElementById('resultsQ1');
