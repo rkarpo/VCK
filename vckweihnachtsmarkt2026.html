@@ -561,12 +561,12 @@
                     <tr>
                         <th class="header-title">Name</th>
                         <th>Rolle</th>
-                        <th>18.09. Fr<br><small>Aufbau (10:00)</small></th>
-                        <th>19.09. Sa 1<br><small>16:00-20:30</small></th>
-                        <th>19.09. Sa 2<br><small>20:30-01:00</small></th>
-                        <th>20.09. So 1<br><small>11:00-16:00</small></th>
-                        <th>20.09. So 2<br><small>16:00-21:00</small></th>
-                        <th>20.09. So<br><small>Abbau (21:00)</small></th>
+                        <th>11.12. Fr<br><small>Aufbau</small></th>
+                        <th>12.12. Sa<br><small>Schicht 1</small></th>
+                        <th>12.12. Sa<br><small>Schicht 2</small></th>
+                        <th>13.12. So<br><small>Schicht 1</small></th>
+                        <th>13.12. So<br><small>Schicht 2</small></th>
+                        <th>13.12. So<br><small>Abbau</small></th>
                         <th class="col-action"></th>
                     </tr>
                 </thead>
@@ -579,12 +579,12 @@
                     <tr class="calc-row-separator">
                         <td class="calc-row-title">Benötigt</td>
                         <td style="background-color: #f8f9fa;">--</td>
-                        <td id="req-0">6</td>
-                        <td id="req-1">7</td>
-                        <td id="req-2">8</td>
-                        <td id="req-3">6</td>
-                        <td id="req-4">7</td>
-                        <td id="req-5">6</td>
+                        <td id="req-0">5</td>
+                        <td id="req-1">5</td>
+                        <td id="req-2">5</td>
+                        <td id="req-3">5</td>
+                        <td id="req-4">5</td>
+                        <td id="req-5">5</td>
                         <td class="col-action"></td>
                     </tr>
                     <tr>
@@ -651,17 +651,17 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         
-        // EIGNER PFAD FÜR WEIHNACHTSMARKT SEPARAT VOM STADTFEEST
+        // Eigenes Node im Firebase für den Weihnachtsmarkt
         const planRef = ref(database, 'vck_weihnachtsmarkt_2026');
 
         const roleOptions = ["Freizeit", "Damen 1", "Damen 2", "Jugend", "Trainer/Vorstand"];
         const shiftLabels = [
-            "Fr 18.09. Aufbau",
-            "Sa 19.09. Schicht 1",
-            "Sa 19.09. Schicht 2",
-            "So 20.09. Schicht 1",
-            "So 20.09. Schicht 2",
-            "So 20.09. Abbau"
+            "Fr 11.12. Aufbau",
+            "Sa 12.12. Schicht 1",
+            "Sa 12.12. Schicht 2",
+            "So 13.12. Schicht 1",
+            "So 13.12. Schicht 2",
+            "So 13.12. Abbau"
         ];
 
         let isUserAdding = false;
@@ -768,7 +768,8 @@
 
         window.calculateTotals = function() {
             const numCols = 6;
-            const requiredCount = [6, 7, 8, 6, 7, 6];
+            // Bedarf einheitlich 5 Personen für alle Schichten
+            const requiredCount = [5, 5, 5, 5, 5, 5];
             const mobileContainer = document.getElementById('mobileSummaryCards');
             if (mobileContainer) mobileContainer.innerHTML = "";
 
@@ -857,7 +858,7 @@
                 }
             }
 
-            // 2. Schichteinsätze nach Rollen & Prozente auswerten
+            // 2. Schichteinsätze nach Rollen & Prozente auswerten (NUR EINGEPLANT)
             const roleShifts = {};
             const rolePersons = {};
             let totalAssignedShifts = 0;
@@ -878,7 +879,8 @@
 
                 const shiftSelects = tr.querySelectorAll('.select-shift');
                 shiftSelects.forEach(select => {
-                    if (select.value.trim() !== '') {
+                    // JETZT: Nur exakt "eingeplant" wird für die Gruppierung gezählt
+                    if (select.value.trim() === 'eingeplant') {
                         roleShifts[role] = (roleShifts[role] || 0) + 1;
                         totalAssignedShifts++;
                     }
@@ -888,7 +890,7 @@
             // Gesamt-Badge oben aktualisieren
             const totalShiftsBadge = document.getElementById('totalShiftsBadge');
             if (totalShiftsBadge) {
-                totalShiftsBadge.innerText = `${totalAssignedShifts} Schichten vergeben`;
+                totalShiftsBadge.innerText = `${totalAssignedShifts} Schichten eingeplant`;
             }
 
             const roleContainer = document.getElementById('roleSummaryCards');
