@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Planung Volleyball Club Kuppenheim</title>
     <style>
         :root {
@@ -23,20 +23,23 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+        }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-dark);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 24px 16px;
-            margin: 0;
+            padding: 20px 12px;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* Dynamisch verstreute Mikasa-Volleybälle im Hintergrund */
+        /* Hintergrund-Bälle */
         body::before {
             content: "";
             position: fixed;
@@ -47,13 +50,10 @@
             z-index: -1;
             background-image: 
                 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.12"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 35,45 65,45 80,20" stroke-dasharray="2,1"/><path d="M 20,80 C 35,55 65,55 80,80" stroke-dasharray="2,1"/></g></svg>'),
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23111111" stroke-width="1.2" opacity="0.08"><circle cx="50" cy="50" r="42"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>'),
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d00000" stroke-width="1.2" opacity="0.1"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 50,8 C 75,25 75,75 50,92"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>'),
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23d4af37" stroke-width="1.2" opacity="0.15"><circle cx="50" cy="50" r="42"/><path d="M 50,8 C 25,25 25,75 50,92"/><path d="M 8,50 C 25,75 75,75 92,50"/></g></svg>');
-
-            background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-            background-size: 180px 180px, 240px 240px, 280px 280px, 140px 140px;
-            background-position: 5% 8%, 92% 40%, 8% 88%, 85% 90%;
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23111111" stroke-width="1.2" opacity="0.08"><circle cx="50" cy="50" r="42"/><path d="M 8,50 C 25,25 75,25 92,50"/><path d="M 8,50 C 25,75 75,75 92,50"/><path d="M 20,20 C 45,35 45,65 20,80" stroke-dasharray="2,1"/><path d="M 80,20 C 55,35 55,65 80,80" stroke-dasharray="2,1"/></g></svg>');
+            background-repeat: no-repeat;
+            background-size: 180px 180px, 240px 240px;
+            background-position: 5% 8%, 92% 40%;
         }
 
         .container {
@@ -62,128 +62,98 @@
             background: var(--card-bg);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            padding: 35px 24px;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(208, 0, 0, 0.05);
+            padding: 28px 18px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
             text-align: center;
             border: 2px solid var(--gold-accent);
         }
 
         .logo-container {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: center;
         }
 
         .logo-container img {
-            max-width: 120px;
+            max-width: 100px;
             height: auto;
             mix-blend-mode: multiply;
         }
 
         h1 {
-            font-size: 1.45rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: var(--text-dark);
             margin-bottom: 8px;
             line-height: 1.25;
-            letter-spacing: -0.02em;
         }
 
         .subtitle {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             line-height: 1.4;
         }
 
         .sections-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
         }
 
         .card {
             background: #ffffff;
             border-radius: 16px;
-            padding: 22px 18px;
+            padding: 18px 14px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             border: 1px solid #e5e5e5;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(208, 0, 0, 0.08);
-            border-color: var(--gold-accent);
-        }
-
         .card-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
         }
 
         .card h2 {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: 700;
             margin-bottom: 6px;
             color: var(--text-dark);
         }
 
         .card p {
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-bottom: 18px;
-            line-height: 1.35;
+            margin-bottom: 14px;
         }
 
-        /* Rot-Weiß-Goldene Buttons */
         .btn {
             width: 100%;
-            padding: 12px 20px;
+            padding: 12px 16px;
             font-size: 0.95rem;
             font-weight: 700;
             border-radius: 12px;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            transition: all 0.2s ease;
             background: linear-gradient(180deg, var(--primary-red) 0%, #b00000 100%);
             color: #ffffff;
-            border: 3.5px solid var(--gold-accent);
-            box-shadow: 0 4px 12px rgba(208, 0, 0, 0.25);
-        }
-
-        .btn:hover {
-            background: linear-gradient(180deg, #e60000 0%, var(--primary-red-hover) 100%);
-            border-color: var(--gold-hover);
-            box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
-            color: #ffffff;
-        }
-
-        .btn:active {
-            transform: scale(0.97);
+            border: 3px solid var(--gold-accent);
+            box-shadow: 0 4px 12px rgba(208, 0, 0, 0.2);
         }
 
         .card-lock {
             border-left: 4px solid var(--primary-red);
         }
 
-        /* Styles für archivierte Karten */
         .card.archived {
             opacity: 0.55;
             filter: grayscale(100%);
             background-color: #f0f0f0;
-            border-color: #d1d1d1;
-        }
-
-        .card.archived:hover {
-            transform: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            border-color: #d1d1d1;
         }
 
         .card.archived .btn {
@@ -192,48 +162,50 @@
             box-shadow: none;
         }
 
-        .card.archived .btn:hover {
-            background: #777777;
-            border-color: #999999;
-            box-shadow: none;
+        /* Spezifische Handyanpassung */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px 8px;
+            }
+            .container {
+                padding: 20px 14px;
+                border-radius: 16px;
+            }
+            h1 {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Logo -->
         <div class="logo-container">
             <img src="logo.jpg" alt="VC Kuppenheim Logo">
         </div>
 
-        <!-- Titel -->
         <h1>Planung Volleyball Club Kuppenheim</h1>
         <p class="subtitle">Herzlich Willkommen!<br>Bitte wähle den gewünschten Bereich aus:</p>
 
         <div class="sections-wrapper">
-            <!-- Helferfest - Stadtfest 2026 -->
             <div class="card">
                 <div class="card-icon">🎉</div>
                 <h2>Helferfest - Stadtfest 2026</h2>
                 <a href="vckhelferfeststadtfest2026.html" class="btn">Zur Umfrage</a>
             </div>
 
-            <!-- Weihnachtsmarkt 2026 -->
             <div class="card">
                 <div class="card-icon">🎄</div>
                 <h2>Weihnachtsmarkt 2026</h2>
                 <a href="vckweihnachtsmarkt2026.html" class="btn">Zur Einsatzplanung</a>
             </div>
 
-            <!-- Neujahrsturnier 2027 -->
             <div class="card">
                 <div class="card-icon">🏆</div>
                 <h2>Neujahrsturnier 2027</h2>
                 <a href="vckneujahrsturnier2027.html" class="btn">Zur Umfrage</a>
             </div>
 
-            <!-- Detailplanung -->
             <div class="card card-lock">
                 <div class="card-icon">🔒</div>
                 <h2>Detailplanung</h2>
@@ -241,7 +213,6 @@
                 <button class="btn" onclick="openDetailplanung()">Zur Detailplanung</button>
             </div>
 
-            <!-- [Archived] Stadtfest 2026 -->
             <div class="card archived">
                 <div class="card-icon">📅</div>
                 <h2>[Archived] Stadtfest 2026</h2>
