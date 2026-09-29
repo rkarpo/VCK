@@ -413,16 +413,13 @@
             });
         }
 
+        // Löschen ohne Passwort-Abfrage
         function deleteVote(key, name) {
-            const password = prompt(`Möchtest du den Eintrag von "${name}" wirklich löschen?\n\nBitte gib das Admin-Passwort ein:`);
-            if (password === null) return;
-            
-            if (password === "VCK") {
+            const confirmDelete = confirm(`Möchtest du den Eintrag von "${name}" wirklich löschen?`);
+            if (confirmDelete) {
                 votesRef.child(key).remove()
                     .then(() => alert(`Eintrag von "${name}" gelöscht.`))
                     .catch((error) => alert("Fehler beim Löschen: " + error.message));
-            } else {
-                alert("Falsches Passwort!");
             }
         }
 
